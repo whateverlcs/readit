@@ -9,7 +9,7 @@ namespace readit
     /// </summary>
     public partial class App : Application
     {
-        private static IConfigurationRoot config;
+        public static IConfigurationRoot config;
 
         public App()
         {

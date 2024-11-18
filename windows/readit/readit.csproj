@@ -34,11 +34,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EntityFramework_DB\EntityFramework_DB.csproj" />
+    <Folder Include="Models\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <ProjectReference Include="..\EntityFramework_DB\EntityFramework_DB.csproj" />
   </ItemGroup>
 
   <ItemGroup>
