@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <None Remove="appsettings.json" />
+    <None Remove="Images\alert.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +39,10 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\alert.png" />
   </ItemGroup>
 
 </Project>
