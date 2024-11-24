@@ -55,7 +55,7 @@ public partial class ReaditContext : DbContext
     public virtual DbSet<VisualizacoesObra> VisualizacoesObras { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    => optionsBuilder.UseSqlServer(Global.ConnectionString);
+        => optionsBuilder.UseSqlServer(Global.ConnectionString);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -448,7 +448,6 @@ public partial class ReaditContext : DbContext
 
             entity.HasOne(d => d.Img).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.ImgId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsuarioImagens");
         });
 

@@ -17,7 +17,7 @@ public partial class Usuario
 
     public bool UsuAdministrador { get; set; }
 
-    public int ImgId { get; set; }
+    public int? ImgId { get; set; }
 
     public virtual ICollection<AvaliacoesObra> AvaliacoesObras { get; set; } = new List<AvaliacoesObra>();
 
@@ -29,7 +29,7 @@ public partial class Usuario
 
     public virtual ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
 
-    public virtual Imagen Img { get; set; } = null!;
+    public virtual Imagen? Img { get; set; }
 
     public virtual ICollection<Obra> Obras { get; set; } = new List<Obra>();
 

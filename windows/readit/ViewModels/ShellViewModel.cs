@@ -1,5 +1,4 @@
 ﻿using Caliburn.Micro;
-using readit.Controls;
 using readit.Data;
 
 namespace readit.ViewModels
@@ -19,7 +18,7 @@ namespace readit.ViewModels
             }
 
             ActiveView.Parent = this;
-            _ = ActiveView.OpenItem(new LoginViewModel());
+            _ = ActiveView.OpenItem(new CadastroViewModel());
         }
     }
 }
