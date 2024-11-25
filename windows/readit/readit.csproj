@@ -16,6 +16,7 @@
     <None Remove="Fonts\Roboto-Medium.ttf" />
     <None Remove="Fonts\Roboto.ttf" />
     <None Remove="Images\alert.png" />
+    <None Remove="Images\login-image.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,6 +59,7 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\alert.png" />
+    <Resource Include="Images\login-image.png" />
   </ItemGroup>
 
 </Project>

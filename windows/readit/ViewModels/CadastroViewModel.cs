@@ -2,7 +2,7 @@
 using readit.Controls;
 using readit.Data;
 using readit.Models;
-using System.Net.Mail;
+using System.Globalization;
 using System.Windows;
 
 namespace readit.ViewModels
@@ -93,7 +93,7 @@ namespace readit.ViewModels
             }
         }
 
-        private string _corMsgInfo;
+        private string _corMsgInfo = "#000000";
 
         public string CorMsgInfo
         {
@@ -117,6 +117,8 @@ namespace readit.ViewModels
             }
         }
 
+        private ControlPrincipal cp = new ControlPrincipal();
+
         private ControlLogs clog = new ControlLogs();
 
         private DBConnection db = new DBConnection();
@@ -135,7 +137,7 @@ namespace readit.ViewModels
         {
             try
             {
-                List<string> erros = ValidarCampos();
+                List<string> erros = cp.ValidarCampos(NomeCompleto, Apelido, Senha, Email);
 
                 if (erros.Count > 0)
                 {
@@ -151,7 +153,7 @@ namespace readit.ViewModels
 
                 bool sucesso = db.CadastrarUsuario(new Usuario
                 {
-                    Nome = NomeCompleto,
+                    Nome = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(NomeCompleto),
                     Apelido = Apelido,
                     Email = Email,
                     Senha = BC.EnhancedHashPassword(Senha, 13),
@@ -202,19 +204,6 @@ namespace readit.ViewModels
                     ExibirMensagem = false;
                 });
             }
-        }
-
-        public List<string> ValidarCampos()
-        {
-            List<string> erros = [];
-
-            if (NomeCompleto.Length > 100) { erros.Add("O Nome Completo não pode ser maior do que 100 caracteres."); }
-            if (Apelido.Length > 50) { erros.Add("O Apelido não pode ser maior do que 50 caracteres."); }
-            if (Senha.Length > 255) { erros.Add("A Senha não pode ser maior do que 255 caracteres."); }
-            if (Email.Length > 100) { erros.Add("O Email não pode ser maior do que 100 caracteres."); }
-            try { var mailAddress = new MailAddress(Email); } catch (FormatException) { erros.Add("O e-mail inserido não é um e-mail válido."); }
-
-            return erros;
         }
 
         public void VoltarLogin()

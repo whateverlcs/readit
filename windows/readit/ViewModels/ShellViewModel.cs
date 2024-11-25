@@ -18,7 +18,7 @@ namespace readit.ViewModels
             }
 
             ActiveView.Parent = this;
-            _ = ActiveView.OpenItem(new CadastroViewModel());
+            _ = ActiveView.OpenItem(new LoginViewModel());
         }
     }
 }
