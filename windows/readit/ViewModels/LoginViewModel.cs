@@ -136,7 +136,14 @@ namespace readit.ViewModels
 
                     _ = ExibirMensagemFlashAsync("Informação", [$"Bem vindo, {usuario.Nome}!"]);
                     Thread.Sleep(2000);
-                    _ = ActiveView.OpenItem(new PaginaInicialViewModel());
+
+                    Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        IWindowManager windowManager = new WindowManager();
+                        windowManager.ShowWindowAsync(new ShellMainViewModel(), null, null);
+
+                        Application.Current.MainWindow.Close();
+                    });
                 }
                 else
                 {
