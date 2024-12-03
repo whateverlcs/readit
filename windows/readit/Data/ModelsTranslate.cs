@@ -21,9 +21,42 @@ namespace readit.Data
             return usu;
         }
 
+        public ef.Imagen ImagemModelToUsuarioDB(Imagens imagem)
+        {
+            ef.Imagen img = new ef.Imagen
+            {
+                ImgId = imagem.Id,
+                ImgFormato = imagem.Formato,
+                ImgDataInclusao = imagem.DataInclusao,
+                ImgDataAtualizacao = imagem.DataAtualizacao,
+                ImgImagem = imagem.Imagem,
+                ImgTipo = imagem.Tipo
+            };
+
+            return img;
+        }
+
+        public ef.Obra ObraModelToUsuarioDB(Obras obra)
+        {
+            ef.Obra ob = new ef.Obra
+            {
+                ObsId = obra.Id,
+                ObsNomeObra = obra.NomeObra,
+                ObsStatus = obra.Status,
+                ObsTipo = obra.Tipo,
+                ObsDescricao = obra.Descricao,
+                ObsDataPublicacao = obra.DataPublicacao,
+                ObsDataAtualizacao = obra.DataAtualizacao,
+                UsuId = obra.UsuarioId,
+                ImgId = obra.ImagemId
+            };
+
+            return ob;
+        }
+
         public List<Usuario> UsuariosDBToModel(ef.Usuario[] usuariosDB)
         {
-            List<Usuario> listaUsuarios = new List<Usuario>();
+            List<Usuario> listaUsuarios = [];
 
             foreach (var usuDB in usuariosDB)
             {
@@ -42,6 +75,49 @@ namespace readit.Data
             }
 
             return listaUsuarios;
+        }
+
+        public List<Obras> ObrasDBToModel(ef.Obra[] obrasDB)
+        {
+            List<Obras> listaObras = [];
+
+            foreach (var obraDB in obrasDB)
+            {
+                Obras obra = new Obras
+                {
+                    Id = obraDB.ObsId,
+                    NomeObra = obraDB.ObsNomeObra,
+                    Status = obraDB.ObsStatus,
+                    Tipo = obraDB.ObsTipo,
+                    Descricao = obraDB.ObsDescricao,
+                    DataAtualizacao = obraDB.ObsDataAtualizacao,
+                    DataPublicacao = obraDB.ObsDataPublicacao,
+                    ImagemId = obraDB.ImgId,
+                    UsuarioId = obraDB.UsuId
+                };
+
+                listaObras.Add(obra);
+            }
+
+            return listaObras;
+        }
+
+        public List<Generos> GenerosDBToModel(ef.Genero[] generosDB)
+        {
+            List<Generos> listaGeneros = [];
+
+            foreach (var generoDB in generosDB)
+            {
+                Generos genero = new Generos
+                {
+                    Id = generoDB.GnsId,
+                    Nome = generoDB.GnsNome,
+                };
+
+                listaGeneros.Add(genero);
+            }
+
+            return listaGeneros;
         }
     }
 }

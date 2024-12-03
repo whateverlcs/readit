@@ -114,6 +114,21 @@ namespace readit.ViewModels
         {
             try
             {
+#if DEBUG
+                Global.UsuarioLogado = db.BuscarUsuarioPorEmail(App.GetSetting("loginAdm")).FirstOrDefault();
+
+                _ = ExibirMensagemFlashAsync("Informação", [$"Bem vindo, {Global.UsuarioLogado.Nome}!"]);
+                Thread.Sleep(2000);
+
+                Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    IWindowManager windowManager = new WindowManager();
+                    windowManager.ShowWindowAsync(new ShellMainViewModel(), null, null);
+
+                    Application.Current.MainWindow.Close();
+                });
+#else
+
                 List<string> erros = cp.ValidarCampos("", "", Senha, Email);
 
                 if (erros.Count > 0)
@@ -150,6 +165,7 @@ namespace readit.ViewModels
                     _ = ExibirMensagemFlashAsync("Erro", ["A senha inserida está incorreta, favor tentar novamente."]);
                     ManterEmail = true;
                 }
+#endif
             }
             catch (Exception e)
             {

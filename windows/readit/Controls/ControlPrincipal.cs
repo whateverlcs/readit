@@ -1,4 +1,5 @@
-﻿using System.Net.Mail;
+﻿using System.IO;
+using System.Net.Mail;
 
 namespace readit.Controls
 {
@@ -15,6 +16,11 @@ namespace readit.Controls
             try { if (!string.IsNullOrEmpty(email)) { var mailAddress = new MailAddress(email); } } catch (FormatException) { erros.Add("O e-mail inserido não é um e-mail válido."); }
 
             return erros;
+        }
+
+        public byte[] ConvertImageToByteArray(string imagePath)
+        {
+            return File.ReadAllBytes(imagePath);
         }
     }
 }

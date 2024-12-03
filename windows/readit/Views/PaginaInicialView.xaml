@@ -15,18 +15,21 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left" Background="#14213D" Width="70" VerticalAlignment="Stretch">
-            <TextBlock Grid.Column="1" Grid.Row="1" Text="READ&#10;  IT" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" HorizontalAlignment="Center" FontSize="20" Margin="0 20 0 60" />
+            <TextBlock Grid.Column="1" Grid.Row="1" Text="READ&#10;  IT" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" HorizontalAlignment="Center" FontSize="20" Margin="0 20 0 40" />
             <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
                 <materialDesign:PackIcon Kind="Home" Width="27" Height="30" />
+            </Button>
+            <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}">
+                <materialDesign:PackIcon Kind="PlusCircleOutline" Width="27" Height="30" />
             </Button>
             <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
                 <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
             </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuPaginaObra, Converter={StaticResource VisibilityConverter}}">
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
                 <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
             </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="{Binding ExibirMenuPaginaObra, Converter={StaticResource VisibilityConverter}}" />
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuPaginaObra, Converter={StaticResource VisibilityConverter}}">
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
                 <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
             </Button>
             <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">

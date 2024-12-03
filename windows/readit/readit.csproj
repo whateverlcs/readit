@@ -17,6 +17,7 @@
     <None Remove="Fonts\Roboto.ttf" />
     <None Remove="Images\alert.png" />
     <None Remove="Images\login-image.png" />
+    <None Remove="Images\upload-image.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,6 +61,7 @@
     </Resource>
     <Resource Include="Images\alert.png" />
     <Resource Include="Images\login-image.png" />
+    <Resource Include="Images\upload-image.png" />
   </ItemGroup>
 
 </Project>

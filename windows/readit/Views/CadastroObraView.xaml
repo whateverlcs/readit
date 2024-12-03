@@ -1,0 +1,145 @@
+﻿<UserControl x:Class="readit.Views.CadastroObraView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:readit.Views"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Background="#14171C"
+             FontFamily="pack://application:,,,/Fonts/#Roboto"
+             mc:Ignorable="d"
+             cal:Bind.AtDesignTime="True"
+             d:DesignHeight="1000" d:DesignWidth="1140">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+    </UserControl.Resources>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="70" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Orientation="Vertical" HorizontalAlignment="Left" Background="#14213D" Width="70" VerticalAlignment="Stretch">
+                <TextBlock Grid.Column="1" Grid.Row="1" Text="READ&#10;  IT" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" HorizontalAlignment="Center" FontSize="20" Margin="0 20 0 40" />
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                    <materialDesign:PackIcon Kind="Home" Width="27" Height="30" />
+                </Button>
+                <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}">
+                    <materialDesign:PackIcon Kind="PlusCircleOutline" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                    <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
+                    <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
+                    <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                    <materialDesign:PackIcon Kind="Account" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                    <materialDesign:PackIcon Kind="Power" Width="27" Height="30" />
+                </Button>
+            </StackPanel>
+
+            <Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Background="#14213D" MaxHeight="700" MaxWidth="950">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="40" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="70" />
+                    <RowDefinition Height="70" />
+                    <RowDefinition Height="70" />
+                    <RowDefinition Height="70" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="180" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="70" />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Text="CADASTRAR OBRAS" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <Border Grid.Column="1" Grid.Row="3" Grid.RowSpan="4" Background="#29446B" CornerRadius="20" BorderBrush="White" BorderThickness="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="200" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+                        <Image Source="{Binding ImagemSelecionada, Mode=TwoWay}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="200" Height="200" />
+                        <TextBlock x:Name="TxtUploadFotoObra" Grid.Column="1" Grid.Row="2" Text="Realizar Upload da Foto da Obra" FontSize="15" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Button x:Name="SelecionarImagem" Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" BorderBrush="Transparent" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="280" />
+                    </Grid>
+                </Border>
+
+                <materialDesign:AutoSuggestBox
+                  Grid.Column="3" Grid.Row="3"
+                  VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                  FontSize="15" Height="60"
+                  Background="White"
+                  materialDesign:HintAssist.Hint="Nome da Obra"
+                  materialDesign:TextFieldAssist.HasClearButton="True"
+                  DropDownElevation="Dp0"
+                  Style="{StaticResource MaterialDesignOutlinedAutoSuggestBox}"
+                  Suggestions="{Binding ListaObras}"
+                  DisplayMember="NomeObra"
+                  Text="{Binding ObraDigitada, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                  IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}"
+                  ValueMember="NomeObra"
+                 />
+
+                <ComboBox x:Name="Generos" Style="{StaticResource MaterialDesignOutlinedComboBox}" Grid.Column="3" Grid.Row="4" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Gêneros" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" IsEditable="True" StaysOpenOnEdit="True">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Nome}"
+                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                              cal:Message.Attach="[Event Checked] = [Action AtualizarGenerosSelecionadosDisplay];
+                              [Event Unchecked] = [Action AtualizarGenerosSelecionadosDisplay]" cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=Generos}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <ComboBox.Text>
+                        <!-- Exibe os itens selecionados -->
+                        <Binding Path="GenerosSelecionadosDisplay" Mode="TwoWay" />
+                    </ComboBox.Text>
+                    <ComboBox.ItemsSource>
+                        <Binding Path="ListaGeneros" />
+                    </ComboBox.ItemsSource>
+                </ComboBox>
+
+                <ComboBox x:Name="Status" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding ListaStatus}" DisplayMemberPath="Nome" SelectedItem="{Binding StatusSelecionado, Mode=TwoWay}" Grid.Column="3" Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Status" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+                <ComboBox x:Name="Tipo" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding ListaTipos}" DisplayMemberPath="Nome" SelectedItem="{Binding TipoSelecionado, Mode=TwoWay}" Grid.Column="3" Grid.Row="6" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Tipo" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+                <TextBox x:Name="DescricaoObra" Style="{StaticResource MaterialDesignOutlinedTextBox}" TextWrapping="Wrap" AcceptsReturn="True" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" FontSize="15" Background="White" materialDesign:ButtonAssist.CornerRadius="10" materialDesign:HintAssist.Hint="Descrição da Obra" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+
+                <Button x:Name="CadastrarObra" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Grid.Column="3" Grid.Row="10" VerticalAlignment="Top" HorizontalAlignment="Right" Width="350" Height="60" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" materialDesign:ButtonAssist.CornerRadius="10" >
+                    <StackPanel Orientation="Horizontal">
+                        <ProgressBar Width="20" Height="20" Style="{DynamicResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Value="33" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"/>
+                        <TextBlock Text="Cadastrar Obra" FontSize="18" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+            <materialDesign:Snackbar Grid.Column="3" Grid.ColumnSpan="1" Grid.Row="0" x:Name="SnackbarFive" Background="{Binding CorMsgInfo, Mode=TwoWay}" ActionButtonPlacement="Inline" HorizontalAlignment="Stretch" VerticalAlignment="Top" IsActive="{Binding ExibirMensagem, Mode=TwoWay}" Width="400" Height="90">
+                <materialDesign:SnackbarMessage Content="{Binding MsgInfo, Mode=TwoWay}" />
+            </materialDesign:Snackbar>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

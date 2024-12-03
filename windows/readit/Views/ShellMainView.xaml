@@ -7,7 +7,7 @@
         xmlns:cal="http://www.caliburnproject.org"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         mc:Ignorable="d"
-        Title="READ-IT" WindowState="Maximized" ResizeMode="CanResize" WindowStyle="None" WindowTitleBrush="#14213D" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        Title="READ-IT" MinWidth="1024" MinHeight="900" WindowState="Maximized" ResizeMode="CanResize" WindowStyle="None" WindowTitleBrush="#14213D" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <Grid>
         <ContentControl x:Name="ActiveItem" Margin="0"/>
     </Grid>
