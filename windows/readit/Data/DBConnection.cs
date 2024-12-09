@@ -94,8 +94,70 @@ namespace readit.Data
             }
             catch (Exception e)
             {
-                clog.RealizarLogExcecao(e.ToString(), "BuscarObrasPorId()");
+                clog.RealizarLogExcecao(e.ToString(), "BuscarObrasPorId(int? idObra)");
                 return new List<Obras>();
+            }
+        }
+
+        public List<CapitulosObra> BuscarCapituloObrasPorIds(List<int> idsObra)
+        {
+            try
+            {
+                ef.Models.CapitulosObra[] capitulosObrasDB;
+
+                if (idsObra.Count > 0)
+                {
+                    capitulosObrasDB = (from c in context.CapitulosObras where idsObra.Contains(c.ObsId) select c).ToArray();
+                }
+                else
+                {
+                    capitulosObrasDB = (from c in context.CapitulosObras select c).ToArray();
+                }
+
+                List<CapitulosObra> listaCapitulosObras = new List<CapitulosObra>();
+
+                foreach (var capObra in md.CapitulosObrasDBToModel(capitulosObrasDB.ToArray()))
+                {
+                    listaCapitulosObras.Add(capObra);
+                }
+
+                return listaCapitulosObras;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarCapituloObrasPorIds(List<int> idsObra)");
+                return new List<CapitulosObra>();
+            }
+        }
+
+        public List<PaginasCapitulo> BuscarPaginasCapituloPorIds(List<int> idsCap)
+        {
+            try
+            {
+                ef.Models.PaginasCapitulo[] paginasCapituloDB;
+
+                if (idsCap.Count > 0)
+                {
+                    paginasCapituloDB = (from p in context.PaginasCapitulos where idsCap.Contains(p.CpoId) select p).ToArray();
+                }
+                else
+                {
+                    paginasCapituloDB = (from p in context.PaginasCapitulos select p).ToArray();
+                }
+
+                List<PaginasCapitulo> listaPaginasCapitulo = new List<PaginasCapitulo>();
+
+                foreach (var pagCap in md.PaginasCapituloDBToModel(paginasCapituloDB.ToArray()))
+                {
+                    listaPaginasCapitulo.Add(pagCap);
+                }
+
+                return listaPaginasCapitulo;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarPaginasCapituloPorIds(List<int> idsCap)");
+                return new List<PaginasCapitulo>();
             }
         }
 
@@ -197,6 +259,41 @@ namespace readit.Data
             catch (Exception e)
             {
                 clog.RealizarLogExcecao(e.ToString(), "CadastrarObra(Obras obra, Imagens imagem, List<Generos> listaGeneros)");
+                transaction.Rollback();
+                return false;
+            }
+        }
+
+        public bool CadastrarCapitulos(List<CapitulosObra> listaCapitulosObra)
+        {
+            using var transaction = context.Database.BeginTransaction();
+
+            try
+            {
+                foreach (var capObra in listaCapitulosObra)
+                {
+                    var capObraDB = md.CapitulosObraDBToModel(capObra);
+
+                    context.Entry(capObraDB).State = capObraDB.CpoId == 0 ? EntityState.Added : EntityState.Modified;
+                    context.SaveChanges();
+
+                    foreach (var paginaObra in capObra.ListaPaginas)
+                    {
+                        paginaObra.CapituloId = capObraDB.CpoId;
+
+                        var pagObraDB = md.PaginasCapituloDBToModel(paginaObra);
+
+                        context.Entry(pagObraDB).State = pagObraDB.PgcId == 0 ? EntityState.Added : EntityState.Modified;
+                        context.SaveChanges();
+                    }
+                }
+
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "CadastrarCapitulos(List<CapitulosObra> listaCapitulosObra)");
                 transaction.Rollback();
                 return false;
             }

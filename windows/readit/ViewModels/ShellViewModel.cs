@@ -1,14 +1,20 @@
 ﻿using Caliburn.Micro;
+using readit.Controls;
 using readit.Data;
 
 namespace readit.ViewModels
 {
     public class ShellViewModel : Conductor<IScreen>.Collection.OneActive
     {
+        private ControlPrincipal cp = new ControlPrincipal();
         private DBConnection db = new DBConnection();
 
         public ShellViewModel()
         {
+            ActiveView.Parent = this;
+
+            cp.CriarPastaControle();
+
             db.RealizarConexaoDB();
 
             if (!db.TestarConexaoDB())
@@ -17,7 +23,6 @@ namespace readit.ViewModels
                 return;
             }
 
-            ActiveView.Parent = this;
             _ = ActiveView.OpenItem(new LoginViewModel());
         }
     }

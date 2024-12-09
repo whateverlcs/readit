@@ -54,6 +54,35 @@ namespace readit.Data
             return ob;
         }
 
+        public ef.CapitulosObra CapitulosObraDBToModel(CapitulosObra capObra)
+        {
+            ef.CapitulosObra capObraDB = new ef.CapitulosObra
+            {
+                CpoId = capObra.Id,
+                CpoNumeroCapitulo = capObra.NumeroCapitulo,
+                CpoDataPublicacao = capObra.DataPublicacao,
+                CpoDataAtualizacao = capObra.DataAtualizacao,
+                UsuId = capObra.UsuarioId,
+                ObsId = capObra.ObraId
+            };
+
+            return capObraDB;
+        }
+
+        public ef.PaginasCapitulo PaginasCapituloDBToModel(PaginasCapitulo pagCap)
+        {
+            ef.PaginasCapitulo pagCapDB = new ef.PaginasCapitulo
+            {
+                PgcId = pagCap.Id,
+                PgcNumeroPagina = pagCap.NumeroPagina,
+                PgcPagina = pagCap.Pagina,
+                PgcTamanho = pagCap.Tamanho,
+                CpoId = pagCap.CapituloId
+            };
+
+            return pagCapDB;
+        }
+
         public List<Usuario> UsuariosDBToModel(ef.Usuario[] usuariosDB)
         {
             List<Usuario> listaUsuarios = [];
@@ -100,6 +129,49 @@ namespace readit.Data
             }
 
             return listaObras;
+        }
+
+        public List<CapitulosObra> CapitulosObrasDBToModel(ef.CapitulosObra[] capituloObrasDB)
+        {
+            List<CapitulosObra> listaCapitulosObras = [];
+
+            foreach (var capObraDB in capituloObrasDB)
+            {
+                CapitulosObra capituloObra = new CapitulosObra
+                {
+                    Id = capObraDB.CpoId,
+                    NumeroCapitulo = capObraDB.CpoNumeroCapitulo,
+                    DataPublicacao = capObraDB.CpoDataPublicacao,
+                    DataAtualizacao = capObraDB.CpoDataAtualizacao,
+                    UsuarioId = capObraDB.UsuId,
+                    ObraId = capObraDB.ObsId
+                };
+
+                listaCapitulosObras.Add(capituloObra);
+            }
+
+            return listaCapitulosObras;
+        }
+
+        public List<PaginasCapitulo> PaginasCapituloDBToModel(ef.PaginasCapitulo[] paginasCapituloDB)
+        {
+            List<PaginasCapitulo> listaPaginasCapitulo = [];
+
+            foreach (var pagCapDB in paginasCapituloDB)
+            {
+                PaginasCapitulo paginaCapitulo = new PaginasCapitulo
+                {
+                    Id = pagCapDB.PgcId,
+                    NumeroPagina = pagCapDB.PgcNumeroPagina,
+                    Pagina = pagCapDB.PgcPagina,
+                    Tamanho = pagCapDB.PgcTamanho,
+                    CapituloId = pagCapDB.CpoId
+                };
+
+                listaPaginasCapitulo.Add(paginaCapitulo);
+            }
+
+            return listaPaginasCapitulo;
         }
 
         public List<Generos> GenerosDBToModel(ef.Genero[] generosDB)

@@ -50,7 +50,7 @@
                 <TextBlock Text="Cadastrar" FontSize="18" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </StackPanel>
         </Button>
-        <materialDesign:Snackbar Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="0" x:Name="SnackbarFive" Background="{Binding CorMsgInfo, Mode=TwoWay}" ActionButtonPlacement="Inline" HorizontalAlignment="Stretch" VerticalAlignment="Top" IsActive="{Binding ExibirMensagem, Mode=TwoWay}" Width="500" Height="90">
+        <materialDesign:Snackbar Grid.Column="2" Grid.Row="0" x:Name="SnackbarFive" Background="{Binding CorMsgInfo, Mode=TwoWay}" ActionButtonPlacement="Inline" HorizontalAlignment="Right" VerticalAlignment="Top" IsActive="{Binding ExibirMensagem, Mode=TwoWay}" Height="90">
             <materialDesign:SnackbarMessage Content="{Binding MsgInfo, Mode=TwoWay}" />
         </materialDesign:Snackbar>
     </Grid>

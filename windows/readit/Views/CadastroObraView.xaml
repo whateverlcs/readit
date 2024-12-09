@@ -137,7 +137,7 @@
                     </StackPanel>
                 </Button>
             </Grid>
-            <materialDesign:Snackbar Grid.Column="3" Grid.ColumnSpan="1" Grid.Row="0" x:Name="SnackbarFive" Background="{Binding CorMsgInfo, Mode=TwoWay}" ActionButtonPlacement="Inline" HorizontalAlignment="Stretch" VerticalAlignment="Top" IsActive="{Binding ExibirMensagem, Mode=TwoWay}" Width="400" Height="90">
+            <materialDesign:Snackbar Grid.Column="3" Grid.ColumnSpan="1" Grid.Row="0" x:Name="SnackbarFive" Background="{Binding CorMsgInfo, Mode=TwoWay}" ActionButtonPlacement="Inline" HorizontalAlignment="Left" VerticalAlignment="Top" IsActive="{Binding ExibirMensagem, Mode=TwoWay}" Height="90">
                 <materialDesign:SnackbarMessage Content="{Binding MsgInfo, Mode=TwoWay}" />
             </materialDesign:Snackbar>
         </Grid>
