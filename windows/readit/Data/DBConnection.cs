@@ -21,7 +21,7 @@ namespace readit.Data
 
             try
             {
-                var usuarioDB = md.UsuarioModelToUsuarioDB(usuario);
+                var usuarioDB = md.UsuarioModelToDB(usuario);
 
                 context.Usuarios.Add(usuarioDB);
                 context.SaveChanges();
@@ -192,6 +192,37 @@ namespace readit.Data
             }
         }
 
+        public List<Generos> BuscarGenerosPorNome(string nomeGenero)
+        {
+            try
+            {
+                ef.Models.Genero[] generosDB;
+
+                if (!string.IsNullOrEmpty(nomeGenero))
+                {
+                    generosDB = (from g in context.Generos where g.GnsNome == nomeGenero select g).ToArray();
+                }
+                else
+                {
+                    generosDB = (from g in context.Generos select g).ToArray();
+                }
+
+                List<Generos> listaGeneros = new List<Generos>();
+
+                foreach (var genero in md.GenerosDBToModel(generosDB.ToArray()))
+                {
+                    listaGeneros.Add(genero);
+                }
+
+                return listaGeneros;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarGenerosPorNome(string nomeGenero)");
+                return new List<Generos>();
+            }
+        }
+
         public List<Generos> BuscarGenerosPorObra(int? idObra)
         {
             try
@@ -232,8 +263,8 @@ namespace readit.Data
 
             try
             {
-                var imagemDB = md.ImagemModelToUsuarioDB(imagem);
-                var obraDB = md.ObraModelToUsuarioDB(obra);
+                var imagemDB = md.ImagemModelToDB(imagem);
+                var obraDB = md.ObraModelToDB(obra);
 
                 context.Imagens.Add(imagemDB);
                 context.SaveChanges();
@@ -259,6 +290,28 @@ namespace readit.Data
             catch (Exception e)
             {
                 clog.RealizarLogExcecao(e.ToString(), "CadastrarObra(Obras obra, Imagens imagem, List<Generos> listaGeneros)");
+                transaction.Rollback();
+                return false;
+            }
+        }
+
+        public bool CadastrarGenero(Generos genero)
+        {
+            using var transaction = context.Database.BeginTransaction();
+
+            try
+            {
+                var generoDB = md.GeneroModelToDB(genero);
+
+                context.Entry(generoDB).State = generoDB.GnsId == 0 ? EntityState.Added : EntityState.Modified;
+                context.SaveChanges();
+
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "CadastrarGenero(Generos genero)");
                 transaction.Rollback();
                 return false;
             }

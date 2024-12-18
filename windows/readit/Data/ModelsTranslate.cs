@@ -5,7 +5,7 @@ namespace readit.Data
 {
     public class ModelsTranslate
     {
-        public ef.Usuario UsuarioModelToUsuarioDB(Usuario usuario)
+        public ef.Usuario UsuarioModelToDB(Usuario usuario)
         {
             ef.Usuario usu = new ef.Usuario
             {
@@ -21,7 +21,7 @@ namespace readit.Data
             return usu;
         }
 
-        public ef.Imagen ImagemModelToUsuarioDB(Imagens imagem)
+        public ef.Imagen ImagemModelToDB(Imagens imagem)
         {
             ef.Imagen img = new ef.Imagen
             {
@@ -36,7 +36,18 @@ namespace readit.Data
             return img;
         }
 
-        public ef.Obra ObraModelToUsuarioDB(Obras obra)
+        public ef.Genero GeneroModelToDB(Generos genero)
+        {
+            ef.Genero gen = new ef.Genero
+            {
+                GnsId = genero.Id,
+                GnsNome = genero.Nome,
+            };
+
+            return gen;
+        }
+
+        public ef.Obra ObraModelToDB(Obras obra)
         {
             ef.Obra ob = new ef.Obra
             {
