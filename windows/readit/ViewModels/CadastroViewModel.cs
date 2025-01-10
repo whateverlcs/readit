@@ -1,8 +1,10 @@
 ﻿using Caliburn.Micro;
 using readit.Controls;
 using readit.Data;
+using readit.Enums;
 using readit.Models;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 
 namespace readit.ViewModels
@@ -158,7 +160,13 @@ namespace readit.ViewModels
                     Email = Email,
                     Senha = BC.EnhancedHashPassword(Senha, 13),
                     Administrador = false
-                });
+                },
+                new Imagens
+                {
+                    Imagem = cp.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Images", "profile-default.jpg")),
+                    Formato = Path.GetExtension("../Images/profile-default.jpg"),
+                    Tipo = (byte)EnumObra.TipoImagem.Perfil
+                }, null);
 
                 if (sucesso)
                 {

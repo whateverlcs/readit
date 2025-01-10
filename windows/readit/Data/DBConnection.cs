@@ -15,15 +15,65 @@ namespace readit.Data
 
         private ControlLogs clog = new ControlLogs();
 
-        public bool CadastrarUsuario(Usuario usuario)
+        public bool CadastrarUsuario(Usuario usuario, Imagens imagem, TipoVisualizacaoObraUsuario? tipoVisualizacaoObra)
         {
             using var transaction = context.Database.BeginTransaction();
 
             try
             {
-                var usuarioDB = md.UsuarioModelToDB(usuario);
+                ef.Models.Usuario usuarioDB = new ef.Models.Usuario();
+                ef.Models.Imagen imagemDB = new ef.Models.Imagen();
+                ef.Models.TipoVisualizacaoObraUsuario tipoVisualizacaoObraUsuario = new ef.Models.TipoVisualizacaoObraUsuario();
 
-                context.Usuarios.Add(usuarioDB);
+                if (usuario.Id != 0)
+                {
+                    var usuarioUpdate = (from o in context.Usuarios where o.UsuId == usuario.Id select o).FirstOrDefault();
+
+                    usuarioUpdate.UsuNome = usuario.Nome;
+                    usuarioUpdate.UsuApelido = usuario.Apelido;
+                    usuarioUpdate.UsuSenha = usuario.Senha;
+
+                    if (imagem != null && imagem.Id != 0)
+                    {
+                        var imagemUpdate = (from i in context.Imagens where i.ImgId == imagem.Id select i).FirstOrDefault();
+
+                        imagemUpdate.ImgImagem = imagem.Imagem;
+                        imagemUpdate.ImgFormato = imagem.Formato;
+                        imagemUpdate.ImgDataAtualizacao = DateTime.Now;
+                        imagemDB = imagemUpdate;
+                    }
+
+                    var tipoVisualizacaoUpdate = (from tvou in context.TipoVisualizacaoObraUsuarios where tvou.UsuId == tipoVisualizacaoObra.UsuarioId select tvou).FirstOrDefault();
+
+                    if (tipoVisualizacaoUpdate != null)
+                    {
+                        tipoVisualizacaoUpdate.TvoId = tipoVisualizacaoObra.TipoVisualizacaoObraId;
+                    }
+                    else
+                    {
+                        tipoVisualizacaoUpdate = md.TipoVisualizacaoObraUsuarioModelToDB(tipoVisualizacaoObra);
+                    }
+
+                    context.Entry(tipoVisualizacaoUpdate).State = tipoVisualizacaoUpdate.TvouId == 0 ? EntityState.Added : EntityState.Modified;
+                    context.SaveChanges();
+
+                    usuarioDB = usuarioUpdate;
+                }
+                else
+                {
+                    usuarioDB = md.UsuarioModelToDB(usuario);
+                    imagemDB = md.ImagemModelToDB(imagem);
+                }
+
+                if (imagem != null)
+                {
+                    context.Entry(imagemDB).State = imagemDB.ImgId == 0 ? EntityState.Added : EntityState.Modified;
+                    context.SaveChanges();
+
+                    usuarioDB.ImgId = imagemDB.ImgId;
+                }
+
+                context.Entry(usuarioDB).State = usuarioDB.UsuId == 0 ? EntityState.Added : EntityState.Modified;
                 context.SaveChanges();
 
                 transaction.Commit();
@@ -31,7 +81,7 @@ namespace readit.Data
             }
             catch (Exception e)
             {
-                clog.RealizarLogExcecao(e.ToString(), "CadastrarUsuario(Usuario usuario)");
+                clog.RealizarLogExcecao(e.ToString(), "CadastrarUsuario(Usuario usuario, Imagens imagem)");
                 transaction.Rollback();
                 return false;
             }
@@ -254,6 +304,99 @@ namespace readit.Data
             {
                 clog.RealizarLogExcecao(e.ToString(), "BuscarGenerosPorObra(int? idObra)");
                 return new List<Generos>();
+            }
+        }
+
+        public List<Imagens> BuscarImagemPorId(int idImagem)
+        {
+            try
+            {
+                ef.Models.Imagen[] imagensDB;
+
+                if (idImagem != 0)
+                {
+                    imagensDB = (from i in context.Imagens where i.ImgId == idImagem select i).ToArray();
+                }
+                else
+                {
+                    imagensDB = (from i in context.Imagens select i).ToArray();
+                }
+
+                List<Imagens> listaImagens = new List<Imagens>();
+
+                foreach (var img in md.ImagensDBToModel(imagensDB.ToArray()))
+                {
+                    listaImagens.Add(img);
+                }
+
+                return listaImagens;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarImagemPorId(int idImagem)");
+                return new List<Imagens>();
+            }
+        }
+
+        public List<TipoVisualizacaoObra> BuscarTiposVisualizacaoObraPorId(int idTipoVisualizacao)
+        {
+            try
+            {
+                ef.Models.TipoVisualizacaoObra[] tipoVisualizacaoObraDB;
+
+                if (idTipoVisualizacao != 0)
+                {
+                    tipoVisualizacaoObraDB = (from tvo in context.TipoVisualizacaoObras where tvo.TvoId == idTipoVisualizacao select tvo).ToArray();
+                }
+                else
+                {
+                    tipoVisualizacaoObraDB = (from tvo in context.TipoVisualizacaoObras select tvo).ToArray();
+                }
+
+                List<TipoVisualizacaoObra> listaTiposVisualizacaoObra = new List<TipoVisualizacaoObra>();
+
+                foreach (var tvo in md.TipoVisualizacaoObraDBToModel(tipoVisualizacaoObraDB.ToArray()))
+                {
+                    listaTiposVisualizacaoObra.Add(tvo);
+                }
+
+                return listaTiposVisualizacaoObra;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarTiposVisualizacaoObraPorId(int idTipoVisualizacao)");
+                return new List<TipoVisualizacaoObra>();
+            }
+        }
+
+        public List<TipoVisualizacaoObraUsuario> BuscarTiposVisualizacaoObraUsuarioPorId(int idUsuario)
+        {
+            try
+            {
+                ef.Models.TipoVisualizacaoObraUsuario[] tipoVisualizacaoObraUsuarioDB;
+
+                if (idUsuario != 0)
+                {
+                    tipoVisualizacaoObraUsuarioDB = (from tvou in context.TipoVisualizacaoObraUsuarios where tvou.UsuId == idUsuario select tvou).ToArray();
+                }
+                else
+                {
+                    tipoVisualizacaoObraUsuarioDB = (from tvou in context.TipoVisualizacaoObraUsuarios select tvou).ToArray();
+                }
+
+                List<TipoVisualizacaoObraUsuario> listaTiposVisualizacaoObraUsuario = new List<TipoVisualizacaoObraUsuario>();
+
+                foreach (var tvou in md.TipoVisualizacaoObraUsuarioDBToModel(tipoVisualizacaoObraUsuarioDB.ToArray()))
+                {
+                    listaTiposVisualizacaoObraUsuario.Add(tvou);
+                }
+
+                return listaTiposVisualizacaoObraUsuario;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarTiposVisualizacaoObraUsuarioPorId(int idUsuario)");
+                return new List<TipoVisualizacaoObraUsuario>();
             }
         }
 

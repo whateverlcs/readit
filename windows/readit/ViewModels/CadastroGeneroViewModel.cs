@@ -172,11 +172,6 @@ namespace readit.ViewModels
             }
         }
 
-        public void SelecionarCadastro()
-        {
-            _ = ActiveView.OpenItemMain(new SelecaoCadastroViewModel());
-        }
-
         public void CadastrarGenero()
         {
             AplicarLoading(true);
@@ -255,6 +250,21 @@ namespace readit.ViewModels
         {
             Loading = !loading ? false : true;
             HabilitarCampos = !loading ? true : false;
+        }
+
+        public void SelecionarCadastro()
+        {
+            _ = ActiveView.OpenItemMain(new SelecaoCadastroViewModel());
+        }
+
+        public void PaginaInicial()
+        {
+            _ = ActiveView.OpenItemMain(new PaginaInicialViewModel());
+        }
+
+        public void EditarPerfil()
+        {
+            _ = ActiveView.OpenItemMain(new EditarPerfilViewModel());
         }
     }
 }

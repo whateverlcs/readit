@@ -1,4 +1,5 @@
-﻿using readit.Models;
+﻿using readit.Enums;
+using readit.Models;
 using ef = EntityFramework_DB.Models;
 
 namespace readit.Data
@@ -19,6 +20,18 @@ namespace readit.Data
             };
 
             return usu;
+        }
+
+        public ef.TipoVisualizacaoObraUsuario TipoVisualizacaoObraUsuarioModelToDB(TipoVisualizacaoObraUsuario tipoVisualizacaoObraUsuario)
+        {
+            ef.TipoVisualizacaoObraUsuario tvou = new ef.TipoVisualizacaoObraUsuario
+            {
+                TvouId = tipoVisualizacaoObraUsuario.Id,
+                TvoId = tipoVisualizacaoObraUsuario.TipoVisualizacaoObraId,
+                UsuId = tipoVisualizacaoObraUsuario.UsuarioId,
+            };
+
+            return tvou;
         }
 
         public ef.Imagen ImagemModelToDB(Imagens imagem)
@@ -201,6 +214,66 @@ namespace readit.Data
             }
 
             return listaGeneros;
+        }
+
+        public List<Imagens> ImagensDBToModel(ef.Imagen[] imagensDB)
+        {
+            List<Imagens> listaImagens = [];
+
+            foreach (var imagemDB in imagensDB)
+            {
+                Imagens img = new Imagens
+                {
+                    Id = imagemDB.ImgId,
+                    Imagem = imagemDB.ImgImagem,
+                    Formato = imagemDB.ImgFormato,
+                    DataInclusao = imagemDB.ImgDataInclusao,
+                    DataAtualizacao = imagemDB.ImgDataAtualizacao,
+                    Tipo = imagemDB.ImgTipo,
+                };
+
+                listaImagens.Add(img);
+            }
+
+            return listaImagens;
+        }
+
+        public List<TipoVisualizacaoObra> TipoVisualizacaoObraDBToModel(ef.TipoVisualizacaoObra[] tipoVisualizacaoObraDB)
+        {
+            List<TipoVisualizacaoObra> listaTiposVisualizacaoObra = [];
+
+            foreach (var tvoDB in tipoVisualizacaoObraDB)
+            {
+                TipoVisualizacaoObra tvo = new TipoVisualizacaoObra
+                {
+                    Id = tvoDB.TvoId,
+                    Nome = tvoDB.TvoVisualizacao == (int)EnumObra.TipoVisualizacaoObra.PaginaInteira ? "Página Inteira" : "Por Página",
+                    Visualizacao = tvoDB.TvoVisualizacao,
+                };
+
+                listaTiposVisualizacaoObra.Add(tvo);
+            }
+
+            return listaTiposVisualizacaoObra;
+        }
+
+        public List<TipoVisualizacaoObraUsuario> TipoVisualizacaoObraUsuarioDBToModel(ef.TipoVisualizacaoObraUsuario[] tipoVisualizacaoObraUsuarioDB)
+        {
+            List<TipoVisualizacaoObraUsuario> listaTiposVisualizacaoObraUsuario = [];
+
+            foreach (var tvouDB in tipoVisualizacaoObraUsuarioDB)
+            {
+                TipoVisualizacaoObraUsuario tvou = new TipoVisualizacaoObraUsuario
+                {
+                    Id = tvouDB.TvouId,
+                    UsuarioId = tvouDB.UsuId,
+                    TipoVisualizacaoObraId = tvouDB.TvoId,
+                };
+
+                listaTiposVisualizacaoObraUsuario.Add(tvou);
+            }
+
+            return listaTiposVisualizacaoObraUsuario;
         }
     }
 }

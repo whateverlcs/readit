@@ -20,5 +20,15 @@ namespace readit.ViewModels
         {
             _ = ActiveView.OpenItemMain(new SelecaoCadastroViewModel());
         }
+
+        public void PaginaInicial()
+        {
+            _ = ActiveView.OpenItemMain(new PaginaInicialViewModel());
+        }
+
+        public void EditarPerfil()
+        {
+            _ = ActiveView.OpenItemMain(new EditarPerfilViewModel());
+        }
     }
 }

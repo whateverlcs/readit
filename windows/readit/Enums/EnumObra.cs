@@ -23,5 +23,11 @@
             Perfil = 1,
             Obra = 2
         }
+
+        public enum TipoVisualizacaoObra
+        {
+            PaginaInteira = 1,
+            PorPagina = 2
+        }
     }
 }

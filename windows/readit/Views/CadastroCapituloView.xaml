@@ -30,7 +30,7 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Orientation="Vertical" HorizontalAlignment="Left" Background="#14213D" Width="70" VerticalAlignment="Stretch">
                 <TextBlock Grid.Column="1" Grid.Row="1" Text="READ&#10;  IT" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" HorizontalAlignment="Center" FontSize="20" Margin="0 20 0 40" />
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                <Button x:Name="PaginaInicial" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
                     <materialDesign:PackIcon Kind="Home" Width="27" Height="30" />
                 </Button>
                 <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}">
@@ -46,7 +46,7 @@
                 <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
                     <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
                 </Button>
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
                     <materialDesign:PackIcon Kind="Account" Width="27" Height="30" />
                 </Button>
                 <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">

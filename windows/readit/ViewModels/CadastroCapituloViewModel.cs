@@ -246,5 +246,20 @@ namespace readit.ViewModels
 
             return erros;
         }
+
+        public void SelecionarCadastro()
+        {
+            _ = ActiveView.OpenItemMain(new SelecaoCadastroViewModel());
+        }
+
+        public void PaginaInicial()
+        {
+            _ = ActiveView.OpenItemMain(new PaginaInicialViewModel());
+        }
+
+        public void EditarPerfil()
+        {
+            _ = ActiveView.OpenItemMain(new EditarPerfilViewModel());
+        }
     }
 }
