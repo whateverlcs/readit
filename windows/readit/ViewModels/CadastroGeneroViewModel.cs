@@ -123,7 +123,7 @@ namespace readit.ViewModels
 
         public void PopularGeneros()
         {
-            var generos = db.BuscarGenerosPorObra(null);
+            var generos = db.BuscarGenerosPorObra(null).OrderBy(x => x.Nome);
 
             ListaGeneros = new(generos);
             Generos = new(generos);

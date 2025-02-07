@@ -268,7 +268,7 @@ namespace readit.ViewModels
 
         public void PopularObras()
         {
-            var obras = db.BuscarObrasPorId(null);
+            var obras = db.BuscarObrasPorId(null).OrderBy(x => x.NomeObra);
 
             ListaObras = new(obras);
             Obras = new(obras);
@@ -276,7 +276,7 @@ namespace readit.ViewModels
 
         public void PopularGeneros()
         {
-            var generos = db.BuscarGenerosPorObra(null);
+            var generos = db.BuscarGenerosPorObra(null).OrderBy(x => x.Nome);
 
             ListaGeneros = new(generos);
         }

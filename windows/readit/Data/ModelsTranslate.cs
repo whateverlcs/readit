@@ -155,6 +155,60 @@ namespace readit.Data
             return listaObras;
         }
 
+        public List<SlideshowItem> ObrasSlideShowDBToModel(dynamic[] obrasDB)
+        {
+            List<SlideshowItem> listaObras = [];
+
+            foreach (var obraDB in obrasDB)
+            {
+                SlideshowItem obra = new SlideshowItem
+                {
+                    Title = obraDB.NomeObra,
+                    Chapter = $"Capítulo: {obraDB.UltimoCapitulo.ToString("D2")}",
+                    Description = obraDB.Descricao,
+                    Tags = obraDB.Generos,
+                    BackgroundImageByte = obraDB.Imagem,
+                    FocusedImageByte = obraDB.Imagem,
+                };
+
+                listaObras.Add(obra);
+            }
+
+            return listaObras;
+        }
+
+        public List<PostagensObras> ObrasUltimasAtualizacoesDBToModel(dynamic[] obrasDB)
+        {
+            List<PostagensObras> listaObras = [];
+
+            foreach (var obraDB in obrasDB)
+            {
+                PostagensObras obra = new PostagensObras
+                {
+                    ImageByte = obraDB.Imagem,
+                    Title = obraDB.NomeObra,
+                    StatusNumber = obraDB.Status,
+                };
+
+                obra.ChapterInfos = new List<ChapterInfo>();
+
+                foreach (var cap in obraDB.Capitulos)
+                {
+                    ChapterInfo chap = new ChapterInfo
+                    {
+                        Chapter = $"• Capítulo {cap.Numero.ToString("D2")}",
+                        TimeAgoDate = cap.Data
+                    };
+
+                    obra.ChapterInfos.Add(chap);
+                }
+
+                listaObras.Add(obra);
+            }
+
+            return listaObras;
+        }
+
         public List<CapitulosObra> CapitulosObrasDBToModel(ef.CapitulosObra[] capituloObrasDB)
         {
             List<CapitulosObra> listaCapitulosObras = [];

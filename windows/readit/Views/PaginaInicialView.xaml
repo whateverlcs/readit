@@ -4,40 +4,685 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:readit.Views"
+             xmlns:l="clr-namespace:readit"
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              Background="#14171C"
              FontFamily="pack://application:,,,/Fonts/#Roboto"
              mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="1140">
+             d:DesignHeight="700" d:DesignWidth="1740">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+        <l:BoolToColorConverter x:Key="BoolToColorConverter" />
+        <l:StarConverter x:Key="StarConverter" />
+        <l:ShowCommaVisibilityConverter x:Key="ShowCommaVisibilityConverter" />
+        <l:CenterYConverter x:Key="CenterYConverter" />
+        <Style x:Key="HoverableButtonStyle" TargetType="Button" BasedOn="{StaticResource NoBackgroundButtonStyle}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="LightGray" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HoverableButtonStyleGenres" TargetType="Button" BasedOn="{StaticResource NoBackgroundButtonStyle}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="LightGray" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Gray" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HoverableButtonStyleGenresSlideShow" TargetType="Button" BasedOn="{StaticResource NoBackgroundButtonStyle}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="LightGray" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="White" BorderThickness="1" CornerRadius="5" Width="100" Height="30">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Gray" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
-    <Grid>
-        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left" Background="#14213D" Width="70" VerticalAlignment="Stretch">
-            <TextBlock Grid.Column="1" Grid.Row="1" Text="READ&#10;  IT" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" HorizontalAlignment="Center" FontSize="20" Margin="0 20 0 40" />
-            <Button x:Name="PaginaInicial" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
-                <materialDesign:PackIcon Kind="Home" Width="27" Height="30" />
-            </Button>
-            <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}">
-                <materialDesign:PackIcon Kind="PlusCircleOutline" Width="27" Height="30" />
-            </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
-                <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
-            </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
-                <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
-            </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
-                <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
-            </Button>
-            <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
-                <materialDesign:PackIcon Kind="Account" Width="27" Height="30" />
-            </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
-                <materialDesign:PackIcon Kind="Power" Width="27" Height="30" />
-            </Button>
-        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Menu Lateral -->
+            <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" Orientation="Vertical" HorizontalAlignment="Left" Background="#14213D" Width="70" VerticalAlignment="Stretch">
+                <TextBlock Grid.Column="1" Grid.Row="1" Text="READ&#10;  IT" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" HorizontalAlignment="Center" FontSize="20" Margin="0 20 0 40" />
+                <Button x:Name="PaginaInicial" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Página Inicial">
+                    <materialDesign:PackIcon Kind="Home" Width="27" Height="30" />
+                </Button>
+                <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}" ToolTip="Gerenciar Cadastros">
+                    <materialDesign:PackIcon Kind="PlusCircleOutline" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Procurar Obras">
+                    <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Detalhes da Obra">
+                    <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Bookmarks">
+                    <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
+                </Button>
+                <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Editar Perfil">
+                    <materialDesign:PackIcon Kind="Account" Width="27" Height="30" />
+                </Button>
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Realizar Logoff">
+                    <materialDesign:PackIcon Kind="Power" Width="27" Height="30" />
+                </Button>
+            </StackPanel>
+
+            <ScrollViewer Grid.Column="2" Grid.Row="0" x:Name="MainScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="20" />
+                    </Grid.RowDefinitions>
+                    <!-- Progressbar Slideshow -->
+                    <ProgressBar x:Name="ProgressBarSlideshow"
+                      Width="auto" MaxWidth="1790" Height="auto" MaxHeight="560" BorderBrush="Transparent"
+                      IsIndeterminate="True"
+                      Background="#14213D"
+                      Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"
+                      Loaded="ProgressBar_Loaded" ClipToBounds="True"
+                      />
+
+                    <!-- Slideshow -->
+                    <Grid ClipToBounds="True" Width="auto" MaxWidth="1790" Loaded="OnGridLoaded" Visibility="{Binding ExibirSecoes, Mode=TwoWay}" >
+                        <!-- Configuração de colunas e linhas -->
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Imagem de fundo desfocada -->
+                        <Grid Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                        Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}">
+                            <Viewbox Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Image Source="{Binding CurrentItem.BackgroundImage}"
+                                Opacity="0.5"
+                                RenderOptions.BitmapScalingMode="HighQuality">
+                                    <Image.Effect>
+                                        <BlurEffect Radius="5" />
+                                    </Image.Effect>
+                                </Image>
+                            </Viewbox>
+                        </Grid>
+
+                        <!-- Texto e informações do slideshow -->
+                        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="70" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="70" />
+                                <RowDefinition Height="60" />
+                                <RowDefinition Height="80" />
+                                <RowDefinition Height="60" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="60" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="175" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding CurrentItem.Chapter}"
+                               FontSize="32" FontWeight="Bold" Foreground="White" />
+                            <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding CurrentItem.Title}"
+                               FontSize="24" Foreground="White" />
+                            <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding CurrentItem.Description}"
+                               FontSize="14" Foreground="White" TextWrapping="Wrap" />
+                            <!-- Exibe as tags na horizontal -->
+                            <ItemsControl Grid.Column="1" Grid.Row="5" ItemsSource="{Binding CurrentItem.Tags}">
+                                <ItemsControl.ItemsPanel>
+                                    <!-- Define o painel para organizar os itens lado a lado -->
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.GenreClickSlideShowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}" Style="{StaticResource HoverableButtonStyleGenresSlideShow}"
+                                        Margin="0 0 3 0">
+                                            <TextBlock Text="{Binding}"
+                                            FontSize="16"  />
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Grid.Column="1" Grid.Row="6" Content="Inicie a Leitura"
+                            Width="150" Height="40"
+                            Background="#14213D"
+                            Foreground="White"
+                            BorderBrush="{x:Null}"
+                            FontSize="14"
+                            HorizontalAlignment="Left"
+                            cal:Message.Attach="[Event Click] = [Action IniciarLeituraObra()]"/>
+
+                            <!-- Imagem destacada com contorno -->
+                            <Grid Grid.Row="0" Grid.RowSpan="8" Grid.Column="3" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                <Canvas>
+                                    <!-- Borda nas Diagonais -->
+                                    <Path Stroke="White" StrokeThickness="3">
+                                        <Path.Data>
+                                            <PathGeometry>
+                                                <PathFigure StartPoint="50,0">
+                                                    <!-- Linha superior diagonal -->
+                                                    <LineSegment Point="0,600" />
+                                                    <!-- Linha inferior diagonal -->
+                                                    <LineSegment Point="400,600" />
+                                                    <!-- Linha superior diagonal -->
+                                                    <LineSegment Point="450,0" />
+                                                    <!-- Fecha a figura -->
+                                                    <LineSegment Point="50,0" />
+                                                </PathFigure>
+                                            </PathGeometry>
+                                        </Path.Data>
+                                    </Path>
+
+                                    <!-- Imagem recortada com as diagonais -->
+                                    <Image Source="{Binding CurrentItem.FocusedImage}" Stretch="UniformToFill" Canvas.Left="0" Canvas.Top="0" Width="450" Height="600">
+                                        <Image.Clip>
+                                            <PathGeometry>
+                                                <PathFigure StartPoint="50,0">
+                                                    <!-- Linha superior diagonal descendo -->
+                                                    <LineSegment Point="0,600" />
+                                                    <!-- Linha inferior subindo -->
+                                                    <LineSegment Point="400,600" />
+                                                    <!-- Linha superior diagonal subindo -->
+                                                    <LineSegment Point="450,0" />
+                                                    <!-- Fecha a figura -->
+                                                    <LineSegment Point="50,0" />
+                                                </PathFigure>
+                                            </PathGeometry>
+                                        </Image.Clip>
+                                    </Image>
+                                </Canvas>
+                            </Grid>
+
+
+                            <!-- Navigation circles -->
+                            <ItemsControl ItemsSource="{Binding Items}" Grid.Row="7" Grid.Column="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 5 5">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.NavigateToCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Width="20" Height="20"
+                                            Background="Transparent" BorderThickness="0">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Grid>
+                                                                    <Ellipse Stroke="White"
+                                                                    StrokeThickness="2"
+                                                                    Fill="Transparent" />
+                                                                    <Ellipse Fill="White"
+                                                                    Visibility="{Binding IsActive, Converter={StaticResource VisibilityConverter}}" />
+                                                                    <!-- Círculo de hover que aparece quando o mouse está sobre o botão -->
+                                                                    <Ellipse x:Name="HoverCircle"
+                                                                     Fill="Gray"
+                                                                     Opacity="0"
+                                                                     HorizontalAlignment="Center"
+                                                                     VerticalAlignment="Center"
+                                                                     Width="20" Height="20" />
+                                                                </Grid>
+                                                                <ControlTemplate.Triggers>
+                                                                    <!-- Efeito de hover -->
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <!-- A opacidade aumenta quando o mouse passa sobre o botão -->
+                                                                        <Setter TargetName="HoverCircle" Property="Opacity" Value="0.3"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Progressbar Últimas Atualizações -->
+                    <ProgressBar x:Name="ProgressBarUltimasAtualizacoes"
+                      Grid.Row="2" Width="1200" Height="500" VerticalAlignment="Top" BorderBrush="Transparent"
+                      HorizontalAlignment="Left"
+                      IsIndeterminate="True"
+                      Background="#14213D"
+                      Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"
+                      Loaded="ProgressBar_Loaded"
+                      />
+
+                    <!-- Últimas atualizações -->
+                    <Grid Grid.Row="2" Background="#14213D" Width="1200" HorizontalAlignment="Left" Loaded="Grid_Loaded" Visibility="{Binding ExibirSecoes, Mode=TwoWay}">
+                        <!-- Definição das linhas e colunas -->
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="50" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Título -->
+                        <TextBlock Text="Últimas atualizações"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Grid.Row="1"
+                           Grid.Column="1"
+                           Foreground="White"/>
+                        <ItemsControl x:Name="ParentItemsControl" ItemsSource="{Binding PaginatedList}" Grid.Row="3" Grid.Column="1">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <!-- Define o layout com 2 colunas -->
+                                    <UniformGrid Columns="2" Rows="7" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <!-- Controle da distância entre as colunas -->
+                                            <ColumnDefinition Width="160" />
+                                            <!-- Imagem -->
+                                            <ColumnDefinition Width="1*" />
+                                            <!-- Título e informações -->
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="20" />
+                                            <RowDefinition Height="150" />
+                                            <RowDefinition Height="30" />
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Imagem -->
+                                        <Button Command="{Binding DataContext.NavigateToDetailsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                        Style="{StaticResource NoBackgroundButtonStyle}" Grid.Row="0" Grid.RowSpan="4" VerticalAlignment="Top" HorizontalAlignment="Stretch" MaxWidth="130">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Grid>
+                                                        <Image x:Name="HoverImage"
+                                                           Source="{Binding Image}"
+                                                           MaxHeight="190"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Stretch"
+                                                           SnapsToDevicePixels="True"
+                                                           Stretch="UniformToFill"/>
+
+                                                        <!-- Camada para hover -->
+                                                        <Border x:Name="HoverOverlay"
+                                                        Background="White"
+                                                        Opacity="0"
+                                                        Width="130"
+                                                        Height="190"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                    <ControlTemplate.Triggers>
+                                                        <!-- Trigger para hover -->
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="HoverOverlay" Property="Opacity" Value="0.1"/>
+                                                            <Setter TargetName="HoverOverlay" Property="Background" Value="LightGray"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+
+                                        <!-- Título -->
+                                        <Button Command="{Binding DataContext.NavigateToDetailsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}"
+                                        FontSize="18"
+                                        FontWeight="Bold"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Left"
+                                        Grid.Column="1"
+                                        Grid.Row="0"
+                                        Style="{StaticResource HoverableButtonStyle}">
+                                            <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                                        </Button>
+
+                                        <!-- Capítulos e tempos de postagem próximos ao título -->
+                                        <ItemsControl ItemsSource="{Binding ChapterInfos}" Grid.Column="1" Grid.Row="2">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <!-- Exibe os capítulos horizontalmente -->
+                                                    <StackPanel Orientation="Vertical" VerticalAlignment="Top" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.NavigateToChapterCommand, ElementName=ParentItemsControl}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource HoverableButtonStyle}" HorizontalAlignment="Left">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="90" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <!-- Capítulo -->
+                                                            <TextBlock Text="{Binding Chapter}"
+                                                       FontSize="16"
+                                                       FontWeight="Bold"
+                                                       Grid.Column="0" />
+
+                                                            <!-- Tempo de postagem -->
+                                                            <TextBlock Text="{Binding TimeAgo}"
+                                                       FontSize="16"
+                                                       Foreground="Gray"
+                                                       Grid.Column="2" />
+                                                        </Grid>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Status -->
+                                        <Button Content="{Binding Status}"
+                                            Style="{StaticResource MaterialDesignRaisedLightButton}"
+                                            IsEnabled="False"
+                                            Background="Black"
+                                            Foreground="White"
+                                            FontSize="14"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Bottom"
+                                            Grid.Column="1"
+                                            Grid.Row="2"
+                                            materialDesign:ButtonAssist.CornerRadius="10"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <!-- Botões de paginação -->
+                        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Button Command="{Binding PreviousPageCommand}"
+                            Content="Anterior"
+                            Margin="10,0"
+                            Background="#14213D"
+                            Foreground="White"
+                            IsEnabled="{Binding CanGoToPreviousPage}" Click="Button_Click" />
+                            <TextBlock Text="{Binding CurrentPage}"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            VerticalAlignment="Center"
+                            Foreground="White"
+                            Margin="10,0" />
+                            <Button Command="{Binding NextPageCommand}"
+                            Content="Próximo"
+                            Margin="10,0"
+                            Background="#14213D"
+                            Foreground="White"
+                            IsEnabled="{Binding CanGoToNextPage}" Click="Button_Click" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Progressbar Destaques -->
+                    <ProgressBar x:Name="ProgressBarDestaques"
+                      Grid.Row="2" Width="500" Height="500" VerticalAlignment="Top" BorderBrush="Transparent"
+                      HorizontalAlignment="Right"
+                      IsIndeterminate="True"
+                      Background="#14213D"
+                      Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"
+                      Loaded="ProgressBar_Loaded"
+                      />
+
+                    <!-- Destaques -->
+                    <Grid Background="#14213D" Grid.Row="2" HorizontalAlignment="Right" Width="500" Loaded="Grid_Loaded" Visibility="{Binding ExibirSecoes, Mode=TwoWay}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="70" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <!-- Header com botões de filtro -->
+                        <Grid Background="Black" Height="50" VerticalAlignment="Top">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button Content="Semanal"
+                            Command="{Binding FilterCommand}"
+                            CommandParameter="Semanal"
+                            Background="{Binding SelectedFilter, ConverterParameter=Semanal, Converter={StaticResource BoolToColorConverter}}"
+                            Foreground="White"
+                            BorderBrush="Transparent"
+                            Width="130"
+                            materialDesign:ButtonAssist.CornerRadius="10"/>
+
+                            <Button Content="Mensal"
+                            Grid.Column="1"
+                            Command="{Binding FilterCommand}"
+                            CommandParameter="Mensal"
+                            Background="{Binding SelectedFilter, ConverterParameter=Mensal, Converter={StaticResource BoolToColorConverter}}"
+                            Foreground="White"
+                            BorderBrush="Transparent"
+                            Width="130"
+                            materialDesign:ButtonAssist.CornerRadius="10"/>
+
+                            <Button Content="Todos"
+                            Grid.Column="2"
+                            Command="{Binding FilterCommand}"
+                            CommandParameter="Todos"
+                            Background="{Binding SelectedFilter, ConverterParameter=Todos, Converter={StaticResource BoolToColorConverter}}"
+                            Foreground="White"
+                            BorderBrush="Transparent"
+                            Width="130"
+                            materialDesign:ButtonAssist.CornerRadius="10"/>
+                        </Grid>
+
+                        <!-- Lista de Rankings -->
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding RankingItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="5" Background="Transparent">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="70" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="20" />
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Rank -->
+                                        <Border BorderBrush="White" BorderThickness="2" Background="Transparent" Width="50" Height="50" CornerRadius="7" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
+                                            <TextBlock Text="{Binding Rank}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
+                                        </Border>
+
+                                        <!-- Imagem -->
+                                        <Button Command="{Binding DataContext.NavigateToDetailsHighlightCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                        Style="{StaticResource NoBackgroundButtonStyle}" Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalAlignment="Stretch" MaxWidth="90">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Grid>
+                                                        <Image x:Name="HoverImage"
+                                                        Source="{Binding Image}"
+                                                        MaxHeight="130"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Stretch"
+                                                        SnapsToDevicePixels="True"
+                                                        Stretch="UniformToFill"/>
+
+                                                        <!-- Camada para hover -->
+                                                        <Border x:Name="HoverOverlay"
+                                                        Background="White"
+                                                        Opacity="0"
+                                                        Width="90"
+                                                        Height="130"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                    <ControlTemplate.Triggers>
+                                                        <!-- Trigger para hover -->
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="HoverOverlay" Property="Opacity" Value="0.1"/>
+                                                            <Setter TargetName="HoverOverlay" Property="Background" Value="LightGray"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+
+                                        <!-- Título -->
+                                        <Button Command="{Binding DataContext.NavigateToDetailsHighlightCommand,
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            FontSize="18"
+                                            FontWeight="Bold"
+                                            VerticalAlignment="Top"
+                                            HorizontalAlignment="Left"
+                                            Grid.Column="2"
+                                            Grid.Row="0"
+                                            Style="{StaticResource HoverableButtonStyle}">
+                                            <Button.Content>
+                                                <TextBlock Text="{Binding Title}"
+                                                    TextWrapping="Wrap" />
+                                            </Button.Content>
+                                        </Button>
+
+                                        <!-- Gêneros -->
+                                        <Grid Grid.Column="2" Grid.Row="1" VerticalAlignment="Bottom">
+                                            <Grid.ColumnDefinitions>
+                                                <!-- Coluna fixa para o texto "Gêneros:" -->
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="5" />
+                                                <!-- Coluna para os gêneros dinâmicos -->
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Texto estático "Gêneros:" -->
+                                            <TextBlock Text="Gêneros:"
+                                                       Foreground="White"
+                                                       FontSize="14"
+                                                       FontWeight="Bold"  />
+
+                                            <!-- Gêneros dinâmicos -->
+                                            <ItemsControl ItemsSource="{Binding Genres}" Grid.Column="2">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Button Command="{Binding DataContext.GenreClickCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource HoverableButtonStyleGenres}">
+                                                                <TextBlock Text="{Binding}"
+                                                                        FontSize="14"  />
+                                                            </Button>
+
+                                                            <!-- Vírgula separadora -->
+                                                            <TextBlock Text=","
+                                                            Foreground="Gray"
+                                                            FontSize="14">
+                                                                <TextBlock.Visibility>
+                                                                    <MultiBinding Converter="{StaticResource ShowCommaVisibilityConverter}">
+                                                                        <Binding Path="DataContext" RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                                        <Binding Path="." />
+                                                                    </MultiBinding>
+                                                                </TextBlock.Visibility>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Grid>
+
+                                        <!-- Estrelas -->
+                                        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="2" VerticalAlignment="Bottom">
+                                            <ItemsControl ItemsSource="{Binding Rating, Converter={StaticResource StarConverter}}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <!-- Define o painel para organizar os itens lado a lado -->
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="★" FontSize="30" Foreground="{Binding Converter={StaticResource BoolToColorConverter}}" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <TextBlock Text="{Binding Rating}" Margin="5,0,0,0" FontSize="16" Foreground="White" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

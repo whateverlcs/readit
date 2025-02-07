@@ -1,4 +1,5 @@
 ﻿using readit.Data;
+using readit.Enums;
 using readit.Models;
 using SharpCompress.Archives;
 using SharpCompress.Common;
@@ -146,6 +147,63 @@ namespace readit.Controls
             {
                 Directory.CreateDirectory(caminhoPastaTemporaria);
             }
+        }
+
+        public List<PostagensObras> FormatarDadosUltimasAtualizacoes(List<PostagensObras> postagens)
+        {
+            foreach (var postagem in postagens)
+            {
+                postagem.Status = ObterStatus(postagem.StatusNumber);
+                postagem.Image = ByteArrayToImage(postagem.ImageByte);
+
+                foreach (var capInfo in postagem.ChapterInfos)
+                {
+                    capInfo.TimeAgo = FormatarData(capInfo.TimeAgoDate);
+                }
+            }
+
+            return postagens;
+        }
+
+        public List<DestaquesItem> FormatarDadosObrasEmDestaques()
+        {
+            var obrasEmDestaque = db.BuscarObrasEmDestaque();
+
+            foreach (var obra in obrasEmDestaque)
+            {
+                obra.Image = ByteArrayToImage(obra.ImageByte);
+                obra.Rating = Math.Round(obra.Rating, 1);
+            }
+
+            return obrasEmDestaque;
+        }
+
+        public string ObterStatus(int status)
+        {
+            return status switch
+            {
+                (int)EnumObra.StatusObra.EmAndamento => "Em Andamento",
+                (int)EnumObra.StatusObra.EmHiato => "Em Hiato",
+                (int)EnumObra.StatusObra.Finalizado => "Finalizado",
+                (int)EnumObra.StatusObra.Cancelado => "Cancelado",
+                (int)EnumObra.StatusObra.Dropado => "Dropado",
+                _ => "Desconhecido"
+            };
+        }
+
+        public string FormatarData(DateTime? data)
+        {
+            if (data == null) return "Desconhecido";
+            var diferenca = DateTime.Now - data.Value;
+
+            if (diferenca.TotalMinutes < 60)
+                return $"{(int)diferenca.TotalMinutes} min atrás";
+            if (diferenca.TotalHours < 24)
+                return $"{(int)diferenca.TotalHours}h atrás";
+            if (diferenca.TotalDays < 7)
+                return $"{(int)diferenca.TotalDays} dias atrás";
+
+            return data.Value.ToString("dd/MM/yyyy");
         }
     }
 }

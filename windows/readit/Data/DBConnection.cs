@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using readit.Controls;
 using readit.Models;
+using System.Collections.Generic;
 using ef = EntityFramework_DB;
 
 namespace readit.Data
@@ -397,6 +398,169 @@ namespace readit.Data
             {
                 clog.RealizarLogExcecao(e.ToString(), "BuscarTiposVisualizacaoObraUsuarioPorId(int idUsuario)");
                 return new List<TipoVisualizacaoObraUsuario>();
+            }
+        }
+
+        public List<SlideshowItem> BuscarObrasSlideShow()
+        {
+            try
+            {
+                var obrasDB = (from o in context.Obras
+                               join i in context.Imagens on o.ImgId equals i.ImgId
+                               join og in context.ObrasGeneros on o.ObsId equals og.ObsId
+                               join g in context.Generos on og.GnsId equals g.GnsId
+                               join cpo in context.CapitulosObras on o.ObsId equals cpo.ObsId
+                               join a in context.AvaliacoesObras on o.ObsId equals a.ObsId
+                               group new { o, i, cpo, g, a } by new { o.ObsId, o.ObsNomeObra, o.ObsDescricao, i.ImgImagem } into obraGroup
+                               orderby obraGroup.Average(x => x.a.AvoNota) descending // Ordenar pelas maiores médias de avaliação
+                               select new
+                               {
+                                   NomeObra = obraGroup.Key.ObsNomeObra,
+                                   UltimoCapitulo = obraGroup.Max(x => x.cpo.CpoNumeroCapitulo),
+                                   Descricao = obraGroup.Key.ObsDescricao,
+                                   Generos = obraGroup.Select(x => x.g.GnsNome).Distinct().ToArray(),
+                                   Imagem = obraGroup.Key.ImgImagem
+                               }).Take(5).ToArray();
+
+                List<SlideshowItem> listaObras = new List<SlideshowItem>();
+
+                foreach (var obra in md.ObrasSlideShowDBToModel(obrasDB.ToArray()))
+                {
+                    listaObras.Add(obra);
+                }
+
+                return listaObras;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarObrasSlideShow()");
+                return new List<SlideshowItem>();
+            }
+        }
+
+        public List<PostagensObras> BuscarObrasUltimasAtualizacoes()
+        {
+            try
+            {
+                var obrasDB = (from o in context.Obras
+                               join i in context.Imagens on o.ImgId equals i.ImgId
+                               join cpo in context.CapitulosObras on o.ObsId equals cpo.ObsId
+                               group new { o, i, cpo } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, i.ImgImagem } into obraGroup
+                               orderby obraGroup.Max(x => x.cpo.CpoDataPublicacao) descending
+                               select new
+                               {
+                                   NomeObra = obraGroup.Key.ObsNomeObra,
+                                   Status = obraGroup.Key.ObsStatus,
+                                   Imagem = obraGroup.Key.ImgImagem,
+                                   Capitulos = obraGroup.OrderByDescending(x => x.cpo.CpoDataPublicacao)
+                                                               .Take(3)
+                                                               .Select(x => new {
+                                                                   Numero = x.cpo.CpoNumeroCapitulo,
+                                                                   Data = x.cpo.CpoDataPublicacao
+                                                               }).ToArray()
+                               }).ToArray();
+
+                List<PostagensObras> listaObras = new List<PostagensObras>();
+
+                foreach (var obra in md.ObrasUltimasAtualizacoesDBToModel(obrasDB.ToArray()))
+                {
+                    listaObras.Add(obra);
+                }
+
+                return listaObras;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarObrasUltimasAtualizacoes()");
+                return new List<PostagensObras>();
+            }
+        }
+
+        public List<DestaquesItem> BuscarObrasEmDestaque()
+        {
+            try
+            {
+                var filtros = new Dictionary<string, Func<DateTime?>>
+                {
+                    { "Semanal", () => DateTime.Now.AddDays(-7) },
+                    { "Mensal", () => DateTime.Now.AddMonths(-1) },
+                    { "Todos", () => null }
+                };
+
+                List<DestaquesItem> todasObras = new();
+                int totalObrasComAvaliacao = context.AvaliacoesObras.Select(a => a.ObsId).Distinct().Count();
+
+                // Consulta única para reduzir acessos ao banco
+                var obrasQuery = (from o in context.Obras
+                                  join i in context.Imagens on o.ImgId equals i.ImgId
+                                  join og in context.ObrasGeneros on o.ObsId equals og.ObsId
+                                  join g in context.Generos on og.GnsId equals g.GnsId
+                                  join a in context.AvaliacoesObras on o.ObsId equals a.ObsId
+                                  group new { o, i, g, a } by new { o.ObsId, o.ObsNomeObra, i.ImgImagem } into obraGroup
+                                  select new
+                                  {
+                                      obraGroup.Key.ObsNomeObra,
+                                      obraGroup.Key.ImgImagem,
+                                      Rating = obraGroup.Average(x => x.a.AvoNota),
+                                      Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
+                                      DataAvaliacao = obraGroup.Max(x => x.a.AvoDataAvaliacao) // Última avaliação da obra
+                                  }).ToList();
+
+                foreach (var filtro in filtros)
+                {
+                    List<DestaquesItem> topObras = new();
+                    int rank = 1;
+                    DateTime? dataInicio = filtro.Value();
+
+                    while (topObras.Count < 10 && (filtro.Key == "Todos" || dataInicio > DateTime.MinValue))
+                    {
+                        var query = obrasQuery
+                            .Where(o => filtro.Key == "Todos" || o.DataAvaliacao >= dataInicio)
+                            .OrderByDescending(o => o.Rating)
+                            .Take(10 - topObras.Count)
+                            .ToList();
+
+                        // Conversão necessária antes de adicionar a lista
+                        topObras.AddRange(query.Select(o => new DestaquesItem
+                        {
+                            Title = o.ObsNomeObra,
+                            ImageByte = o.ImgImagem,
+                            Rating = o.Rating,
+                            Genres = o.Genres
+                        }));
+
+                        // Removendo obras repetidas e garantindo diversidade
+                        topObras = topObras
+                            .GroupBy(x => x.Title)
+                            .Select(g => g.First())
+                            .ToList();
+
+                        if (topObras.Count >= totalObrasComAvaliacao)
+                            break;
+
+                        if (topObras.Count < 10 && filtro.Key != "Todos")
+                        {
+                            dataInicio = filtro.Key == "Semanal" ? dataInicio.Value.AddDays(-7) : dataInicio.Value.AddMonths(-1);
+                        }
+                    }
+
+                    todasObras.AddRange(topObras.Select(o => new DestaquesItem
+                    {
+                        Rank = rank++,
+                        Title = o.Title,
+                        ImageByte = o.ImageByte,
+                        Genres = o.Genres,
+                        Rating = o.Rating,
+                        Filter = filtro.Key
+                    }));
+                }
+
+                return todasObras;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarObrasEmDestaque()");
+                return new List<DestaquesItem>();
             }
         }
 

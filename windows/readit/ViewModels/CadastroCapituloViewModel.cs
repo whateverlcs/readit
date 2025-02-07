@@ -132,7 +132,7 @@ namespace readit.ViewModels
 
         public void PopularObras()
         {
-            ListaObras = new(db.BuscarObrasPorId(null));
+            ListaObras = new(db.BuscarObrasPorId(null).OrderBy(x => x.NomeObra));
         }
 
         public void CadastrarCapitulo()

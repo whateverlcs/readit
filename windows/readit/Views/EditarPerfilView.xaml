@@ -31,31 +31,31 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Orientation="Vertical" HorizontalAlignment="Left" Background="#14213D" Width="70" VerticalAlignment="Stretch">
                 <TextBlock Grid.Column="1" Grid.Row="1" Text="READ&#10;  IT" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" HorizontalAlignment="Center" FontSize="20" Margin="0 20 0 40" />
-                <Button x:Name="PaginaInicial" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                <Button x:Name="PaginaInicial" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Página Inicial">
                     <materialDesign:PackIcon Kind="Home" Width="27" Height="30" />
                 </Button>
-                <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}">
+                <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}" ToolTip="Gerenciar Cadastros">
                     <materialDesign:PackIcon Kind="PlusCircleOutline" Width="27" Height="30" />
                 </Button>
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Procurar Obras">
                     <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
                 </Button>
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Detalhes da Obra">
                     <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
                 </Button>
                 <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed">
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Bookmarks">
                     <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
                 </Button>
-                <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Editar Perfil">
                     <materialDesign:PackIcon Kind="Account" Width="27" Height="30" />
                 </Button>
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White">
+                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Realizar Logoff">
                     <materialDesign:PackIcon Kind="Power" Width="27" Height="30" />
                 </Button>
             </StackPanel>
 
-            <Grid Grid.Row="1" Grid.Column="2" Background="#14213D" MaxHeight="700" MaxWidth="1360">
+            <Grid Grid.Row="1" Grid.Column="2" Background="#14213D" MaxHeight="700" MaxWidth="1360" Loaded="Grid_Loaded">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="80" />
