@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using readit.Controls;
 using readit.Models;
-using System.Collections.Generic;
 using ef = EntityFramework_DB;
 
 namespace readit.Data
@@ -150,15 +149,15 @@ namespace readit.Data
             }
         }
 
-        public List<CapitulosObra> BuscarCapituloObrasPorIds(List<int> idsObra)
+        public List<CapitulosObra> BuscarCapituloObrasPorIds(List<int> numCapitulos, int idObra)
         {
             try
             {
                 ef.Models.CapitulosObra[] capitulosObrasDB;
 
-                if (idsObra.Count > 0)
+                if (numCapitulos.Count > 0 && idObra != 0)
                 {
-                    capitulosObrasDB = (from c in context.CapitulosObras where idsObra.Contains(c.ObsId) select c).ToArray();
+                    capitulosObrasDB = (from c in context.CapitulosObras where numCapitulos.Contains(c.CpoNumeroCapitulo) && c.ObsId == idObra select c).ToArray();
                 }
                 else
                 {
@@ -449,12 +448,15 @@ namespace readit.Data
                                orderby obraGroup.Max(x => x.cpo.CpoDataPublicacao) descending
                                select new
                                {
+                                   Id = obraGroup.Key.ObsId,
                                    NomeObra = obraGroup.Key.ObsNomeObra,
                                    Status = obraGroup.Key.ObsStatus,
                                    Imagem = obraGroup.Key.ImgImagem,
-                                   Capitulos = obraGroup.OrderByDescending(x => x.cpo.CpoDataPublicacao)
+                                   Capitulos = obraGroup.OrderByDescending(x => x.cpo.CpoNumeroCapitulo)
                                                                .Take(3)
-                                                               .Select(x => new {
+                                                               .Select(x => new
+                                                               {
+                                                                   Id = x.cpo.CpoId,
                                                                    Numero = x.cpo.CpoNumeroCapitulo,
                                                                    Data = x.cpo.CpoDataPublicacao
                                                                }).ToArray()
@@ -564,6 +566,61 @@ namespace readit.Data
             }
         }
 
+        public DetalhesObra BuscarDetalhesObra(string nomeObra)
+        {
+            try
+            {
+                var obrasDB = (from o in context.Obras
+                               join i in context.Imagens on o.ImgId equals i.ImgId
+                               join u in context.Usuarios on o.UsuId equals u.UsuId
+                               join ao in context.AvaliacoesObras on o.ObsId equals ao.ObsId into avaliacoes
+                               from avg in avaliacoes.DefaultIfEmpty()
+                               join vo in context.VisualizacoesObras on o.ObsId equals vo.ObsId into visualizacoes
+                               from vs in visualizacoes.DefaultIfEmpty()
+                               join og in context.ObrasGeneros on o.ObsId equals og.ObsId
+                               join g in context.Generos on og.GnsId equals g.GnsId
+                               join cpo in context.CapitulosObras on o.ObsId equals cpo.ObsId
+                               join bku in context.BookmarksUsuarios on new { o.ObsId, UsuId = Global.UsuarioLogado.Id } equals new { bku.ObsId, bku.UsuId } into bookmarks
+                               from bkm in bookmarks.DefaultIfEmpty()
+                               group new { o, i, u, avg, vs, g, bkm } by new { o.ObsId, o.ObsNomeObra, o.ObsDescricao, o.ObsStatus, o.ObsTipo, o.ObsDataPublicacao, o.ObsDataAtualizacao, u.UsuApelido, i.ImgImagem } into obraGroup
+                               where obraGroup.Key.ObsNomeObra == nomeObra
+                               select new
+                               {
+                                   IdObra = obraGroup.Key.ObsId,
+                                   NomeObra = obraGroup.Key.ObsNomeObra,
+                                   Descricao = obraGroup.Key.ObsDescricao,
+                                   Status = obraGroup.Key.ObsStatus,
+                                   Tipo = obraGroup.Key.ObsTipo,
+                                   DataPublicacao = obraGroup.Key.ObsDataPublicacao.HasValue ? obraGroup.Key.ObsDataPublicacao.Value.ToString("MMMM d, yyyy") : null,
+                                   DataAtualizacao = obraGroup.Key.ObsDataAtualizacao.HasValue ? obraGroup.Key.ObsDataAtualizacao.Value.ToString("MMMM d, yyyy") : null,
+                                   NomeUsuario = obraGroup.Key.UsuApelido,
+                                   MediaNota = obraGroup.Average(x => x.avg != null ? x.avg.AvoNota : 0), // Verifica se a nota não é nula
+                                   Views = obraGroup.Select(x => x.vs != null ? x.vs.VsoViews : 0).FirstOrDefault(), // Verifica se há visualizações
+                                   Imagem = obraGroup.Key.ImgImagem,
+                                   Generos = obraGroup.Select(x => x.g.GnsNome).Distinct().ToArray(),
+                                   Bookmark = obraGroup.Any(x => x.bkm != null),
+                                   Capitulos = (from cpo in context.CapitulosObras
+                                                where cpo.ObsId == obraGroup.Key.ObsId
+                                                orderby cpo.CpoNumeroCapitulo descending
+                                                select new
+                                                {
+                                                    Id = cpo.CpoId,
+                                                    Numero = cpo.CpoNumeroCapitulo,
+                                                    DataPublicacao = cpo.CpoDataPublicacao.HasValue
+                                                                     ? cpo.CpoDataPublicacao.Value.ToString("MMMM d, yyyy")
+                                                                     : null
+                                                }).ToArray()
+                               }).FirstOrDefault();
+
+                return md.DetalhesObraDBToModel(obrasDB);
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarDetalhesObra(string nomeObra)");
+                return new DetalhesObra();
+            }
+        }
+
         public bool CadastrarObra(Obras obra, Imagens imagem, List<Generos> listaGeneros)
         {
             using var transaction = context.Database.BeginTransaction();
@@ -624,6 +681,107 @@ namespace readit.Data
             }
         }
 
+        public (bool, string) CadastrarRemoverBookmark(BookmarksUsuario bookmarkUsuario)
+        {
+            using var transaction = context.Database.BeginTransaction();
+
+            try
+            {
+                var bookmarkDB = md.BookmarksUsuarioModelToDB(bookmarkUsuario);
+
+                ef.Models.BookmarksUsuario bkuDB = (from bku in context.BookmarksUsuarios where bku.ObsId == bookmarkDB.ObsId && bku.UsuId == bookmarkDB.UsuId select bku).FirstOrDefault();
+
+                var bkEntry = bkuDB != null ? bkuDB : bookmarkDB;
+
+                context.Entry(bkEntry).State = bkuDB != null ? EntityState.Deleted : EntityState.Added;
+                context.SaveChanges();
+
+                transaction.Commit();
+                return (true, (bkuDB != null ? "Removido" : "Adicionado"));
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "CadastrarRemoverBookmark(BookmarksUsuario bookmarkUsuario)");
+                transaction.Rollback();
+                return (false, "");
+            }
+        }
+
+        public bool AtualizarViewObra(string nomeObra)
+        {
+            using var transaction = context.Database.BeginTransaction();
+
+            try
+            {
+                ef.Models.Obra obraDB = (from o in context.Obras where o.ObsNomeObra == nomeObra select o).FirstOrDefault();
+                ef.Models.VisualizacoesObra voDB = (from vo in context.VisualizacoesObras where vo.ObsId == obraDB.ObsId select vo).FirstOrDefault();
+
+                if (voDB == null)
+                {
+                    voDB = new ef.Models.VisualizacoesObra
+                    {
+                        ObsId = obraDB.ObsId,
+                        VsoViews = 1
+                    };
+                }
+                else
+                {
+                    voDB.VsoViews++;
+                }
+
+                context.Entry(voDB).State = voDB.VsoId != 0 ? EntityState.Modified : EntityState.Added;
+                context.SaveChanges();
+
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "AtualizarViewObra(int idObra)");
+                transaction.Rollback();
+                return false;
+            }
+        }
+
+        public bool AtualizarRating(int obraId, double rating)
+        {
+            using var transaction = context.Database.BeginTransaction();
+
+            try
+            {
+                ef.Models.AvaliacoesObra avDB = (from av in context.AvaliacoesObras where av.ObsId == obraId && av.UsuId == Global.UsuarioLogado.Id select av).FirstOrDefault();
+
+                if (avDB == null)
+                {
+                    avDB = new ef.Models.AvaliacoesObra
+                    {
+                        ObsId = obraId,
+                        UsuId = Global.UsuarioLogado.Id,
+                        AvoNota = Convert.ToByte(rating),
+                        AvoDataAvaliacao = DateTime.Now,
+                        AvoDataAtualizacao = DateTime.Now
+                    };
+                }
+                else
+                {
+                    avDB.AvoNota = Convert.ToByte(rating);
+                    avDB.AvoDataAtualizacao = DateTime.Now;
+                }
+
+                context.Entry(avDB).State = avDB.AvoId != 0 ? EntityState.Modified : EntityState.Added;
+                context.SaveChanges();
+
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "AtualizarRating(int obraId, double rating)");
+                transaction.Rollback();
+                return false;
+            }
+        }
+
         public bool CadastrarCapitulos(List<CapitulosObra> listaCapitulosObra)
         {
             using var transaction = context.Database.BeginTransaction();
@@ -647,6 +805,15 @@ namespace readit.Data
                         context.SaveChanges();
                     }
                 }
+
+                int idObra = listaCapitulosObra.First().ObraId;
+
+                ef.Models.Obra obraDB = (from o in context.Obras where o.ObsId == idObra select o).First();
+
+                obraDB.ObsDataAtualizacao = DateTime.Now;
+
+                context.Entry(obraDB).State = EntityState.Modified;
+                context.SaveChanges();
 
                 transaction.Commit();
                 return true;

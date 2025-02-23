@@ -60,6 +60,18 @@ namespace readit.Data
             return gen;
         }
 
+        public ef.BookmarksUsuario BookmarksUsuarioModelToDB(BookmarksUsuario bookmark)
+        {
+            ef.BookmarksUsuario bku = new ef.BookmarksUsuario
+            {
+                BkuId = bookmark.Id,
+                UsuId = bookmark.UsuarioId,
+                ObsId = bookmark.ObraId,
+            };
+
+            return bku;
+        }
+
         public ef.Obra ObraModelToDB(Obras obra)
         {
             ef.Obra ob = new ef.Obra
@@ -185,6 +197,7 @@ namespace readit.Data
             {
                 PostagensObras obra = new PostagensObras
                 {
+                    ObraId = obraDB.Id,
                     ImageByte = obraDB.Imagem,
                     Title = obraDB.NomeObra,
                     StatusNumber = obraDB.Status,
@@ -196,6 +209,8 @@ namespace readit.Data
                 {
                     ChapterInfo chap = new ChapterInfo
                     {
+                        ChapterId = cap.Id,
+                        ObraId = obraDB.Id,
                         Chapter = $"• Capítulo {cap.Numero.ToString("D2")}",
                         TimeAgoDate = cap.Data
                     };
@@ -207,6 +222,43 @@ namespace readit.Data
             }
 
             return listaObras;
+        }
+
+        public DetalhesObra DetalhesObraDBToModel(dynamic obraDB)
+        {
+            DetalhesObra obra = new DetalhesObra
+            {
+                ObraId = obraDB.IdObra,
+                Title = obraDB.NomeObra,
+                Description = obraDB.Descricao,
+                StatusNumber = Convert.ToInt32(obraDB.Status),
+                TypeNumber = Convert.ToInt32(obraDB.Tipo),
+                SeriesReleasedDate = obraDB.DataPublicacao,
+                SeriesLastUpdatedDate = obraDB.DataAtualizacao,
+                PostedBy = obraDB.NomeUsuario,
+                Rating = obraDB.MediaNota,
+                Views = obraDB.Views,
+                ImageByte = obraDB.Imagem,
+                Tags = obraDB.Generos,
+                Bookmark = obraDB.Bookmark
+            };
+
+            obra.ChapterInfos = new List<ChapterInfo>();
+
+            foreach (var cap in obraDB.Capitulos)
+            {
+                ChapterInfo chap = new ChapterInfo
+                {
+                    ChapterId = cap.Id,
+                    ObraId = obraDB.IdObra,
+                    Chapter = $"Capítulo {cap.Numero.ToString("D2")}",
+                    TimeAgo = cap.DataPublicacao
+                };
+
+                obra.ChapterInfos.Add(chap);
+            }
+
+            return obra;
         }
 
         public List<CapitulosObra> CapitulosObrasDBToModel(ef.CapitulosObra[] capituloObrasDB)

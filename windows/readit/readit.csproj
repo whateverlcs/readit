@@ -11,11 +11,13 @@
 
   <ItemGroup>
     <None Remove="appsettings.json" />
+    <None Remove="Files\phrases-loading.json" />
     <None Remove="Fonts\IrishGrover.ttf" />
     <None Remove="Fonts\Roboto-Light.ttf" />
     <None Remove="Fonts\Roboto-Medium.ttf" />
     <None Remove="Fonts\Roboto.ttf" />
     <None Remove="Images\alert.png" />
+    <None Remove="Images\loading-gif.gif" />
     <None Remove="Images\login-image.png" />
     <None Remove="Images\profile-default.jpg" />
     <None Remove="Images\upload-image.png" />
@@ -25,7 +27,9 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\icon.ico" />
+    <Content Include="Images\icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +45,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpCompress" Version="0.38.0" />
     <PackageReference Include="WindowsAPICodePackShell" Version="8.0.6" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,19 +57,33 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Files\phrases-loading.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Fonts\IrishGrover.ttf">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Fonts\Roboto-Light.ttf">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Fonts\Roboto-Medium.ttf">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\alert.png" />
-    <Resource Include="Images\login-image.png" />
-	<Resource Include="Images\profile-default.jpg" />
-    <Resource Include="Images\upload-image.png" />
+    <Resource Include="Images\alert.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\loading-gif.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\login-image.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+	<Resource Include="Images\profile-default.jpg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Resource>
+    <Resource Include="Images\upload-image.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

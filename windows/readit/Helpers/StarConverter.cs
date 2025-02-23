@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using System.Windows.Data;
 
 namespace readit
@@ -17,10 +12,9 @@ namespace readit
                 var stars = new List<bool>();
 
                 // Preencher estrelas baseadas na nota
-                int fullStars = (int)Math.Ceiling(rating / 2); // Ex: 9.8 -> 5 estrelas preenchidas, 1.0 -> 1 estrela preenchida
                 for (int i = 0; i < 5; i++)
                 {
-                    stars.Add(i < fullStars); // Preenche até o número de estrelas correspondente
+                    stars.Add(i < rating); // Preenche até o número de estrelas correspondente
                 }
 
                 return stars;

@@ -16,7 +16,6 @@
         <l:BoolToColorConverter x:Key="BoolToColorConverter" />
         <l:StarConverter x:Key="StarConverter" />
         <l:ShowCommaVisibilityConverter x:Key="ShowCommaVisibilityConverter" />
-        <l:CenterYConverter x:Key="CenterYConverter" />
         <Style x:Key="HoverableButtonStyle" TargetType="Button" BasedOn="{StaticResource NoBackgroundButtonStyle}">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="White" />
@@ -122,17 +121,38 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="20" />
                     </Grid.RowDefinitions>
-                    <!-- Progressbar Slideshow -->
-                    <ProgressBar x:Name="ProgressBarSlideshow"
-                      Width="auto" MaxWidth="1790" Height="auto" MaxHeight="560" BorderBrush="Transparent"
-                      IsIndeterminate="True"
-                      Background="#14213D"
-                      Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"
-                      Loaded="ProgressBar_Loaded" ClipToBounds="True"
-                      />
+                    <Grid Grid.Row="0" Grid.RowSpan="5" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}" Background="#14213D" Loaded="Grid_Loaded">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Image x:Name="GifImage" Source="..\Images\loading-gif.gif" Width="35" Height="35" Margin="0 0 10 5" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding AnimatedText}"
+                            FontSize="24"
+                            FontWeight="Bold"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="White">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding AnimatedText}" Value="">
+                                                <Setter Property="Opacity" Value="0"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding AnimatedText}">
+                                                <Setter Property="Opacity" Value="1"/>
+                                                <Setter Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Slideshow -->
-                    <Grid ClipToBounds="True" Width="auto" MaxWidth="1790" Loaded="OnGridLoaded" Visibility="{Binding ExibirSecoes, Mode=TwoWay}" >
+                    <Grid x:Name="SlideshowGrid" ClipToBounds="True" Width="auto" MaxWidth="1790" Loaded="OnGridLoaded" Visibility="{Binding ExibirSecoes, Mode=TwoWay}" >
                         <!-- Configuração de colunas e linhas -->
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -144,8 +164,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Imagem de fundo desfocada -->
-                        <Grid Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
-                        Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}">
+                        <Grid Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" MaxHeight="560">
                             <Viewbox Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Image Source="{Binding CurrentItem.BackgroundImage}"
                                 Opacity="0.5"
@@ -302,16 +321,6 @@
                             </ItemsControl>
                         </Grid>
                     </Grid>
-
-                    <!-- Progressbar Últimas Atualizações -->
-                    <ProgressBar x:Name="ProgressBarUltimasAtualizacoes"
-                      Grid.Row="2" Width="1200" Height="500" VerticalAlignment="Top" BorderBrush="Transparent"
-                      HorizontalAlignment="Left"
-                      IsIndeterminate="True"
-                      Background="#14213D"
-                      Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"
-                      Loaded="ProgressBar_Loaded"
-                      />
 
                     <!-- Últimas atualizações -->
                     <Grid Grid.Row="2" Background="#14213D" Width="1200" HorizontalAlignment="Left" Loaded="Grid_Loaded" Visibility="{Binding ExibirSecoes, Mode=TwoWay}">
@@ -481,16 +490,6 @@
                             IsEnabled="{Binding CanGoToNextPage}" Click="Button_Click" />
                         </StackPanel>
                     </Grid>
-
-                    <!-- Progressbar Destaques -->
-                    <ProgressBar x:Name="ProgressBarDestaques"
-                      Grid.Row="2" Width="500" Height="500" VerticalAlignment="Top" BorderBrush="Transparent"
-                      HorizontalAlignment="Right"
-                      IsIndeterminate="True"
-                      Background="#14213D"
-                      Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"
-                      Loaded="ProgressBar_Loaded"
-                      />
 
                     <!-- Destaques -->
                     <Grid Background="#14213D" Grid.Row="2" HorizontalAlignment="Right" Width="500" Loaded="Grid_Loaded" Visibility="{Binding ExibirSecoes, Mode=TwoWay}">

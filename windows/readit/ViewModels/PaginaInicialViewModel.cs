@@ -35,6 +35,8 @@ namespace readit.ViewModels
             }
         }
 
+        #region Loading
+
         private Visibility _exibirSecoes;
 
         public Visibility ExibirSecoes
@@ -46,6 +48,25 @@ namespace readit.ViewModels
                 NotifyOfPropertyChange(() => ExibirSecoes);
             }
         }
+
+        private List<string> _texts;
+        private int _index, _textIndex;
+        private bool _removing;
+        private DispatcherTimer _timer;
+
+        private string _animatedText;
+
+        public string AnimatedText
+        {
+            get => _animatedText;
+            set
+            {
+                _animatedText = value;
+                NotifyOfPropertyChange(() => AnimatedText);
+            }
+        }
+
+        #endregion Loading
 
         #region Slideshow
 
@@ -138,6 +159,7 @@ namespace readit.ViewModels
         }
 
         private bool _canGoToNextPage;
+
         public bool CanGoToNextPage
         {
             get => _canGoToNextPage;
@@ -152,6 +174,7 @@ namespace readit.ViewModels
         }
 
         private bool _canGoToPreviousPage;
+
         public bool CanGoToPreviousPage
         {
             get => _canGoToPreviousPage;
@@ -206,8 +229,7 @@ namespace readit.ViewModels
 
         public PaginaInicialViewModel()
         {
-            Loading = true;
-            ExibirSecoes = Visibility.Hidden;
+            AplicarLoading(true);
 
             Thread thread = new(CarregarDadosPaginaInicialThread) { IsBackground = true };
             thread.SetApartmentState(ApartmentState.STA);
@@ -265,7 +287,7 @@ namespace readit.ViewModels
 
         public void IniciarLeituraObra()
         {
-            var teste = CurrentItem;
+            _ = ActiveView.OpenItemMain(new DetalhamentoObraViewModel(CurrentItem.Title));
         }
 
         public void PopularSlideShow()
@@ -296,8 +318,7 @@ namespace readit.ViewModels
 
         private void NavigateToDetails(PostagensObras item)
         {
-            // Lógica para navegação baseada no item (imagem/título)
-            System.Diagnostics.Debug.WriteLine($"Navegando para detalhes de {item.Title}");
+            _ = ActiveView.OpenItemMain(new DetalhamentoObraViewModel(item.Title));
         }
 
         private void NavigateToChapter(ChapterInfo chapterInfo)
@@ -362,8 +383,7 @@ namespace readit.ViewModels
 
         private void NavigateToDetailsHighlight(DestaquesItem item)
         {
-            // Lógica para navegação baseada no item (imagem/título)
-            System.Diagnostics.Debug.WriteLine($"Navegando para detalhes de {item.Title}");
+            _ = ActiveView.OpenItemMain(new DetalhamentoObraViewModel(item.Title));
         }
 
         #endregion Destaques
@@ -408,8 +428,42 @@ namespace readit.ViewModels
 
             #endregion Destaques
 
-            Loading = false;
-            ExibirSecoes = Visibility.Visible;
+            AplicarLoading(false);
+        }
+
+        public void AplicarLoading(bool loading)
+        {
+            if (loading)
+            {
+                Loading = true;
+                ExibirSecoes = Visibility.Collapsed;
+
+                _texts = cp.ExtrairDadosFrasesLoading();
+                _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
+                _timer.Tick += (s, e) =>
+                {
+                    var currentText = _texts[_textIndex];
+                    AnimatedText = _removing ? currentText[..(--_index)] : currentText[..(++_index)];
+
+                    if (_index == currentText.Length) _removing = true;
+                    if (_index == 0)
+                    {
+                        _removing = false;
+                        _textIndex = (_textIndex + 1) % _texts.Count;
+                    }
+                };
+                _timer.Start();
+            }
+            else
+            {
+                try
+                {
+                    _timer.Stop();
+                    Loading = false;
+                    ExibirSecoes = Visibility.Visible;
+                }
+                catch { }
+            }
         }
 
         public void SelecionarCadastro()

@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using WpfAnimatedGif;
 
 namespace readit.Views
 {
@@ -12,25 +13,42 @@ namespace readit.Views
         public PaginaInicialView()
         {
             InitializeComponent();
+
+            ImageBehavior.SetAnimatedSource(GifImage, GifImage.Source);
         }
 
         private void OnGridLoaded(object sender, RoutedEventArgs e)
         {
             if (sender is Grid grid)
             {
-                var clipGeometry = new PathGeometry();
+                ApplyRoundedClip(grid);
 
-                // Configuração inicial do Clip
-                UpdateClipGeometry(grid, clipGeometry);
-
-                grid.Clip = clipGeometry;
-
-                // Atualiza o clip dinamicamente quando o tamanho do grid mudar
-                grid.SizeChanged += (s, args) =>
+                // Escuta mudanças de visibilidade
+                grid.IsVisibleChanged += (s, args) =>
                 {
-                    UpdateClipGeometry(grid, clipGeometry);
+                    if (grid.Visibility == Visibility.Visible)
+                    {
+                        // Aguarda o layout ser recalculado antes de reaplicar o Clip
+                        Dispatcher.InvokeAsync(() => ApplyRoundedClip(grid));
+                    }
                 };
             }
+        }
+
+        private void ApplyRoundedClip(Grid grid)
+        {
+            if (grid == null) return;
+
+            var clipGeometry = new PathGeometry();
+            UpdateClipGeometry(grid, clipGeometry);
+
+            grid.Clip = clipGeometry;
+
+            // Atualiza o clip dinamicamente quando o tamanho do grid mudar
+            grid.SizeChanged += (s, args) =>
+            {
+                UpdateClipGeometry(grid, clipGeometry);
+            };
         }
 
         private void UpdateClipGeometry(Grid grid, PathGeometry clipGeometry)

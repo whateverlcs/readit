@@ -1,4 +1,5 @@
-﻿using readit.Data;
+﻿using Newtonsoft.Json;
+using readit.Data;
 using readit.Enums;
 using readit.Models;
 using SharpCompress.Archives;
@@ -134,7 +135,7 @@ namespace readit.Controls
 
         public List<string> IdentificarCapitulosExistentesBanco(List<CapitulosObra> listaCapitulosObra)
         {
-            var capitulosIdentificados = db.BuscarCapituloObrasPorIds(listaCapitulosObra.ConvertAll(g => g.ObraId));
+            var capitulosIdentificados = db.BuscarCapituloObrasPorIds(listaCapitulosObra.ConvertAll(g => g.NumeroCapitulo), listaCapitulosObra.First().ObraId);
 
             if (capitulosIdentificados.Count == 0) return [];
 
@@ -178,6 +179,20 @@ namespace readit.Controls
             return obrasEmDestaque;
         }
 
+        public DetalhesObra FormatarDadosDetalhamentoObra(string nomeObra)
+        {
+            var detalhesObra = db.BuscarDetalhesObra(nomeObra);
+
+            detalhesObra.Image = ByteArrayToImage(detalhesObra.ImageByte);
+            detalhesObra.Rating = Math.Round(detalhesObra.Rating, 1);
+            detalhesObra.Status = ObterStatus(detalhesObra.StatusNumber);
+            detalhesObra.Type = ObterTipo(detalhesObra.TypeNumber);
+            detalhesObra.Description = detalhesObra.Description.Length > 437 ? detalhesObra.Description.Substring(0, 437).Trim() + "..." : detalhesObra.Description.Trim();
+            detalhesObra.PostedBy = detalhesObra.PostedBy.Length > 16 ? detalhesObra.PostedBy.Substring(0, 16).Trim() + "..." : detalhesObra.PostedBy.Trim();
+
+            return detalhesObra;
+        }
+
         public string ObterStatus(int status)
         {
             return status switch
@@ -187,6 +202,17 @@ namespace readit.Controls
                 (int)EnumObra.StatusObra.Finalizado => "Finalizado",
                 (int)EnumObra.StatusObra.Cancelado => "Cancelado",
                 (int)EnumObra.StatusObra.Dropado => "Dropado",
+                _ => "Desconhecido"
+            };
+        }
+
+        public string ObterTipo(int tipo)
+        {
+            return tipo switch
+            {
+                (int)EnumObra.TipoObra.Manhwa => "Manhwa",
+                (int)EnumObra.TipoObra.Donghua => "Donghua",
+                (int)EnumObra.TipoObra.Manga => "Manga",
                 _ => "Desconhecido"
             };
         }
@@ -204,6 +230,33 @@ namespace readit.Controls
                 return $"{(int)diferenca.TotalDays} dias atrás";
 
             return data.Value.ToString("dd/MM/yyyy");
+        }
+
+        public List<string> ExtrairDadosFrasesLoading()
+        {
+            string jsonFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", "phrases-loading.json");
+
+            string jsonContent = File.ReadAllText(jsonFilePath);
+
+            List<string> curiosidades = JsonConvert.DeserializeObject<List<string>>(jsonContent);
+
+            Shuffle(curiosidades);
+
+            return curiosidades;
+        }
+
+        public void Shuffle<T>(List<T> list)
+        {
+            Random rng = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
         }
     }
 }
