@@ -224,6 +224,25 @@ namespace readit.Data
             return listaObras;
         }
 
+        public List<PostagensObras> ObrasBookmarksDBToModel(dynamic[] obrasDB)
+        {
+            List<PostagensObras> listaObras = [];
+
+            foreach (var obraDB in obrasDB)
+            {
+                PostagensObras obra = new PostagensObras
+                {
+                    ObraId = obraDB.Id,
+                    ImageByte = obraDB.Imagem,
+                    Title = obraDB.NomeObra,
+                };
+
+                listaObras.Add(obra);
+            }
+
+            return listaObras;
+        }
+
         public DetalhesObra DetalhesObraDBToModel(dynamic obraDB)
         {
             DetalhesObra obra = new DetalhesObra

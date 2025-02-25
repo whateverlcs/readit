@@ -65,7 +65,7 @@
                 <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
             </Button>
             <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Bookmarks">
+            <Button x:Name="BookmarksUsuario" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Bookmarks">
                 <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
             </Button>
             <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Editar Perfil">
@@ -138,7 +138,7 @@
                         <RowDefinition Height="220" />
                     </Grid.RowDefinitions>
 
-                    <Viewbox Grid.Column="1" Grid.Row="1" Grid.RowSpan="7" Stretch="UniformToFill" HorizontalAlignment="Stretch">
+                    <Viewbox Grid.Column="1" Grid.Row="1" Grid.RowSpan="7" Stretch="UniformToFill" HorizontalAlignment="Center">
                         <Image Source="{Binding DadosDetalhesObra.Image}" Height="300" VerticalAlignment="Stretch" />
                     </Viewbox>
 

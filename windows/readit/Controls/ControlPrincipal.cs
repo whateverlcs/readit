@@ -166,6 +166,17 @@ namespace readit.Controls
             return postagens;
         }
 
+        public List<PostagensObras> FormatarDadosBookmarks(List<PostagensObras> postagens)
+        {
+            foreach (var postagem in postagens)
+            {
+                postagem.Image = ByteArrayToImage(postagem.ImageByte);
+                postagem.Title = postagem.Title = postagem.Title.Length > 39 ? postagem.Title.Substring(0, 39).Trim() + "..." : postagem.Title.Trim();
+            }
+
+            return postagens;
+        }
+
         public List<DestaquesItem> FormatarDadosObrasEmDestaques()
         {
             var obrasEmDestaque = db.BuscarObrasEmDestaque();

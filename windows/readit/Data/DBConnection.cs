@@ -478,6 +478,38 @@ namespace readit.Data
             }
         }
 
+        public List<PostagensObras> BuscarObrasBookmarks()
+        {
+            try
+            {
+                var obrasDB = (from o in context.Obras
+                               join i in context.Imagens on o.ImgId equals i.ImgId
+                               join bu in context.BookmarksUsuarios on o.ObsId equals bu.ObsId
+                               group new { o, i, bu } by new { o.ObsId, o.ObsNomeObra, i.ImgImagem, bu.UsuId } into obraGroup
+                               where obraGroup.Key.UsuId == Global.UsuarioLogado.Id
+                               select new
+                               {
+                                   Id = obraGroup.Key.ObsId,
+                                   NomeObra = obraGroup.Key.ObsNomeObra,
+                                   Imagem = obraGroup.Key.ImgImagem
+                               }).ToArray();
+
+                List<PostagensObras> listaObras = new List<PostagensObras>();
+
+                foreach (var obra in md.ObrasBookmarksDBToModel(obrasDB.ToArray()))
+                {
+                    listaObras.Add(obra);
+                }
+
+                return listaObras;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarObrasBookmarks()");
+                return new List<PostagensObras>();
+            }
+        }
+
         public List<DestaquesItem> BuscarObrasEmDestaque()
         {
             try

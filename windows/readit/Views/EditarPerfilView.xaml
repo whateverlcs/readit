@@ -44,7 +44,7 @@
                     <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
                 </Button>
                 <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Bookmarks">
+                <Button x:Name="BookmarksUsuario" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Bookmarks">
                     <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
                 </Button>
                 <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Editar Perfil">

@@ -480,5 +480,10 @@ namespace readit.ViewModels
         {
             _ = ActiveView.OpenItemMain(new EditarPerfilViewModel());
         }
+
+        public void BookmarksUsuario()
+        {
+            _ = ActiveView.OpenItemMain(new BookmarksViewModel());
+        }
     }
 }
