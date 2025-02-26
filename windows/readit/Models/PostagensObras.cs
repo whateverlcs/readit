@@ -9,6 +9,12 @@ namespace readit.Models
         public byte[] ImageByte { get; set; }
         public string Title { get; set; }
         public string Status { get; set; }
+        public string Tipo { get; set; }
+        public int TipoNumber { get; set; }
+        public List<string> Genres { get; set; } = new List<string>();
+        public double Rating { get; set; }
+        public DateTime DataPublicacao { get; set; }
+        public DateTime DataAtualizacao { get; set; }
         public int StatusNumber { get; set; }
         public List<ChapterInfo> ChapterInfos { get; set; }
     }

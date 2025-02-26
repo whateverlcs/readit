@@ -6,11 +6,11 @@ using WpfAnimatedGif;
 namespace readit.Views
 {
     /// <summary>
-    /// Interaction logic for BookmarksView.xaml
+    /// Interaction logic for ListagemObrasView.xaml
     /// </summary>
-    public partial class BookmarksView : UserControl
+    public partial class ListagemObrasView : UserControl
     {
-        public BookmarksView()
+        public ListagemObrasView()
         {
             InitializeComponent();
 

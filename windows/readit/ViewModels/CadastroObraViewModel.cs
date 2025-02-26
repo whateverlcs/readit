@@ -483,5 +483,10 @@ namespace readit.ViewModels
         {
             _ = ActiveView.OpenItemMain(new BookmarksViewModel());
         }
+
+        public void ListagemObras()
+        {
+            _ = ActiveView.OpenItemMain(new ListagemObrasViewModel());
+        }
     }
 }

@@ -598,6 +598,46 @@ namespace readit.Data
             }
         }
 
+        public List<PostagensObras> BuscarListagemObras()
+        {
+            try
+            {
+                var obrasDB = (from o in context.Obras
+                               join i in context.Imagens on o.ImgId equals i.ImgId
+                               join og in context.ObrasGeneros on o.ObsId equals og.ObsId
+                               join g in context.Generos on og.GnsId equals g.GnsId
+                               join a in context.AvaliacoesObras on o.ObsId equals a.ObsId into avaliacoes
+                               from avg in avaliacoes.DefaultIfEmpty()
+                               group new { o, i, g, avg } by new { o.ObsId, o.ObsNomeObra, i.ImgImagem, o.ObsStatus, o.ObsTipo, o.ObsDataPublicacao, o.ObsDataAtualizacao } into obraGroup
+                               select new
+                               {
+                                   Id = obraGroup.Key.ObsId,
+                                   NomeObra = obraGroup.Key.ObsNomeObra,
+                                   Imagem = obraGroup.Key.ImgImagem,
+                                   Rating = obraGroup.Average(x => x.avg != null ? x.avg.AvoNota : 0),
+                                   Status = obraGroup.Key.ObsStatus,
+                                   Tipo = obraGroup.Key.ObsTipo,
+                                   Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
+                                   DataPublicacao = obraGroup.Key.ObsDataPublicacao,
+                                   DataAtualizacao = obraGroup.Key.ObsDataAtualizacao,
+                               }).OrderByDescending(o => o.Rating).ToArray();
+
+                List<PostagensObras> listaObras = new List<PostagensObras>();
+
+                foreach (var obra in md.ListagemObrasDBToModel(obrasDB.ToArray()))
+                {
+                    listaObras.Add(obra);
+                }
+
+                return listaObras;
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarListagemObras()");
+                return new List<PostagensObras>();
+            }
+        }
+
         public DetalhesObra BuscarDetalhesObra(string nomeObra)
         {
             try

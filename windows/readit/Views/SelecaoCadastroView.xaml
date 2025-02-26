@@ -33,7 +33,7 @@
                 <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}" ToolTip="Gerenciar Cadastros">
                     <materialDesign:PackIcon Kind="PlusCircleOutline" Width="27" Height="30" />
                 </Button>
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Procurar Obras">
+                <Button x:Name="ListagemObras" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Procurar Obras">
                     <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
                 </Button>
                 <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Detalhes da Obra">

@@ -20,6 +20,7 @@
     <None Remove="Images\loading-gif.gif" />
     <None Remove="Images\login-image.png" />
     <None Remove="Images\not-found-bookmark.png" />
+    <None Remove="Images\not-found.png" />
     <None Remove="Images\profile-default.jpg" />
     <None Remove="Images\upload-image.png" />
   </ItemGroup>
@@ -80,6 +81,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\not-found-bookmark.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\not-found.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
 	<Resource Include="Images\profile-default.jpg">

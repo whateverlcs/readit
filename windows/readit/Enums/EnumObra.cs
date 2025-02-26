@@ -29,5 +29,14 @@
             PaginaInteira = 1,
             PorPagina = 2
         }
+
+        public enum TipoOrdenacao
+        {
+            OrdemAlfabetica = 1,
+            OrdemAlfabeticaReversa = 2,
+            OrdemObrasRecemAtualizadas = 3,
+            OrdemPublicacao = 4,
+            OrdemMaisPopulares = 5
+        }
     }
 }
