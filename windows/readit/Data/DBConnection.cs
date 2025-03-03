@@ -180,6 +180,62 @@ namespace readit.Data
             }
         }
 
+        public (List<CapitulosObra>, CapitulosObra) BuscarCapituloObrasPorId(int idObra, int chapterId, bool numeroCapitulos, bool paginasCapitulo)
+        {
+            try
+            {
+                CapitulosObra cap = new CapitulosObra();
+
+                if (paginasCapitulo)
+                {
+                    var paginasDB = (from c in context.CapitulosObras
+                                     join o in context.Obras on c.ObsId equals o.ObsId
+                                     join po in context.PaginasCapitulos on c.CpoId equals po.CpoId
+                                     group new { c, po, o } by new { o.ObsNomeObra, c.CpoNumeroCapitulo, c.ObsId, po.PgcNumeroPagina, po.PgcPagina, po.CpoId } into obraGroup
+                                     where obraGroup.Key.CpoId == chapterId && obraGroup.Key.ObsId == idObra
+                                     select new
+                                     {
+                                         IdObra = obraGroup.Key.ObsId,
+                                         NomeObra = obraGroup.Key.ObsNomeObra,
+                                         NumeroCapitulo = obraGroup.Key.CpoNumeroCapitulo,
+                                         NumeroPagina = obraGroup.Key.PgcNumeroPagina,
+                                         Pagina = obraGroup.Key.PgcPagina,
+                                         IdCapitulo = obraGroup.Key.CpoId,
+                                     }).ToArray();
+
+                    cap = md.CapituloPaginasObraDBToModel(paginasDB);
+                }
+
+                List<CapitulosObra> listaCapitulosObras = new List<CapitulosObra>();
+
+                if (numeroCapitulos)
+                {
+                    var capitulosObrasDB = (from c in context.CapitulosObras
+                                            where c.ObsId == idObra
+                                            select new
+                                            {
+                                                Id = c.CpoId,
+                                                NumeroCapitulo = c.CpoNumeroCapitulo,
+                                                IdObra = c.ObsId
+                                            }).ToArray();
+
+                    foreach (var capObra in md.CapitulosObrasReduzidoDBToModel(capitulosObrasDB.ToArray()))
+                    {
+                        capObra.NumeroCapituloDisplay = $"Capítulo {capObra.NumeroCapitulo:D2}";
+
+                        listaCapitulosObras.Add(capObra);
+                    }
+                }
+
+                return (listaCapitulosObras, cap);
+            }
+            catch (Exception e)
+            {
+                clog.RealizarLogExcecao(e.ToString(), "BuscarCapituloObrasPorId(int idObra, int chapterId, bool numeroCapitulos, bool paginasCapitulo)");
+                return (new List<CapitulosObra>(), new CapitulosObra());
+            }
+        }
+
         public List<PaginasCapitulo> BuscarPaginasCapituloPorIds(List<int> idsCap)
         {
             try

@@ -323,8 +323,7 @@ namespace readit.ViewModels
 
         private void NavigateToChapter(ChapterInfo chapterInfo)
         {
-            // Lógica para navegação baseada no capítulo
-            System.Diagnostics.Debug.WriteLine($"Navegando para o {chapterInfo.Chapter}");
+            _ = ActiveView.OpenItemMain(new LeituraCapituloViewModel(chapterInfo));
         }
 
         private void UpdatePaginatedList()

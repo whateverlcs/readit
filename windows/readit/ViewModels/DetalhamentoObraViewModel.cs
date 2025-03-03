@@ -305,8 +305,7 @@ namespace readit.ViewModels
 
         private void OnChapterClick(ChapterInfo chapter)
         {
-            // Lógica ao clicar em um gênero
-            string err = "";
+            _ = ActiveView.OpenItemMain(new LeituraCapituloViewModel(chapter));
         }
 
         public void RealizarBookmarkObra()

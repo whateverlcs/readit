@@ -191,6 +191,16 @@ namespace readit.Controls
             return postagens;
         }
 
+        public (List<CapitulosObra>, CapitulosObra) FormatarDadosPaginasCapitulo((List<CapitulosObra>, CapitulosObra) capitulos)
+        {
+            foreach (var pg in capitulos.Item2.ListaPaginas)
+            {
+                pg.PaginaImage = ByteArrayToImage(pg.Pagina);
+            }
+
+            return capitulos;
+        }
+
         public List<DestaquesItem> FormatarDadosObrasEmDestaques()
         {
             var obrasEmDestaque = db.BuscarObrasEmDestaque();

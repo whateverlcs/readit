@@ -305,6 +305,50 @@ namespace readit.Data
             return obra;
         }
 
+        public CapitulosObra CapituloPaginasObraDBToModel(dynamic[] capituloObrasDB)
+        {
+            var capPagObraDB = capituloObrasDB.First();
+
+            CapitulosObra capituloPaginasObra = new();
+            capituloPaginasObra.Id = capPagObraDB.IdCapitulo;
+            capituloPaginasObra.ObraId = capPagObraDB.IdObra;
+            capituloPaginasObra.NomeObra = capPagObraDB.NomeObra;
+            capituloPaginasObra.NumeroCapituloDisplay = $"Capítulo {capPagObraDB.NumeroCapitulo:D2}";
+            capituloPaginasObra.ListaPaginas = [];
+
+            foreach (var capObraDB in capituloObrasDB)
+            {
+                PaginasCapitulo pagCap = new();
+                pagCap.Pagina = capObraDB.Pagina;
+                pagCap.NumeroPagina = capObraDB.NumeroPagina;
+                pagCap.CapituloId = capObraDB.IdCapitulo;
+
+                capituloPaginasObra.ListaPaginas.Add(pagCap);
+            }
+
+            return capituloPaginasObra;
+        }
+
+        public List<CapitulosObra> CapitulosObrasReduzidoDBToModel(dynamic[] obrasDB)
+        {
+            List<CapitulosObra> listaObras = [];
+
+            foreach (var obraDB in obrasDB)
+            {
+                CapitulosObra obra = new CapitulosObra
+                {
+                    Id = obraDB.Id,
+                    NumeroCapitulo = obraDB.NumeroCapitulo,
+                    NumeroCapituloDisplay = $"Capítulo {obraDB.NumeroCapitulo:D2}",
+                    ObraId = obraDB.IdObra,
+                };
+
+                listaObras.Add(obra);
+            }
+
+            return listaObras;
+        }
+
         public List<CapitulosObra> CapitulosObrasDBToModel(ef.CapitulosObra[] capituloObrasDB)
         {
             List<CapitulosObra> listaCapitulosObras = [];
