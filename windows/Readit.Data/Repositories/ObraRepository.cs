@@ -174,7 +174,6 @@ namespace Readit.Data.Repositories
                     List<DestaquesItem> todasObras = new();
                     int totalObrasComAvaliacao = await _context.AvaliacoesObras.Select(a => a.ObsId).Distinct().CountAsync();
 
-                    // Consulta única para reduzir acessos ao banco
                     var obrasQuery = await (from o in _context.Obras
                                             join i in _context.Imagens on o.ImgId equals i.ImgId
                                             join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
@@ -187,7 +186,7 @@ namespace Readit.Data.Repositories
                                                 obraGroup.Key.ImgImagem,
                                                 Rating = obraGroup.Average(x => x.a.AvoNota),
                                                 Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
-                                                DataAvaliacao = obraGroup.Max(x => x.a.AvoDataAvaliacao) // Última avaliação da obra
+                                                DataAvaliacao = obraGroup.Max(x => x.a.AvoDataAvaliacao)
                                             }).ToListAsync();
 
                     foreach (var filtro in filtros)
@@ -201,10 +200,8 @@ namespace Readit.Data.Repositories
                             var query = obrasQuery
                                 .Where(o => filtro.Key == "Todos" || o.DataAvaliacao >= dataInicio)
                                 .OrderByDescending(o => o.Rating)
-                                .Take(10 - topObras.Count)
                                 .ToList();
 
-                            // Conversão necessária antes de adicionar a lista
                             topObras.AddRange(query.Select(o => new DestaquesItem
                             {
                                 Title = o.ObsNomeObra,
@@ -213,7 +210,6 @@ namespace Readit.Data.Repositories
                                 Genres = o.Genres
                             }));
 
-                            // Removendo obras repetidas e garantindo diversidade
                             topObras = topObras
                                 .GroupBy(x => x.Title)
                                 .Select(g => g.First())

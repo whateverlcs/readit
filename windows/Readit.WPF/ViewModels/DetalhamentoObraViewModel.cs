@@ -6,6 +6,7 @@ using Readit.Infra.Helpers;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace Readit.WPF.ViewModels
@@ -165,68 +166,181 @@ namespace Readit.WPF.ViewModels
 
         #endregion Loading
 
+        #region Comentários
+
+        private string _novoComentario;
+
+        public string NovoComentario
+        {
+            get { return _novoComentario; }
+            set
+            {
+                _novoComentario = value;
+                NotifyOfPropertyChange(() => NovoComentario);
+            }
+        }
+
+        private string _novaResposta;
+
+        public string NovaResposta
+        {
+            get { return _novaResposta; }
+            set
+            {
+                _novaResposta = value;
+                NotifyOfPropertyChange(() => NovaResposta);
+            }
+        }
+
+        private ObservableCollection<Comentarios> _comentarios;
+
+        public ObservableCollection<Comentarios> Comentarios
+        {
+            get { return _comentarios; }
+            set
+            {
+                _comentarios = value;
+                NotifyOfPropertyChange(() => Comentarios);
+            }
+        }
+
+        private bool _exibirComentarios;
+
+        public bool ExibirComentarios
+        {
+            get { return _exibirComentarios; }
+            set
+            {
+                _exibirComentarios = value;
+                NotifyOfPropertyChange(() => ExibirComentarios);
+            }
+        }
+
+        private bool _exibirBotaoComentarios = true;
+
+        public bool ExibirBotaoComentarios
+        {
+            get { return _exibirBotaoComentarios; }
+            set
+            {
+                _exibirBotaoComentarios = value;
+                NotifyOfPropertyChange(() => ExibirBotaoComentarios);
+            }
+        }
+
+        private ImageSource _usuarioImagem;
+
+        public ImageSource UsuarioImagem
+        {
+            get { return _usuarioImagem; }
+            set
+            {
+                _usuarioImagem = value;
+                NotifyOfPropertyChange(() => UsuarioImagem);
+            }
+        }
+
+        private bool _loadingComentarios;
+
+        public bool LoadingComentarios
+        {
+            get { return _loadingComentarios; }
+            set
+            {
+                _loadingComentarios = value;
+                NotifyOfPropertyChange(() => LoadingComentarios);
+            }
+        }
+
+        private bool _habilitarCampos = true;
+
+        public bool HabilitarCampos
+        {
+            get { return _habilitarCampos; }
+            set
+            {
+                _habilitarCampos = value;
+                NotifyOfPropertyChange(() => HabilitarCampos);
+            }
+        }
+
+        private int _comentariosCount;
+
+        public int ComentariosCount
+        {
+            get { return _comentariosCount; }
+            set
+            {
+                _comentariosCount = value;
+                NotifyOfPropertyChange(() => ComentariosCount);
+            }
+        }
+
+        public ICommand ComentarCommand { get; set; }
+        public ICommand FiltroMelhoresCommand { get; set; }
+        public ICommand FiltroRecentesCommand { get; set; }
+        public ICommand FiltroAntigosCommand { get; set; }
+        public ICommand LikeCommand { get; set; }
+        public ICommand DislikeCommand { get; set; }
+        public ICommand ResponderCommand { get; set; }
+        public ICommand ResponderComentarioCommand { get; set; }
+        public ICommand CancelarComentarioCommand { get; set; }
+
+        #endregion Comentários
+
         private readonly IUsuarioService _usuarioService;
         private readonly IAvaliacaoObraRepository _avaliacaoObraRepository;
         private readonly IVisualizacaoObraRepository _visualizacaoObraRepository;
         private readonly IBookmarkRepository _bookmarkRepository;
+        private readonly IComentarioRepository _comentarioRepository;
         private readonly IArquivoService _arquivoService;
         private readonly IObraService _obraService;
+        private readonly IComentarioService _comentarioService;
+        private readonly IImagemService _imagemService;
 
-        public DetalhamentoObraViewModel(IUsuarioService usuarioService, IAvaliacaoObraRepository avaliacaoObraRepository, IVisualizacaoObraRepository visualizacaoObraRepository, IBookmarkRepository bookmarkRepository, IArquivoService arquivoService, IObraService obraService, string nomeObra)
+        public DetalhamentoObraViewModel(IUsuarioService usuarioService, IAvaliacaoObraRepository avaliacaoObraRepository, IVisualizacaoObraRepository visualizacaoObraRepository, IBookmarkRepository bookmarkRepository, IComentarioRepository comentarioRepository, IArquivoService arquivoService, IObraService obraService, IComentarioService comentarioService, IImagemService imagemService, string nomeObra)
         {
             _usuarioService = usuarioService;
             _avaliacaoObraRepository = avaliacaoObraRepository;
             _visualizacaoObraRepository = visualizacaoObraRepository;
             _bookmarkRepository = bookmarkRepository;
+            _comentarioRepository = comentarioRepository;
             _arquivoService = arquivoService;
             _obraService = obraService;
+            _comentarioService = comentarioService;
+            _imagemService = imagemService;
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
             _nomeObra = nomeObra;
             _texts = _arquivoService.ExtrairDadosFrasesLoading();
 
             AplicarLoading(true);
 
+            #region Dados Obra
+
             Task.Run(() => CarregarDadosObraAsync()).ConfigureAwait(false);
 
             GenreClickCommand = new RelayCommandHelper<string>(OnGenreClick);
             StarClickedCommand = new AsyncRelayCommand<object>(StarClicked);
             ChapterClickedCommand = new RelayCommandHelper<ChapterInfo>(OnChapterClick);
+
+            #endregion Dados Obra
+
+            #region Comentários
+
+            ComentarCommand = new AsyncRelayCommand<object>(Comentar);
+            FiltroMelhoresCommand = new RelayCommandHelper<object>(FiltroMelhores);
+            FiltroRecentesCommand = new RelayCommandHelper<object>(FiltroRecentes);
+            FiltroAntigosCommand = new RelayCommandHelper<object>(FiltroAntigos);
+            LikeCommand = new AsyncRelayCommand<Comentarios>(CurtirComentario);
+            DislikeCommand = new AsyncRelayCommand<Comentarios>(DislikarComentario);
+            ResponderCommand = new RelayCommandHelper<Comentarios>(Responder);
+            ResponderComentarioCommand = new AsyncRelayCommand<Comentarios>(ResponderComentario);
+            CancelarComentarioCommand = new RelayCommandHelper<Comentarios>(CancelarComentario);
+
+            #endregion Comentários
         }
 
-        public void AplicarLoading(bool loading)
-        {
-            if (loading)
-            {
-                Loading = true;
-                ExibirSecoes = Visibility.Hidden;
-
-                _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
-                _timer.Tick += (s, e) =>
-                {
-                    var currentText = _texts[_textIndex];
-                    AnimatedText = _removing ? currentText[..(--_index)] : currentText[..(++_index)];
-
-                    if (_index == currentText.Length) _removing = true;
-                    if (_index == 0)
-                    {
-                        _removing = false;
-                        _textIndex = (_textIndex + 1) % _texts.Count;
-                    }
-                };
-                _timer.Start();
-            }
-            else
-            {
-                try
-                {
-                    _timer.Stop();
-                }
-                catch { }
-
-                Loading = false;
-                ExibirSecoes = Visibility.Visible;
-            }
-        }
+        #region Detalhes Obra
 
         public async Task CarregarDadosObraAsync()
         {
@@ -333,6 +447,225 @@ namespace Readit.WPF.ViewModels
             else
             {
                 await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao salvar/remover o bookmark."]);
+            }
+        }
+
+        #endregion Detalhes Obra
+
+        #region Comentários
+
+        public void CarregarComentarios()
+        {
+            LoadingComentarios = true;
+            HabilitarCampos = false;
+
+            Task.Run(() => CarregarDadosComentariosObra()).ConfigureAwait(false);
+        }
+
+        public async Task CarregarDadosComentariosObra()
+        {
+            UsuarioImagem = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte);
+            Comentarios = new ObservableCollection<Comentarios>(await _comentarioService.FormatarDadosComentarios(DadosDetalhesObra.ObraId, null).ConfigureAwait(false));
+            NotifyOfPropertyChange(() => Comentarios);
+
+            ComentariosCount = Comentarios.Count + Comentarios.Sum(c => c.Respostas.Count);
+            ExibirBotaoComentarios = false;
+            ExibirComentarios = true;
+            LoadingComentarios = false;
+            HabilitarCampos = true;
+        }
+
+        public async Task Comentar(object obj)
+        {
+            if (!string.IsNullOrEmpty(NovoComentario))
+            {
+                var novoComentario = new Comentarios
+                {
+                    UsuarioApelido = _usuarioService.UsuarioLogado.Apelido,
+                    TempoDecorridoFormatado = "1 min(s) atrás",
+                    TempoDecorrido = DateTime.Now,
+                    ComentarioTexto = NovoComentario,
+                    ContadorLikes = 0,
+                    ContadorDislikes = 0,
+                    IdObra = DadosDetalhesObra.ObraId,
+                    IdCapitulo = null,
+                    IdUsuario = _usuarioService.UsuarioLogado.Id,
+                    ImagemPerfil = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
+                };
+
+                var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novoComentario).ConfigureAwait(false);
+
+                if (sucesso.Item1)
+                {
+                    novoComentario.Id = sucesso.Item2;
+
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        Comentarios.Add(novoComentario);
+
+                        ComentariosCount = Comentarios.Count + Comentarios.Sum(c => c.Respostas.Count);
+                        NovoComentario = string.Empty;
+                        NotifyOfPropertyChange(() => Comentarios);
+                    });
+                }
+                else
+                {
+                    await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao realizar o comentário na obra."]);
+                }
+            }
+        }
+
+        public async Task ResponderComentario(Comentarios comentario)
+        {
+            if (!string.IsNullOrEmpty(NovaResposta))
+            {
+                var novaResposta = new Comentarios
+                {
+                    UsuarioApelido = _usuarioService.UsuarioLogado.Apelido,
+                    TempoDecorridoFormatado = "1 min(s) atrás",
+                    TempoDecorrido = DateTime.Now,
+                    ComentarioTexto = NovaResposta,
+                    ContadorLikes = 0,
+                    ContadorDislikes = 0,
+                    Pai = comentario,
+                    IdObra = DadosDetalhesObra.ObraId,
+                    IdCapitulo = null,
+                    IdUsuario = _usuarioService.UsuarioLogado.Id,
+                    ImagemPerfil = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
+                };
+
+                var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novaResposta).ConfigureAwait(false);
+
+                if (sucesso.Item1)
+                {
+                    novaResposta.Id = sucesso.Item2;
+
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        comentario.AdicionarResposta(novaResposta);
+
+                        ComentariosCount = Comentarios.Count + Comentarios.Sum(c => c.Respostas.Count);
+                        NovaResposta = string.Empty;
+                        comentario.IsRespostaVisivel = false;
+                        NotifyOfPropertyChange(() => Comentarios);
+                    });
+                }
+                else
+                {
+                    await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao realizar a comentário na obra."]);
+                }
+            }
+        }
+
+        public void CancelarComentario(Comentarios comentario)
+        {
+            comentario.IsRespostaVisivel = false;
+            NovaResposta = string.Empty;
+        }
+
+        public async Task CurtirComentario(Comentarios comentario)
+        {
+            var podeRealizarLike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Like").ConfigureAwait(false);
+
+            if (podeRealizarLike)
+            {
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Like", "Adicionar").ConfigureAwait(false);
+                comentario.ContadorLikes++;
+            }
+            else
+            {
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Like", "Remover").ConfigureAwait(false);
+                comentario.ContadorLikes--;
+            }
+        }
+
+        public async Task DislikarComentario(Comentarios comentario)
+        {
+            var podeRealizarDislike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Dislike").ConfigureAwait(false);
+
+            if (podeRealizarDislike)
+            {
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Dislike", "Adicionar").ConfigureAwait(false);
+                comentario.ContadorDislikes++;
+            }
+            else
+            {
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Dislike", "Remover").ConfigureAwait(false);
+                comentario.ContadorDislikes--;
+            }
+        }
+
+        public void Responder(Comentarios comentario)
+        {
+            comentario.MostrarResposta();
+        }
+
+        public void FiltroMelhores(object obj)
+        {
+            var melhoresComentarios = Comentarios.OrderByDescending(c => c.ContadorLikes).ToList();
+            Comentarios.Clear();
+            foreach (var comentario in melhoresComentarios)
+            {
+                Comentarios.Add(comentario);
+            }
+        }
+
+        public void FiltroRecentes(object obj)
+        {
+            var comentariosRecentes = Comentarios.OrderByDescending(c => c.TempoDecorrido).ToList();
+            Comentarios.Clear();
+            foreach (var comentario in comentariosRecentes)
+            {
+                Comentarios.Add(comentario);
+            }
+        }
+
+        public void FiltroAntigos(object obj)
+        {
+            var comentariosAntigos = Comentarios.OrderBy(c => c.TempoDecorrido).ToList();
+            Comentarios.Clear();
+            foreach (var comentario in comentariosAntigos)
+            {
+                Comentarios.Add(comentario);
+            }
+        }
+
+        #endregion Comentários
+
+        public void AplicarLoading(bool loading)
+        {
+            if (loading)
+            {
+                Loading = true;
+                ExibirSecoes = Visibility.Hidden;
+                ExibirBotaoComentarios = false;
+
+                _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
+                _timer.Tick += (s, e) =>
+                {
+                    var currentText = _texts[_textIndex];
+                    AnimatedText = _removing ? currentText[..(--_index)] : currentText[..(++_index)];
+
+                    if (_index == currentText.Length) _removing = true;
+                    if (_index == 0)
+                    {
+                        _removing = false;
+                        _textIndex = (_textIndex + 1) % _texts.Count;
+                    }
+                };
+                _timer.Start();
+            }
+            else
+            {
+                try
+                {
+                    _timer.Stop();
+                }
+                catch { }
+
+                Loading = false;
+                ExibirSecoes = Visibility.Visible;
+                ExibirBotaoComentarios = true;
             }
         }
 

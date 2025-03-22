@@ -9,5 +9,6 @@
         public string Senha { get; set; }
         public bool Administrador { get; set; }
         public int? IdImagem { get; set; }
+        public byte[] ImageByte { get; set; }
     }
 }

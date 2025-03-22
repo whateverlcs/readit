@@ -71,6 +71,7 @@ namespace Readit.WPF
             _container.Singleton<IImagemService, ImagemService>();
             _container.Singleton<IObraService, ObraService>();
             _container.Singleton<IUtilService, UtilService>();
+            _container.Singleton<IComentarioService, ComentarioService>();
 
             // Registro Repositórios
             _container.Singleton<IAvaliacaoObraRepository, AvaliacaoObraRepository>();
@@ -83,6 +84,7 @@ namespace Readit.WPF
             _container.Singleton<ITipoVisualizacaoObraRepository, TipoVisualizacaoObraRepository>();
             _container.Singleton<IUsuarioRepository, UsuarioRepository>();
             _container.Singleton<IVisualizacaoObraRepository, VisualizacaoObraRepository>();
+            _container.Singleton<IComentarioRepository, ComentarioRepository>();
 
             // Registro ViewModels
             _container.PerRequest<BookmarksViewModel, BookmarksViewModel>();

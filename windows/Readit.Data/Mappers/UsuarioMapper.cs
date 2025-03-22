@@ -48,5 +48,22 @@ namespace Readit.Data.Mappers
                 })
                 .ToList();
         }
+
+        public static List<Usuario> ToDomainListDynamic(this IEnumerable<dynamic> usuario)
+        {
+            return usuario
+                .Select(usuDB => new Usuario
+                {
+                    Id = usuDB.Id,
+                    Nome = usuDB.Nome,
+                    Apelido = usuDB.Apelido,
+                    Email = usuDB.Email,
+                    Senha = usuDB.Senha,
+                    Administrador = usuDB.Administrador,
+                    IdImagem = usuDB.IdImagem,
+                    ImageByte = usuDB.Imagem
+                })
+                .ToList();
+        }
     }
 }

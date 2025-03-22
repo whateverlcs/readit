@@ -14,11 +14,11 @@ public partial class Comentario
 
     public int UsuId { get; set; }
 
-    public int CpoId { get; set; }
+    public int? CpoId { get; set; }
 
     public virtual ICollection<AvaliacoesComentario> AvaliacoesComentarios { get; set; } = new List<AvaliacoesComentario>();
 
-    public virtual CapitulosObra Cpo { get; set; } = null!;
+    public virtual CapitulosObra? Cpo { get; set; } = null!;
 
     public virtual ICollection<ImagensComentario> ImagensComentarios { get; set; } = new List<ImagensComentario>();
 

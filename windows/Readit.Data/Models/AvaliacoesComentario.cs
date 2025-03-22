@@ -8,7 +8,11 @@ public partial class AvaliacoesComentario
 
     public int AvaId { get; set; }
 
+    public int UsuId { get; set; }
+
     public virtual Avaliaco Ava { get; set; } = null!;
 
     public virtual Comentario Cts { get; set; } = null!;
+
+    public virtual Usuario Usu { get; set; } = null!;
 }

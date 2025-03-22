@@ -25,23 +25,24 @@ namespace Readit.Data.Repositories
             {
                 try
                 {
-                    ef.Models.Usuario[] usuDB;
-
-                    if (!string.IsNullOrEmpty(email))
-                    {
-                        usuDB = await (from u in _context.Usuarios
+                    var usuDB = await (from u in _context.Usuarios
+                                       join i in _context.Imagens on u.ImgId equals i.ImgId
                                        where u.UsuEmail == email
-                                       select u).ToArrayAsync();
-                    }
-                    else
-                    {
-                        usuDB = await (from u in _context.Usuarios
-                                       select u).ToArrayAsync();
-                    }
+                                       select new
+                                       {
+                                           Id = u.UsuId,
+                                           Nome = u.UsuNome,
+                                           Apelido = u.UsuApelido,
+                                           Email = u.UsuEmail,
+                                           Senha = u.UsuSenha,
+                                           Administrador = u.UsuAdministrador,
+                                           IdImagem = u.ImgId,
+                                           Imagem = i.ImgImagem
+                                       }).ToArrayAsync();
 
                     List<Usuario> listaUsuarios = new List<Usuario>();
 
-                    foreach (var usu in usuDB.ToDomainList())
+                    foreach (var usu in UsuarioMapper.ToDomainListDynamic(usuDB))
                     {
                         listaUsuarios.Add(usu);
                     }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Readit.Core.Services;
 using Readit.Data.Models;
 
 namespace Readit.Data.Context;
@@ -70,13 +69,10 @@ public partial class ReaditContext : DbContext
             entity.HasKey(e => e.AvaId).HasName("PK__Avaliaco__4C740ADA34E84EF4");
 
             entity.Property(e => e.AvaId).HasColumnName("ava_id");
-            entity.Property(e => e.AvaAvaliacao).HasColumnName("ava_avaliacao");
-            entity.Property(e => e.UsuId).HasColumnName("usu_id");
-
-            entity.HasOne(d => d.Usu).WithMany(p => p.Avaliacos)
-                .HasForeignKey(d => d.UsuId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AvaliacoesUsuarios");
+            entity.Property(e => e.AvaAvaliacao)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("ava_avaliacao");
         });
 
         modelBuilder.Entity<AvaliacoesComentario>(entity =>
@@ -88,6 +84,7 @@ public partial class ReaditContext : DbContext
             entity.Property(e => e.AvcId).HasColumnName("avc_id");
             entity.Property(e => e.AvaId).HasColumnName("ava_id");
             entity.Property(e => e.CtsId).HasColumnName("cts_id");
+            entity.Property(e => e.UsuId).HasColumnName("usu_id");
 
             entity.HasOne(d => d.Ava).WithMany(p => p.AvaliacoesComentarios)
                 .HasForeignKey(d => d.AvaId)
@@ -98,6 +95,11 @@ public partial class ReaditContext : DbContext
                 .HasForeignKey(d => d.CtsId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AvaliacoesComentarioComentarios");
+
+            entity.HasOne(d => d.Usu).WithMany(p => p.AvaliacoesComentarios)
+                .HasForeignKey(d => d.UsuId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AvaliacoesComentarioUsuarios");
         });
 
         modelBuilder.Entity<AvaliacoesObra>(entity =>
@@ -201,7 +203,6 @@ public partial class ReaditContext : DbContext
 
             entity.HasOne(d => d.Cpo).WithMany(p => p.Comentarios)
                 .HasForeignKey(d => d.CpoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ComentariosCapitulosObra");
 
             entity.HasOne(d => d.Obs).WithMany(p => p.Comentarios)
@@ -476,5 +477,5 @@ public partial class ReaditContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    private partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

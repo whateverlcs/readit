@@ -17,6 +17,7 @@
     <None Remove="Resources\Fonts\Roboto-Light.ttf" />
     <None Remove="Resources\Fonts\Roboto-Medium.ttf" />
     <None Remove="Resources\Fonts\Roboto.ttf" />
+    <None Remove="Resources\Images\not-found-comments.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -75,6 +76,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\not-found-bookmark.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\not-found-comments.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\not-found.png">

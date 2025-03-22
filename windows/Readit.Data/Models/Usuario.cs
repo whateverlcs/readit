@@ -16,9 +16,9 @@ public partial class Usuario
 
     public int? ImgId { get; set; }
 
-    public virtual ICollection<AvaliacoesObra> AvaliacoesObras { get; set; } = new List<AvaliacoesObra>();
+    public virtual ICollection<AvaliacoesComentario> AvaliacoesComentarios { get; set; } = new List<AvaliacoesComentario>();
 
-    public virtual ICollection<Avaliaco> Avaliacos { get; set; } = new List<Avaliaco>();
+    public virtual ICollection<AvaliacoesObra> AvaliacoesObras { get; set; } = new List<AvaliacoesObra>();
 
     public virtual ICollection<BookmarksUsuario> BookmarksUsuarios { get; set; } = new List<BookmarksUsuario>();
 

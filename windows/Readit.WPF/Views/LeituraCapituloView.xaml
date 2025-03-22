@@ -15,6 +15,27 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
         <l:InverseVisibilityConverterHelper x:Key="InverseVisibilityConverter"/>
+        <l:IsEmptyToVisibilityConverterHelper x:Key="IsEmptyVisibilityConverter"/>
+        <l:InvertedBooleanToVisibilityConverterHelper x:Key="InvertedVisibilityConverter"/>
+        <Style x:Key="NoBorderButtonStyle" TargetType="Button" BasedOn="{StaticResource NoBackgroundButtonStyle}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="LightGray" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -56,10 +77,10 @@
 
         <Grid Grid.Column="2" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="3">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <!-- Controles do Header -->
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
                 <!-- Conteúdo (Páginas) -->
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}" Background="#14213D" Loaded="Grid_Loaded">
@@ -112,6 +133,9 @@
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="20" />
                         <RowDefinition Height="50" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="30" />
                     </Grid.RowDefinitions>
 
                     <!-- Título do Capítulo -->
@@ -148,6 +172,152 @@
                         <Button x:Name="CapituloAnteriorRodape" Content="Anterior" Width="100" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Height="40" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" materialDesign:ButtonAssist.CornerRadius="10" IsEnabled="{Binding CapituloAnteriorHabilitado, Mode=TwoWay}" cal:Message.Attach="[Event Click] = [Action CapituloAnterior()]" Click="VoltarTopo_Click" />
                         <Button x:Name="ProximaCapituloRodape" Content="Próximo" Width="100" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Height="40" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" materialDesign:ButtonAssist.CornerRadius="10" IsEnabled="{Binding ProximoCapituloHabilitado, Mode=TwoWay}" cal:Message.Attach="[Event Click] = [Action ProximoCapitulo()]" Click="VoltarTopo_Click" />
                     </StackPanel>
+
+                    <!-- Comentários -->
+                    <Button x:Name="CarregarComentarios" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="5" Width="300" Height="50" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" materialDesign:ButtonAssist.CornerRadius="10" Visibility="{Binding ExibirBotaoComentarios, Converter={StaticResource VisibilityConverter}}" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}">
+                        <StackPanel Orientation="Horizontal">
+                            <ProgressBar Width="20" Height="20" Style="{DynamicResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Value="33" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding LoadingComentarios, Converter={StaticResource VisibilityConverter}}"/>
+                            <TextBlock Text="Carregar Comentários da Obra" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Grid Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="5" Visibility="{Binding ExibirComentarios, Converter={StaticResource VisibilityConverter}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="30" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="20"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{Binding ComentariosCount, StringFormat='{}{0} Comentários'}"
+                        Grid.Row="0" Grid.Column="0"
+                        HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" FontWeight="Bold" FontSize="15" />
+
+                        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="100" />
+                                <RowDefinition Height="60" />
+                            </Grid.RowDefinitions>
+                            <Image Grid.Column="0" Grid.Row="0" Source="{Binding UsuarioImagem}" Stretch="UniformToFill" ClipToBounds="True"/>
+                            <TextBox Grid.Column="2" Grid.Row="0" Style="{StaticResource MaterialDesignOutlinedTextBox}" Background="Gray" Height="100" Text="{Binding NovoComentario}"/>
+                            <Button Grid.Column="2" Grid.Row="1" Content="Comentar" Command="{Binding ComentarCommand}" Height="40" HorizontalAlignment="Right" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" materialDesign:ButtonAssist.CornerRadius="10"/>
+                        </Grid>
+
+                        <!-- Mensagem quando não houver itens -->
+                        <StackPanel x:Name="EmptyStatePanel" Grid.Row="4" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Comentarios.Count, Converter={StaticResource IsEmptyVisibilityConverter}}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 100">
+                            <Image Source="../Resources/Images/not-found-comments.png" Width="600" Height="500"/>
+                            <TextBlock Text="Ainda não foi adicionado nenhum comentário na obra!"
+                            Foreground="White" FontSize="30"
+                            HorizontalAlignment="Center" Margin="10"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Right" Visibility="{Binding Comentarios.Count, Converter={StaticResource InvertedVisibilityConverter}}">
+                            <Button Content="Melhores" Command="{Binding FiltroMelhoresCommand}" Style="{StaticResource NoBorderButtonStyle}" FontSize="16" Margin="0 0 5 0"/>
+                            <Button Content="Mais Recentes" Command="{Binding FiltroRecentesCommand}" Style="{StaticResource NoBorderButtonStyle}" FontSize="16" Margin="0 0 5 0"/>
+                            <Button Content="Mais Antigos" Command="{Binding FiltroAntigosCommand}" Style="{StaticResource NoBorderButtonStyle}" FontSize="16"/>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Comentarios}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Visibility="{Binding Comentarios.Count, Converter={StaticResource InvertedVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding ImagemPerfil}" Width="60" Height="60" Stretch="UniformToFill" ClipToBounds="True"/>
+                                            <StackPanel Margin="10,0,0,0" Orientation="Vertical">
+                                                <TextBlock Text="{Binding UsuarioApelido}" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                                                <TextBlock Text="{Binding TempoDecorridoFormatado}" Foreground="Gray"/>
+                                                <TextBlock Text="{Binding ComentarioTexto}" Foreground="White" FontSize="12" Margin="0 5 0 0"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Command="{Binding DataContext.LikeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Padding="0" Margin="0 0 5 0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Width="19" Height="19" Kind="ThumbUpOutline" Foreground="Green" />
+                                                    <TextBlock Text="{Binding ContadorLikes}" Foreground="White" Margin="3 0 0 0"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Command="{Binding DataContext.DislikeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Padding="0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Width="19" Height="19" Kind="ThumbDownOutline" Foreground="Red" />
+                                                    <TextBlock Text="{Binding ContadorDislikes}" Foreground="White" Margin="3 0 10 0"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Content="Responder" Command="{Binding DataContext.ResponderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource NoBorderButtonStyle}" FontSize="14"/>
+                                        </StackPanel>
+
+                                        <Grid Visibility="{Binding IsRespostaVisivel, Converter={StaticResource VisibilityConverter}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="70" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="50" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="60"/>
+                                                <RowDefinition Height="30"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBox Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" Text="{Binding DataContext.NovaResposta, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource MaterialDesignOutlinedTextBox}" Background="Gray" Height="60"/>
+
+                                            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <Button Content="Cancelar" Command="{Binding DataContext.CancelarComentarioCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}" Style="{StaticResource NoBorderButtonStyle}" Foreground="Gray" FontSize="14" Margin="0 0 20 0"/>
+                                                <Button Content="Responder" Command="{Binding DataContext.ResponderComentarioCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}" Style="{StaticResource NoBorderButtonStyle}" Foreground="Gray" FontSize="14" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Margin="20,10,0,10">
+                                            <ItemsControl ItemsSource="{Binding Respostas}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Image Source="{Binding ImagemPerfil}" Width="60" Height="60" Stretch="UniformToFill" ClipToBounds="True"/>
+                                                                <StackPanel Margin="10,0,0,0">
+                                                                    <TextBlock Text="{Binding UsuarioApelido}" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                                                                    <TextBlock Text="{Binding TempoDecorridoFormatado}" Foreground="Gray"/>
+                                                                    <TextBlock Text="{Binding ComentarioTexto}" Foreground="White" FontSize="12" Margin="0 5 0 0"/>
+                                                                </StackPanel>
+                                                            </StackPanel>
+
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Button Command="{Binding DataContext.LikeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Padding="0" Margin="0 0 5 0">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <materialDesign:PackIcon Width="19" Height="19" Kind="ThumbUpOutline" Foreground="Green" />
+                                                                        <TextBlock Text="{Binding ContadorLikes}" Foreground="White" Margin="3 0 0 0"/>
+                                                                    </StackPanel>
+                                                                </Button>
+                                                                <Button Command="{Binding DataContext.DislikeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" Padding="0">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <materialDesign:PackIcon Width="19" Height="19" Kind="ThumbDownOutline" Foreground="Red" />
+                                                                        <TextBlock Text="{Binding ContadorDislikes}" Foreground="White" Margin="3 0 10 0"/>
+                                                                    </StackPanel>
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
                 </Grid>
             </ScrollViewer>
         </Grid>
@@ -157,5 +327,8 @@
          Visibility="{Binding ExibirBotaoVoltarTopo, Converter={StaticResource VisibilityConverter}}" Click="VoltarTopo_Click" Margin="0 0 0 70" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D">
             <materialDesign:PackIcon Kind="ArrowUp" Width="20" Height="20" />
         </Button>
+        <materialDesign:Snackbar Grid.Column="4" x:Name="SnackbarFive" Background="{Binding CorMsgInfo, Mode=TwoWay}" ActionButtonPlacement="Inline" HorizontalAlignment="Right" VerticalAlignment="Top" IsActive="{Binding ExibirMensagem, Mode=TwoWay}" Height="90">
+            <materialDesign:SnackbarMessage Content="{Binding MsgInfo, Mode=TwoWay}" />
+        </materialDesign:Snackbar>
     </Grid>
 </UserControl>
