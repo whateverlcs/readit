@@ -84,6 +84,7 @@ namespace Readit.WPF
             _container.Singleton<IUsuarioRepository, UsuarioRepository>();
             _container.Singleton<IVisualizacaoObraRepository, VisualizacaoObraRepository>();
             _container.Singleton<IComentarioRepository, ComentarioRepository>();
+            _container.Singleton<IPreferenciasRepository, PreferenciasRepository>();
 
             // Registro ViewModels
             _container.PerRequest<BookmarksViewModel, BookmarksViewModel>();

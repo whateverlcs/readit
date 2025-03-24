@@ -110,6 +110,23 @@
                 <TextBox x:Name="Apelido" Style="{StaticResource MaterialDesignOutlinedTextBox}" Grid.Column="9" Grid.Row="1" VerticalAlignment="Top" FontSize="15" Width="350" Height="60" Background="White" materialDesign:ButtonAssist.CornerRadius="10" materialDesign:HintAssist.Hint="Apelido" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
                 <TextBox x:Name="Email" Style="{StaticResource MaterialDesignOutlinedTextBox}" Grid.Column="7" Grid.Row="2" VerticalAlignment="Top" FontSize="15" Width="350" Height="60" Background="White" materialDesign:ButtonAssist.CornerRadius="10" materialDesign:HintAssist.Hint="E-mail" IsEnabled="False" />
                 <PasswordBox x:Name="Senha" helper:PasswordBoxHelper.BoundPassword="{Binding Senha, Mode=TwoWay}" helper:PasswordBoxHelper.BindPasswordBehavior="True" Style="{StaticResource MaterialDesignOutlinedPasswordBox}" Grid.Column="9" Grid.Row="2" Width="350" VerticalAlignment="Top" FontSize="15" Height="60" Background="White" materialDesign:ButtonAssist.CornerRadius="10" materialDesign:HintAssist.Hint="Senha (Alterar se necessário)" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+                <ComboBox x:Name="Preferencias" Style="{StaticResource MaterialDesignOutlinedComboBox}" Grid.Column="7" Grid.Row="3" VerticalAlignment="Top" Width="350" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Preferências" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" IsEditable="True" StaysOpenOnEdit="True">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Nome}"
+                            IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                            cal:Message.Attach="[Event Checked] = [Action AtualizarPreferenciasSelecionadasDisplay];
+                            [Event Unchecked] = [Action AtualizarPreferenciasSelecionadasDisplay]" cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=Preferencias}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <ComboBox.Text>
+                        <!-- Exibe os itens selecionados -->
+                        <Binding Path="PreferenciasSelecionadasDisplay" Mode="TwoWay" />
+                    </ComboBox.Text>
+                    <ComboBox.ItemsSource>
+                        <Binding Path="ListaPreferencias" />
+                    </ComboBox.ItemsSource>
+                </ComboBox>
 
                 <Button x:Name="AtualizarInformacoes" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Grid.Column="9" Grid.Row="7" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="250" Height="50" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" materialDesign:ButtonAssist.CornerRadius="10" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">

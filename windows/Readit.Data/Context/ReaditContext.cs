@@ -322,7 +322,10 @@ public partial class ReaditContext : DbContext
             entity.HasKey(e => e.PreId).HasName("PK__Preferen__E0CCC60D9B3C53CE");
 
             entity.Property(e => e.PreId).HasColumnName("pre_id");
-            entity.Property(e => e.PreExibirConteudoAdulto).HasColumnName("pre_exibirConteudoAdulto");
+            entity.Property(e => e.PrePreferencia)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("pre_preferencia");
         });
 
         modelBuilder.Entity<PreferenciasUsuario>(entity =>

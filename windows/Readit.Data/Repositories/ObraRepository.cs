@@ -14,12 +14,14 @@ namespace Readit.Data.Repositories
         private readonly IDbContextFactory<ReaditContext> _contextFactory;
         private readonly ILoggingService _logger;
         private readonly IUsuarioService _usuarioService;
+        private readonly IPreferenciasRepository _preferenciaRepository;
 
-        public ObraRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService)
+        public ObraRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService, IPreferenciasRepository preferenciaRepository)
         {
             _contextFactory = contextFactory;
             _logger = logger;
             _usuarioService = usuarioService;
+            _preferenciaRepository = preferenciaRepository;
         }
 
         public async Task<DetalhesObra> BuscarDetalhesObraAsync(string nomeObra)
@@ -164,6 +166,8 @@ namespace Readit.Data.Repositories
             {
                 try
                 {
+                    var preferenciasUsuario = (await _preferenciaRepository.BuscarPreferenciasUsuarioAsync()).ConvertAll(p => p.Preferencia);
+
                     var filtros = new Dictionary<string, Func<DateTime?>>
                     {
                         { "Semanal", () => DateTime.Now.AddDays(-7) },
@@ -172,7 +176,12 @@ namespace Readit.Data.Repositories
                     };
 
                     List<DestaquesItem> todasObras = new();
-                    int totalObrasComAvaliacao = await _context.AvaliacoesObras.Select(a => a.ObsId).Distinct().CountAsync();
+                    int totalObrasComAvaliacao = await (from a in _context.AvaliacoesObras
+                                                        join og in _context.ObrasGeneros on a.ObsId equals og.ObsId
+                                                        join g in _context.Generos on og.GnsId equals g.GnsId
+                                                        group g by a.ObsId into obraGroup
+                                                        where !obraGroup.Any(genero => preferenciasUsuario.Contains(genero.GnsNome))
+                                                        select obraGroup.Key).Distinct().CountAsync();
 
                     var obrasQuery = await (from o in _context.Obras
                                             join i in _context.Imagens on o.ImgId equals i.ImgId
@@ -180,6 +189,7 @@ namespace Readit.Data.Repositories
                                             join g in _context.Generos on og.GnsId equals g.GnsId
                                             join a in _context.AvaliacoesObras on o.ObsId equals a.ObsId
                                             group new { o, i, g, a } by new { o.ObsId, o.ObsNomeObra, i.ImgImagem } into obraGroup
+                                            where !obraGroup.Select(x => x.g.GnsNome).Any(genero => preferenciasUsuario.Contains(genero))
                                             select new
                                             {
                                                 obraGroup.Key.ObsNomeObra,
@@ -319,6 +329,8 @@ namespace Readit.Data.Repositories
             {
                 try
                 {
+                    var preferenciasUsuario = (await _preferenciaRepository.BuscarPreferenciasUsuarioAsync()).ConvertAll(p => p.Preferencia);
+
                     var obrasDB = await (from o in _context.Obras
                                          join i in _context.Imagens on o.ImgId equals i.ImgId
                                          join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
@@ -326,7 +338,8 @@ namespace Readit.Data.Repositories
                                          join cpo in _context.CapitulosObras on o.ObsId equals cpo.ObsId
                                          join a in _context.AvaliacoesObras on o.ObsId equals a.ObsId
                                          group new { o, i, cpo, g, a } by new { o.ObsId, o.ObsNomeObra, o.ObsDescricao, i.ImgImagem } into obraGroup
-                                         orderby obraGroup.Average(x => x.a.AvoNota) descending // Ordenar pelas maiores médias de avaliação
+                                         where !obraGroup.Select(x => x.g.GnsNome).Any(genero => preferenciasUsuario.Contains(genero))
+                                         orderby obraGroup.Average(x => x.a.AvoNota) descending
                                          select new
                                          {
                                              NomeObra = obraGroup.Key.ObsNomeObra,
@@ -359,10 +372,15 @@ namespace Readit.Data.Repositories
             {
                 try
                 {
+                    var preferenciasUsuario = (await _preferenciaRepository.BuscarPreferenciasUsuarioAsync()).ConvertAll(p => p.Preferencia);
+
                     var obrasDB = await (from o in _context.Obras
+                                         join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
+                                         join g in _context.Generos on og.GnsId equals g.GnsId
                                          join i in _context.Imagens on o.ImgId equals i.ImgId
                                          join cpo in _context.CapitulosObras on o.ObsId equals cpo.ObsId
-                                         group new { o, i, cpo } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, i.ImgImagem } into obraGroup
+                                         group new { o, i, cpo, g } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, i.ImgImagem } into obraGroup
+                                         where !obraGroup.Select(x => x.g.GnsNome).Any(genero => preferenciasUsuario.Contains(genero))
                                          orderby obraGroup.Max(x => x.cpo.CpoDataPublicacao) descending
                                          select new
                                          {

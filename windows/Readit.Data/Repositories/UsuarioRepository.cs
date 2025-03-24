@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
+using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Data.Mappers;
 using Readit.Infra.Logging;
@@ -12,11 +13,13 @@ namespace Readit.Data.Repositories
     {
         private readonly IDbContextFactory<ReaditContext> _contextFactory;
         private readonly ILoggingService _logger;
+        private readonly IUsuarioService _usuarioService;
 
-        public UsuarioRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger)
+        public UsuarioRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService)
         {
             _contextFactory = contextFactory;
             _logger = logger;
+            _usuarioService = usuarioService;
         }
 
         public async Task<List<Usuario>> BuscarUsuarioPorEmailAsync(string email)
@@ -57,7 +60,7 @@ namespace Readit.Data.Repositories
             }
         }
 
-        public async Task<bool> CadastrarUsuarioAsync(Usuario usuario, Imagens imagem)
+        public async Task<bool> CadastrarUsuarioAsync(Usuario usuario, Imagens imagem, List<Preferencias> listaPreferencias)
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
@@ -106,6 +109,40 @@ namespace Readit.Data.Repositories
                         usuarioDB.ImgId = imagemDB.ImgId;
                     }
 
+                    if (listaPreferencias != null)
+                    {
+                        var preferenciasAtuaisUsuarioDB = await (from pf in _context.PreferenciasUsuarios
+                                                  where pf.UsuId == _usuarioService.UsuarioLogado.Id
+                                                  select pf).ToArrayAsync();
+
+                        var novasPreferenciasDB = listaPreferencias.ToArray().ToEntityList();
+
+                        var adicionarPreferencias = novasPreferenciasDB.Where(x => !preferenciasAtuaisUsuarioDB.Select(y => y.PreId).Contains(x.PreId)).ToList();
+                        var removerPreferencias = preferenciasAtuaisUsuarioDB.Where(x => !novasPreferenciasDB.Select(y => y.PreId).Contains(x.PreId)).ToList();
+
+                        if (adicionarPreferencias.Count > 0)
+                        {
+                            foreach (var pref in adicionarPreferencias)
+                            {
+                                _context.Entry(new ef.Models.PreferenciasUsuario
+                                {
+                                    PreId = pref.PreId,
+                                    UsuId = _usuarioService.UsuarioLogado.Id
+                                }).State = EntityState.Added;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+
+                        if (removerPreferencias.Count > 0)
+                        {
+                            foreach(var pref in removerPreferencias)
+                            {
+                                _context.Entry(pref).State = EntityState.Deleted;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+
                     _context.Entry(usuarioDB).State = usuarioDB.UsuId == 0 ? EntityState.Added : EntityState.Modified;
                     await _context.SaveChangesAsync();
 
@@ -114,7 +151,7 @@ namespace Readit.Data.Repositories
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "CadastrarUsuarioAsync(Usuario usuario, Imagens imagem)");
+                    _logger.LogError(e, "CadastrarUsuarioAsync(Usuario usuario, Imagens imagem, List<Preferencias> listaPreferencias)");
                     await transaction.RollbackAsync();
                     return false;
                 }

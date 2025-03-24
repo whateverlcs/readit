@@ -3,6 +3,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
+using Readit.Data.Repositories;
 using Readit.Infra.Logging;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -160,17 +161,42 @@ namespace Readit.WPF.ViewModels
 
         public string CaminhoNovaImagem;
 
+        private ObservableCollection<Preferencias> _listaPreferencias = new ObservableCollection<Preferencias>();
+
+        public ObservableCollection<Preferencias> ListaPreferencias
+        {
+            get { return _listaPreferencias; }
+            set
+            {
+                _listaPreferencias = value;
+                NotifyOfPropertyChange(() => ListaPreferencias);
+            }
+        }
+
+        public List<PreferenciasUsuario> ListaPreferenciasUsuario;
+
+        public string PreferenciasSelecionadasDisplay
+        {
+            get { return string.Join(", ", ListaPreferencias.Where(i => i.IsSelected).Select(i => i.Nome)); }
+            set
+            {
+                NotifyOfPropertyChange(() => PreferenciasSelecionadasDisplay);
+            }
+        }
+
         private readonly IUsuarioService _usuarioService;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IImagemRepository _imagemRepository;
+        private readonly IPreferenciasRepository _preferenciasRepository;
         private readonly ILoggingService _logger;
         private readonly IImagemService _imagemService;
 
-        public EditarPerfilViewModel(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, IImagemRepository imagemRepository, ILoggingService logger, IImagemService imagemService)
+        public EditarPerfilViewModel(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, IImagemRepository imagemRepository, IPreferenciasRepository preferenciasRepository, ILoggingService logger, IImagemService imagemService)
         {
             _usuarioService = usuarioService;
             _usuarioRepository = usuarioRepository;
             _imagemRepository = imagemRepository;
+            _preferenciasRepository = preferenciasRepository;
             _logger = logger;
             _imagemService = imagemService;
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
@@ -190,6 +216,26 @@ namespace Readit.WPF.ViewModels
             ImagemPerfil = _imagemService.ByteArrayToImage(imagemUsuario.Imagem);
 
             _usuarioService.UsuarioLogado = usuarioLogado;
+            await PopularPreferenciasAsync().ConfigureAwait(false);
+        }
+
+        public void AtualizarPreferenciasSelecionadasDisplay()
+        {
+            NotifyOfPropertyChange(() => PreferenciasSelecionadasDisplay);
+        }
+
+        public async Task PopularPreferenciasAsync()
+        {
+            var preferencias = await _preferenciasRepository.BuscarPreferenciasAsync().ConfigureAwait(false);
+            ListaPreferenciasUsuario = await _preferenciasRepository.BuscarPreferenciasUsuarioAsync().ConfigureAwait(false);
+
+            var idsSelecionados = new HashSet<int>(ListaPreferenciasUsuario.Select(pu => pu.IdPreferencia));
+
+            ListaPreferencias = new ObservableCollection<Preferencias>(
+                preferencias.Select(p => { p.IsSelected = idsSelecionados.Contains(p.Id); return p; })
+                            .OrderBy(p => p.Nome));
+
+            PreferenciasSelecionadasDisplay = string.Join(", ", ListaPreferencias.Where(i => i.IsSelected).Select(i => i.Nome));
         }
 
         public void AtualizarInformacoes()
@@ -232,7 +278,8 @@ namespace Readit.WPF.ViewModels
                     Id = (int)_usuarioService.UsuarioLogado.IdImagem,
                     Imagem = _imagemService.ConvertBitmapImageToByteArray(ImagemPerfil),
                     Formato = Path.GetExtension(CaminhoNovaImagem)
-                } : null).ConfigureAwait(false);
+                } : null,
+                ListaPreferencias.Where(x => x.IsSelected).ToList()).ConfigureAwait(false);
 #pragma warning restore
 
                 if (sucesso)
@@ -263,6 +310,7 @@ namespace Readit.WPF.ViewModels
             if (Apelido != _usuarioService.UsuarioLogado.Apelido) { alterado = true; }
             if (!string.IsNullOrEmpty(CaminhoNovaImagem)) { alterado = true; }
             if (!string.IsNullOrEmpty(Senha) && !BC.EnhancedVerify(Senha, _usuarioService.UsuarioLogado.Senha)) { alterado = true; }
+            if (!new HashSet<int>(ListaPreferencias.Where(x => x.IsSelected).Select(g => g.Id)).SetEquals(ListaPreferenciasUsuario.Select(g => g.IdPreferencia))) { alterado = true; }
 
             return alterado;
         }
