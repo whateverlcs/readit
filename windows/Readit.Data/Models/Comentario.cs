@@ -20,8 +20,6 @@ public partial class Comentario
 
     public virtual CapitulosObra? Cpo { get; set; } = null!;
 
-    public virtual ICollection<ImagensComentario> ImagensComentarios { get; set; } = new List<ImagensComentario>();
-
     public virtual Obra Obs { get; set; } = null!;
 
     public virtual ICollection<RespostasComentario> RespostasComentarioCts { get; set; } = new List<RespostasComentario>();

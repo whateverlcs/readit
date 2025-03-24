@@ -172,7 +172,7 @@ namespace Readit.WPF.ViewModels
                     Imagem = _imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "profile-default.jpg")),
                     Formato = Path.GetExtension("../Resources/Images/profile-default.jpg"),
                     Tipo = (byte)EnumObra.TipoImagem.Perfil
-                }, null).ConfigureAwait(false);
+                }).ConfigureAwait(false);
 
                 if (sucesso)
                 {

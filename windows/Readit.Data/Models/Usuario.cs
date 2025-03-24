@@ -31,6 +31,4 @@ public partial class Usuario
     public virtual ICollection<Obra> Obras { get; set; } = new List<Obra>();
 
     public virtual ICollection<PreferenciasUsuario> PreferenciasUsuarios { get; set; } = new List<PreferenciasUsuario>();
-
-    public virtual ICollection<TipoVisualizacaoObraUsuario> TipoVisualizacaoObraUsuarios { get; set; } = new List<TipoVisualizacaoObraUsuario>();
 }

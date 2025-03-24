@@ -146,30 +146,6 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        private TipoVisualizacaoObra _tipoVisualizacaoLeituraSelecionado;
-
-        public TipoVisualizacaoObra TipoVisualizacaoLeituraSelecionado
-        {
-            get { return _tipoVisualizacaoLeituraSelecionado; }
-            set
-            {
-                _tipoVisualizacaoLeituraSelecionado = value;
-                NotifyOfPropertyChange(() => TipoVisualizacaoLeituraSelecionado);
-            }
-        }
-
-        private ObservableCollection<TipoVisualizacaoObra> _listaTiposVisualizacaoLeitura = new ObservableCollection<TipoVisualizacaoObra>();
-
-        public ObservableCollection<TipoVisualizacaoObra> ListaTiposVisualizacaoLeitura
-        {
-            get { return _listaTiposVisualizacaoLeitura; }
-            set
-            {
-                _listaTiposVisualizacaoLeitura = value;
-                NotifyOfPropertyChange(() => ListaTiposVisualizacaoLeitura);
-            }
-        }
-
         private ImageSource _imagemPerfil;
 
         public ImageSource ImagemPerfil
@@ -187,16 +163,14 @@ namespace Readit.WPF.ViewModels
         private readonly IUsuarioService _usuarioService;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IImagemRepository _imagemRepository;
-        private readonly ITipoVisualizacaoObraRepository _tipoVisualizacaoObraRepository;
         private readonly ILoggingService _logger;
         private readonly IImagemService _imagemService;
 
-        public EditarPerfilViewModel(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, IImagemRepository imagemRepository, ITipoVisualizacaoObraRepository tipoVisualizacaoObraRepository, ILoggingService logger, IImagemService imagemService)
+        public EditarPerfilViewModel(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, IImagemRepository imagemRepository, ILoggingService logger, IImagemService imagemService)
         {
             _usuarioService = usuarioService;
             _usuarioRepository = usuarioRepository;
             _imagemRepository = imagemRepository;
-            _tipoVisualizacaoObraRepository = tipoVisualizacaoObraRepository;
             _logger = logger;
             _imagemService = imagemService;
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
@@ -208,16 +182,12 @@ namespace Readit.WPF.ViewModels
         {
             var usuarioLogado = (await _usuarioRepository.BuscarUsuarioPorEmailAsync(_usuarioService.UsuarioLogado.Email).ConfigureAwait(false)).FirstOrDefault();
             var imagemUsuario = (await _imagemRepository.BuscarImagemPorIdAsync(Convert.ToInt32(usuarioLogado.IdImagem)).ConfigureAwait(false)).FirstOrDefault();
-            var tiposVisualizacaoObra = await _tipoVisualizacaoObraRepository.BuscarTiposVisualizacaoObraPorIdAsync(0).ConfigureAwait(false);
-            var tipoVisualizacaoUsuario = (await _tipoVisualizacaoObraRepository.BuscarTiposVisualizacaoObraUsuarioPorIdAsync(usuarioLogado.Id).ConfigureAwait(false)).FirstOrDefault();
 
             NomeCompleto = usuarioLogado.Nome;
             NomeUsuario = usuarioLogado.Nome;
             Apelido = usuarioLogado.Apelido;
             Email = usuarioLogado.Email;
             ImagemPerfil = _imagemService.ByteArrayToImage(imagemUsuario.Imagem);
-            ListaTiposVisualizacaoLeitura = new ObservableCollection<TipoVisualizacaoObra>(tiposVisualizacaoObra);
-            TipoVisualizacaoLeituraSelecionado = tipoVisualizacaoUsuario != null ? ListaTiposVisualizacaoLeitura.Where(x => x.Id == tipoVisualizacaoUsuario.TipoVisualizacaoObraId).FirstOrDefault() : new TipoVisualizacaoObra();
 
             _usuarioService.UsuarioLogado = usuarioLogado;
         }
@@ -262,12 +232,7 @@ namespace Readit.WPF.ViewModels
                     Id = (int)_usuarioService.UsuarioLogado.IdImagem,
                     Imagem = _imagemService.ConvertBitmapImageToByteArray(ImagemPerfil),
                     Formato = Path.GetExtension(CaminhoNovaImagem)
-                } : null,
-                new TipoVisualizacaoObraUsuario
-                {
-                    TipoVisualizacaoObraId = TipoVisualizacaoLeituraSelecionado.Id,
-                    UsuarioId = _usuarioService.UsuarioLogado.Id
-                }).ConfigureAwait(false);
+                } : null).ConfigureAwait(false);
 #pragma warning restore
 
                 if (sucesso)
@@ -376,7 +341,6 @@ namespace Readit.WPF.ViewModels
             if (!string.IsNullOrEmpty(Apelido) && Apelido.Length > 50) { erros.Add("O Apelido não pode ser maior do que 50 caracteres."); }
             if (string.IsNullOrEmpty(Apelido)) { erros.Add("O Apelido não pode ser vazio."); }
             if (!string.IsNullOrEmpty(Senha) && Senha.Length > 255) { erros.Add("A Senha não pode ser maior do que 255 caracteres."); }
-            if (TipoVisualizacaoLeituraSelecionado == null || TipoVisualizacaoLeituraSelecionado != null && TipoVisualizacaoLeituraSelecionado.Id == 0) { erros.Add("Selecione um tipo de visualização de leitura."); }
 
             return erros;
         }

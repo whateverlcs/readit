@@ -81,7 +81,6 @@ namespace Readit.WPF
             _container.Singleton<IImagemRepository, ImagemRepository>();
             _container.Singleton<IObraRepository, ObraRepository>();
             _container.Singleton<IPaginaCapituloRepository, PaginaCapituloRepository>();
-            _container.Singleton<ITipoVisualizacaoObraRepository, TipoVisualizacaoObraRepository>();
             _container.Singleton<IUsuarioRepository, UsuarioRepository>();
             _container.Singleton<IVisualizacaoObraRepository, VisualizacaoObraRepository>();
             _container.Singleton<IComentarioRepository, ComentarioRepository>();

@@ -57,7 +57,7 @@ namespace Readit.Data.Repositories
             }
         }
 
-        public async Task<bool> CadastrarUsuarioAsync(Usuario usuario, Imagens imagem, TipoVisualizacaoObraUsuario? tipoVisualizacaoObra)
+        public async Task<bool> CadastrarUsuarioAsync(Usuario usuario, Imagens imagem)
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
@@ -67,7 +67,6 @@ namespace Readit.Data.Repositories
                 {
                     ef.Models.Usuario usuarioDB = new ef.Models.Usuario();
                     ef.Models.Imagen imagemDB = new ef.Models.Imagen();
-                    ef.Models.TipoVisualizacaoObraUsuario tipoVisualizacaoObraUsuario = new ef.Models.TipoVisualizacaoObraUsuario();
 
                     if (usuario.Id != 0)
                     {
@@ -90,22 +89,6 @@ namespace Readit.Data.Repositories
                             imagemUpdate.ImgDataAtualizacao = DateTime.Now;
                             imagemDB = imagemUpdate;
                         }
-
-                        var tipoVisualizacaoUpdate = await (from tvou in _context.TipoVisualizacaoObraUsuarios
-                                                            where tvou.UsuId == tipoVisualizacaoObra.UsuarioId
-                                                            select tvou).FirstOrDefaultAsync();
-
-                        if (tipoVisualizacaoUpdate != null)
-                        {
-                            tipoVisualizacaoUpdate.TvoId = tipoVisualizacaoObra.TipoVisualizacaoObraId;
-                        }
-                        else
-                        {
-                            tipoVisualizacaoUpdate = tipoVisualizacaoObra.ToEntity();
-                        }
-
-                        _context.Entry(tipoVisualizacaoUpdate).State = tipoVisualizacaoUpdate.TvouId == 0 ? EntityState.Added : EntityState.Modified;
-                        await _context.SaveChangesAsync();
 
                         usuarioDB = usuarioUpdate;
                     }

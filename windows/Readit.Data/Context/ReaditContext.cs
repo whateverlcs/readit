@@ -30,8 +30,6 @@ public partial class ReaditContext : DbContext
 
     public virtual DbSet<Imagen> Imagens { get; set; }
 
-    public virtual DbSet<ImagensComentario> ImagensComentarios { get; set; }
-
     public virtual DbSet<Obra> Obras { get; set; }
 
     public virtual DbSet<ObrasGenero> ObrasGeneros { get; set; }
@@ -43,10 +41,6 @@ public partial class ReaditContext : DbContext
     public virtual DbSet<PreferenciasUsuario> PreferenciasUsuarios { get; set; }
 
     public virtual DbSet<RespostasComentario> RespostasComentarios { get; set; }
-
-    public virtual DbSet<TipoVisualizacaoObra> TipoVisualizacaoObras { get; set; }
-
-    public virtual DbSet<TipoVisualizacaoObraUsuario> TipoVisualizacaoObraUsuarios { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
@@ -247,31 +241,6 @@ public partial class ReaditContext : DbContext
             entity.Property(e => e.ImgTipo).HasColumnName("img_tipo");
         });
 
-        modelBuilder.Entity<ImagensComentario>(entity =>
-        {
-            entity.HasKey(e => e.IctId).HasName("PK__ImagensC__9F99F69240685B42");
-
-            entity.Property(e => e.IctId).HasColumnName("ict_id");
-            entity.Property(e => e.CtsId).HasColumnName("cts_id");
-            entity.Property(e => e.IctDataAtualizacao)
-                .HasColumnType("datetime")
-                .HasColumnName("ict_dataAtualizacao");
-            entity.Property(e => e.IctDataInclusao)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("ict_dataInclusao");
-            entity.Property(e => e.IctFormato)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("ict_formato");
-            entity.Property(e => e.IctImagem).HasColumnName("ict_imagem");
-
-            entity.HasOne(d => d.Cts).WithMany(p => p.ImagensComentarios)
-                .HasForeignKey(d => d.CtsId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ImagensComentariosComentarios");
-        });
-
         modelBuilder.Entity<Obra>(entity =>
         {
             entity.HasKey(e => e.ObsId).HasName("PK__Obras__4DFADA1AD1450799");
@@ -398,37 +367,6 @@ public partial class ReaditContext : DbContext
                 .HasConstraintName("FK_RespostasComentarioResposta");
         });
 
-        modelBuilder.Entity<TipoVisualizacaoObra>(entity =>
-        {
-            entity.HasKey(e => e.TvoId).HasName("PK__TipoVisu__46C11D734661EEF0");
-
-            entity.ToTable("TipoVisualizacaoObra");
-
-            entity.Property(e => e.TvoId).HasColumnName("tvo_id");
-            entity.Property(e => e.TvoVisualizacao).HasColumnName("tvo_visualizacao");
-        });
-
-        modelBuilder.Entity<TipoVisualizacaoObraUsuario>(entity =>
-        {
-            entity.HasKey(e => e.TvouId).HasName("PK__TipoVisu__A22EE7E3720EEBA3");
-
-            entity.ToTable("TipoVisualizacaoObraUsuario");
-
-            entity.Property(e => e.TvouId).HasColumnName("tvou_id");
-            entity.Property(e => e.TvoId).HasColumnName("tvo_id");
-            entity.Property(e => e.UsuId).HasColumnName("usu_id");
-
-            entity.HasOne(d => d.Tvo).WithMany(p => p.TipoVisualizacaoObraUsuarios)
-                .HasForeignKey(d => d.TvoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TipoVisualizacaoObraUsuarioTipoVisualizacaoObra");
-
-            entity.HasOne(d => d.Usu).WithMany(p => p.TipoVisualizacaoObraUsuarios)
-                .HasForeignKey(d => d.UsuId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TipoVisualizacaoObraUsuarioUsuarios");
-        });
-
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(e => e.UsuId).HasName("PK__Usuarios__430A673C06283B43");
@@ -477,5 +415,5 @@ public partial class ReaditContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    private partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
