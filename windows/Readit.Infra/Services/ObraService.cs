@@ -24,7 +24,8 @@ namespace Readit.Infra.Services
             foreach (var postagem in postagens)
             {
                 postagem.Image = _imagemService.ByteArrayToImage(postagem.ImageByte);
-                postagem.Title = postagem.Title = postagem.Title.Length > 39 ? postagem.Title.Substring(0, 39).Trim() + "..." : postagem.Title.Trim();
+                postagem.TitleOriginal = postagem.Title.Trim();
+                postagem.Title = postagem.Title.Length > 39 ? postagem.Title.Substring(0, 39).Trim() + "..." : postagem.Title.Trim();
             }
 
             return postagens;
@@ -49,7 +50,8 @@ namespace Readit.Infra.Services
             foreach (var postagem in postagens)
             {
                 postagem.Image = _imagemService.ByteArrayToImage(postagem.ImageByte);
-                postagem.Title = postagem.Title = postagem.Title.Length > 39 ? postagem.Title.Substring(0, 39).Trim() + "..." : postagem.Title.Trim();
+                postagem.TitleOriginal = postagem.Title.Trim();
+                postagem.Title = postagem.Title.Length > 39 ? postagem.Title.Substring(0, 39).Trim() + "..." : postagem.Title.Trim();
                 postagem.Rating = Math.Round(postagem.Rating, 1);
                 postagem.Status = _enumService.ObterStatus(postagem.StatusNumber);
                 postagem.Tipo = _enumService.ObterTipo(postagem.TipoNumber);

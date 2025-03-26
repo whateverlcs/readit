@@ -31,9 +31,13 @@ namespace Readit.Data.Repositories
                                                        {
                                                            Id = pf.PreId,
                                                            Nome = pf.PrePreferencia
-                                                       }).ToListAsync();
+                                                       }).ToListAsync(_usuarioService.Token);
 
                     return preferenciasUsuarioDB;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Preferencias>();
                 }
                 catch (Exception e)
                 {
@@ -47,6 +51,9 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
+                if (_usuarioService.UsuarioLogado == null)
+                    return new List<PreferenciasUsuario>();
+
                 try
                 {
                     var preferenciasUsuarioDB = await (from pf in _context.PreferenciasUsuarios
@@ -58,9 +65,13 @@ namespace Readit.Data.Repositories
                                                            IdUsuario = pf.UsuId,
                                                            IdPreferencia = pf.PreId,
                                                            Preferencia = p.PrePreferencia
-                                                       }).ToListAsync();
+                                                       }).ToListAsync(_usuarioService.Token);
 
                     return preferenciasUsuarioDB;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<PreferenciasUsuario>();
                 }
                 catch (Exception e)
                 {

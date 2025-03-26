@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
+using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Data.Mappers;
 using Readit.Infra.Logging;
@@ -12,11 +13,13 @@ namespace Readit.Data.Repositories
     {
         private readonly IDbContextFactory<ReaditContext> _contextFactory;
         private readonly ILoggingService _logger;
+        private readonly IUsuarioService _usuarioService;
 
-        public GeneroRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger)
+        public GeneroRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService)
         {
             _contextFactory = contextFactory;
             _logger = logger;
+            _usuarioService = usuarioService;
         }
 
         public async Task<List<Generos>> BuscarGenerosPorNomeAsync(string nomeGenero)
@@ -31,12 +34,12 @@ namespace Readit.Data.Repositories
                     {
                         generosDB = await (from g in _context.Generos
                                            where g.GnsNome == nomeGenero
-                                           select g).ToArrayAsync();
+                                           select g).ToArrayAsync(_usuarioService.Token);
                     }
                     else
                     {
                         generosDB = await (from g in _context.Generos
-                                           select g).ToArrayAsync();
+                                           select g).ToArrayAsync(_usuarioService.Token);
                     }
 
                     List<Generos> listaGeneros = new List<Generos>();
@@ -47,6 +50,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaGeneros;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Generos>();
                 }
                 catch (Exception e)
                 {
@@ -69,12 +76,12 @@ namespace Readit.Data.Repositories
                         generosDB = await (from g in _context.Generos
                                            join og in _context.ObrasGeneros on g.GnsId equals og.GnsId
                                            where og.ObsId == idObra
-                                           select g).ToArrayAsync();
+                                           select g).ToArrayAsync(_usuarioService.Token);
                     }
                     else
                     {
                         generosDB = await (from g in _context.Generos
-                                           select g).ToArrayAsync();
+                                           select g).ToArrayAsync(_usuarioService.Token);
                     }
 
                     List<Generos> listaGeneros = new List<Generos>();
@@ -85,6 +92,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaGeneros;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Generos>();
                 }
                 catch (Exception e)
                 {
@@ -98,22 +109,26 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
 
                 try
                 {
                     var generoDB = genero.ToEntity();
 
                     _context.Entry(generoDB).State = generoDB.GnsId == 0 ? EntityState.Added : EntityState.Modified;
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(_usuarioService.Token);
 
-                    await transaction.CommitAsync();
+                    await transaction.CommitAsync(_usuarioService.Token);
                     return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "CadastrarGeneroAsync(Generos genero)");
-                    await transaction.RollbackAsync();
+                    await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }
             }

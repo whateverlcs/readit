@@ -8,6 +8,14 @@ namespace Readit.Infra.Services
     {
         public Usuario UsuarioLogado { get; set; } = null!;
         public List<string> ListaCapitulosSelecionados { get; set; } = new List<string>();
+        private CancellationTokenSource _cts = new();
+        public CancellationToken Token => _cts.Token;
+
+        public void CancelarConsultas()
+        {
+            _cts.Cancel();
+            _cts = new CancellationTokenSource();
+        }
 
         public List<string> ValidarCampos(string nome, string apelido, string senha, string email)
         {

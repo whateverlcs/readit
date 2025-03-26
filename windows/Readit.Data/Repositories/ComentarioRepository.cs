@@ -84,7 +84,7 @@ namespace Readit.Data.Repositories
                                                                                 where ac.CtsId == r.CtsId && a.AvaAvaliacao == "Dislike"
                                                                                 select ac).Count()
                                                                 }).ToList()
-                                               }).ToListAsync();
+                                               }).ToListAsync(_usuarioService.Token);
 
                     List<Comentarios> listaComentarios = new List<Comentarios>();
 
@@ -94,6 +94,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaComentarios;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Comentarios>();
                 }
                 catch (Exception e)
                 {
@@ -107,14 +111,14 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
 
                 try
                 {
                     var comentarioDB = comentario.ToEntity();
 
                     _context.Entry(comentarioDB).State = EntityState.Added;
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(_usuarioService.Token);
 
                     if (comentario.Pai != null)
                     {
@@ -125,16 +129,20 @@ namespace Readit.Data.Repositories
                         };
 
                         _context.Entry(respostaComentarioDB).State = EntityState.Added;
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(_usuarioService.Token);
                     }
 
-                    await transaction.CommitAsync();
+                    await transaction.CommitAsync(_usuarioService.Token);
                     return (true, comentarioDB.CtsId);
+                }
+                catch (TaskCanceledException)
+                {
+                    return (false, 0);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "CadastrarComentarioAsync(Comentarios comentario)");
-                    await transaction.RollbackAsync();
+                    await transaction.RollbackAsync(_usuarioService.Token);
                     return (false, 0);
                 }
             }
@@ -144,14 +152,21 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
+                if (_usuarioService.UsuarioLogado == null)
+                    return false;
+
                 try
                 {
                     var avaliacaoUsuario = await (from ac in _context.AvaliacoesComentarios
                                                   join a in _context.Avaliacoes on ac.AvaId equals a.AvaId
                                                   where a.AvaAvaliacao == tipoAvaliacao && ac.CtsId == comentario.Id && ac.UsuId == _usuarioService.UsuarioLogado.Id
-                                                  select ac).FirstOrDefaultAsync();
+                                                  select ac).FirstOrDefaultAsync(_usuarioService.Token);
 
                     return avaliacaoUsuario == null ? true : false;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
                 }
                 catch (Exception e)
                 {
@@ -165,13 +180,16 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
 
                 try
                 {
+                    if (_usuarioService.UsuarioLogado == null)
+                        return false;
+
                     var avaliacao = await (from a in _context.Avaliacoes
                                            where a.AvaAvaliacao == tipoAvaliacao
-                                           select a).FirstOrDefaultAsync();
+                                           select a).FirstOrDefaultAsync(_usuarioService.Token);
 
                     ef.Models.AvaliacoesComentario avComent = new AvaliacoesComentario();
 
@@ -185,19 +203,23 @@ namespace Readit.Data.Repositories
                     {
                         avComent = await (from ac in _context.AvaliacoesComentarios
                                           where ac.AvaId == avaliacao.AvaId && ac.UsuId == _usuarioService.UsuarioLogado.Id && ac.CtsId == comentario.Id
-                                          select ac).FirstOrDefaultAsync();
+                                          select ac).FirstOrDefaultAsync(_usuarioService.Token);
                     }
 
                     _context.Entry(avComent).State = tipoAcao.Equals("Adicionar") ? EntityState.Added : EntityState.Deleted;
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(_usuarioService.Token);
 
-                    await transaction.CommitAsync();
+                    await transaction.CommitAsync(_usuarioService.Token);
                     return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "CadastrarRemoverAvaliacaoComentarioAsync(Comentarios comentario, string tipoAvaliacao, string tipoAcao)");
-                    await transaction.RollbackAsync();
+                    await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }
             }

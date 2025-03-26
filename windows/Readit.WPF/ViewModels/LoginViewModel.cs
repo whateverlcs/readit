@@ -133,7 +133,11 @@ namespace Readit.WPF.ViewModels
                     var shellMainViewModel = DependencyResolver.GetService<ShellMainViewModel>();
 
                     windowManager.ShowWindowAsync(shellMainViewModel);
-                    Application.Current.MainWindow.Close();
+
+                    Application.Current.MainWindow = Application.Current.Windows.OfType<Window>()
+                    .FirstOrDefault(w => w.DataContext is ShellViewModel);
+
+                    Application.Current.MainWindow?.Close();
                 });
 #else
                 List<string> erros = _usuarioService.ValidarCampos("", "", Senha, Email);
@@ -165,7 +169,11 @@ namespace Readit.WPF.ViewModels
                         var shellMainViewModel = DependencyResolver.GetService<ShellMainViewModel>();
 
                         windowManager.ShowWindowAsync(shellMainViewModel);
-                        Application.Current.MainWindow.Close();
+
+                        Application.Current.MainWindow = Application.Current.Windows.OfType<Window>()
+                        .FirstOrDefault(w => w.DataContext is ShellViewModel);
+
+                        Application.Current.MainWindow?.Close();
                     });
                 }
                 else

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
+using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Data.Mappers;
 using Readit.Infra.Logging;
@@ -12,11 +13,13 @@ namespace Readit.Data.Repositories
     {
         private readonly IDbContextFactory<ReaditContext> _contextFactory;
         private readonly ILoggingService _logger;
+        private readonly IUsuarioService _usuarioService;
 
-        public CapituloRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger)
+        public CapituloRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService)
         {
             _contextFactory = contextFactory;
             _logger = logger;
+            _usuarioService = usuarioService;
         }
 
         public async Task<(List<CapitulosObra>, CapitulosObra)> BuscarCapituloObrasPorIdAsync(int idObra, int chapterId, bool numeroCapitulos, bool paginasCapitulo)
@@ -42,7 +45,7 @@ namespace Readit.Data.Repositories
                                                    NumeroPagina = obraGroup.Key.PgcNumeroPagina,
                                                    Pagina = obraGroup.Key.PgcPagina,
                                                    IdCapitulo = obraGroup.Key.CpoId,
-                                               }).ToListAsync();
+                                               }).ToListAsync(_usuarioService.Token);
 
                         cap = paginasDB.ToDomainDynamic();
                     }
@@ -58,7 +61,7 @@ namespace Readit.Data.Repositories
                                                           Id = c.CpoId,
                                                           NumeroCapitulo = c.CpoNumeroCapitulo,
                                                           IdObra = c.ObsId
-                                                      }).ToListAsync();
+                                                      }).ToListAsync(_usuarioService.Token);
 
                         foreach (var capObra in capitulosObrasDB.ToDomainListReduzido())
                         {
@@ -69,6 +72,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return (listaCapitulosObras, cap);
+                }
+                catch (TaskCanceledException)
+                {
+                    return (new List<CapitulosObra>(), new CapitulosObra());
                 }
                 catch (Exception e)
                 {
@@ -90,12 +97,12 @@ namespace Readit.Data.Repositories
                     {
                         capitulosObrasDB = await (from c in _context.CapitulosObras
                                                   where numCapitulos.Contains(c.CpoNumeroCapitulo) && c.ObsId == idObra
-                                                  select c).ToArrayAsync();
+                                                  select c).ToArrayAsync(_usuarioService.Token);
                     }
                     else
                     {
                         capitulosObrasDB = await (from c in _context.CapitulosObras
-                                                  select c).ToArrayAsync();
+                                                  select c).ToArrayAsync(_usuarioService.Token);
                     }
 
                     List<CapitulosObra> listaCapitulosObras = new List<CapitulosObra>();
@@ -106,6 +113,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaCapitulosObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<CapitulosObra>();
                 }
                 catch (Exception e)
                 {
@@ -119,7 +130,7 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
 
                 try
                 {
@@ -128,7 +139,7 @@ namespace Readit.Data.Repositories
                         var capObraDB = capObra.ToEntity();
 
                         _context.Entry(capObraDB).State = capObraDB.CpoId == 0 ? EntityState.Added : EntityState.Modified;
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(_usuarioService.Token);
 
                         foreach (var paginaObra in capObra.ListaPaginas)
                         {
@@ -137,7 +148,7 @@ namespace Readit.Data.Repositories
                             var pagObraDB = paginaObra.ToEntity();
 
                             _context.Entry(pagObraDB).State = pagObraDB.PgcId == 0 ? EntityState.Added : EntityState.Modified;
-                            await _context.SaveChangesAsync();
+                            await _context.SaveChangesAsync(_usuarioService.Token);
                         }
                     }
 
@@ -150,16 +161,20 @@ namespace Readit.Data.Repositories
                         obraDB.ObsDataAtualizacao = DateTime.Now;
 
                         _context.Entry(obraDB).State = EntityState.Modified;
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(_usuarioService.Token);
                     }
 
-                    await transaction.CommitAsync();
+                    await transaction.CommitAsync(_usuarioService.Token);
                     return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "CadastrarCapitulosAsync(List<CapitulosObra> listaCapitulosObra)");
-                    await transaction.RollbackAsync();
+                    await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }
             }

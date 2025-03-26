@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Data.Context;
@@ -24,13 +25,16 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
-                await using var transaction = await _context.Database.BeginTransactionAsync();
+                await using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
 
                 try
                 {
+                    if (_usuarioService.UsuarioLogado == null)
+                        return false;
+
                     ef.Models.AvaliacoesObra avDB = await (from av in _context.AvaliacoesObras
                                                            where av.ObsId == obraId && av.UsuId == _usuarioService.UsuarioLogado.Id
-                                                           select av).FirstOrDefaultAsync();
+                                                           select av).FirstOrDefaultAsync(_usuarioService.Token);
 
                     if (avDB == null)
                     {
@@ -50,15 +54,19 @@ namespace Readit.Data.Repositories
                     }
 
                     _context.Entry(avDB).State = avDB.AvoId != 0 ? EntityState.Modified : EntityState.Added;
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(_usuarioService.Token);
 
-                    await transaction.CommitAsync();
+                    await transaction.CommitAsync(_usuarioService.Token);
                     return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "AtualizarRatingAsync(int obraId, double rating)");
-                    await transaction.RollbackAsync();
+                    await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }
             }

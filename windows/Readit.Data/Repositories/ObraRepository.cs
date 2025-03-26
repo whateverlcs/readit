@@ -28,6 +28,9 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
+                if (_usuarioService.UsuarioLogado == null)
+                    return new DetalhesObra();
+
                 try
                 {
                     var obrasDB = await (from o in _context.Obras
@@ -70,9 +73,13 @@ namespace Readit.Data.Repositories
                                                                                ? cpo.CpoDataPublicacao.Value.ToString("MMMM d, yyyy")
                                                                                : null
                                                           }).ToArray()
-                                         }).FirstOrDefaultAsync();
+                                         }).FirstOrDefaultAsync(_usuarioService.Token);
 
                     return DetalhesObraMapper.ToDomain(obrasDB);
+                }
+                catch (TaskCanceledException)
+                {
+                    return new DetalhesObra();
                 }
                 catch (Exception e)
                 {
@@ -106,7 +113,7 @@ namespace Readit.Data.Repositories
                                              Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
                                              DataPublicacao = obraGroup.Key.ObsDataPublicacao,
                                              DataAtualizacao = obraGroup.Key.ObsDataAtualizacao,
-                                         }).OrderByDescending(o => o.Rating).ToArrayAsync();
+                                         }).OrderByDescending(o => o.Rating).ToArrayAsync(_usuarioService.Token);
 
                     List<PostagensObras> listaObras = new List<PostagensObras>();
 
@@ -116,6 +123,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<PostagensObras>();
                 }
                 catch (Exception e)
                 {
@@ -129,6 +140,9 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
+                if (_usuarioService.UsuarioLogado == null)
+                    return new List<PostagensObras>();
+
                 try
                 {
                     var obrasDB = await (from o in _context.Obras
@@ -141,7 +155,7 @@ namespace Readit.Data.Repositories
                                              Id = obraGroup.Key.ObsId,
                                              NomeObra = obraGroup.Key.ObsNomeObra,
                                              Imagem = obraGroup.Key.ImgImagem
-                                         }).ToArrayAsync();
+                                         }).ToArrayAsync(_usuarioService.Token);
 
                     List<PostagensObras> listaObras = new List<PostagensObras>();
 
@@ -151,6 +165,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<PostagensObras>();
                 }
                 catch (Exception e)
                 {
@@ -181,7 +199,7 @@ namespace Readit.Data.Repositories
                                                         join g in _context.Generos on og.GnsId equals g.GnsId
                                                         group g by a.ObsId into obraGroup
                                                         where !obraGroup.Any(genero => preferenciasUsuario.Contains(genero.GnsNome))
-                                                        select obraGroup.Key).Distinct().CountAsync();
+                                                        select obraGroup.Key).Distinct().CountAsync(_usuarioService.Token);
 
                     var obrasQuery = await (from o in _context.Obras
                                             join i in _context.Imagens on o.ImgId equals i.ImgId
@@ -197,7 +215,7 @@ namespace Readit.Data.Repositories
                                                 Rating = obraGroup.Average(x => x.a.AvoNota),
                                                 Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
                                                 DataAvaliacao = obraGroup.Max(x => x.a.AvoDataAvaliacao)
-                                            }).ToListAsync();
+                                            }).ToListAsync(_usuarioService.Token);
 
                     foreach (var filtro in filtros)
                     {
@@ -247,6 +265,10 @@ namespace Readit.Data.Repositories
 
                     return todasObras;
                 }
+                catch (TaskCanceledException)
+                {
+                    return new List<DestaquesItem>();
+                }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "BuscarObrasEmDestaque()");
@@ -265,11 +287,11 @@ namespace Readit.Data.Repositories
 
                     if (idObra != null && idObra != 0)
                     {
-                        obrasDB = await (from o in _context.Obras where o.ObsId == idObra select o).ToArrayAsync();
+                        obrasDB = await (from o in _context.Obras where o.ObsId == idObra select o).ToArrayAsync(_usuarioService.Token);
                     }
                     else
                     {
-                        obrasDB = await (from o in _context.Obras select o).ToArrayAsync();
+                        obrasDB = await (from o in _context.Obras select o).ToArrayAsync(_usuarioService.Token);
                     }
 
                     List<Obras> listaObras = new List<Obras>();
@@ -280,6 +302,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Obras>();
                 }
                 catch (Exception e)
                 {
@@ -299,11 +325,11 @@ namespace Readit.Data.Repositories
 
                     if (!string.IsNullOrEmpty(nomeObra))
                     {
-                        obrasDB = await (from o in _context.Obras where o.ObsNomeObra == nomeObra select o).ToArrayAsync();
+                        obrasDB = await (from o in _context.Obras where o.ObsNomeObra == nomeObra select o).ToArrayAsync(_usuarioService.Token);
                     }
                     else
                     {
-                        obrasDB = await (from o in _context.Obras select o).ToArrayAsync();
+                        obrasDB = await (from o in _context.Obras select o).ToArrayAsync(_usuarioService.Token);
                     }
 
                     List<Obras> listaObras = new List<Obras>();
@@ -314,6 +340,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Obras>();
                 }
                 catch (Exception e)
                 {
@@ -347,7 +377,7 @@ namespace Readit.Data.Repositories
                                              Descricao = obraGroup.Key.ObsDescricao,
                                              Generos = obraGroup.Select(x => x.g.GnsNome).Distinct().ToArray(),
                                              Imagem = obraGroup.Key.ImgImagem
-                                         }).Take(5).ToArrayAsync();
+                                         }).Take(5).ToArrayAsync(_usuarioService.Token);
 
                     List<SlideshowItem> listaObras = new List<SlideshowItem>();
 
@@ -357,6 +387,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<SlideshowItem>();
                 }
                 catch (Exception e)
                 {
@@ -379,24 +413,28 @@ namespace Readit.Data.Repositories
                                          join g in _context.Generos on og.GnsId equals g.GnsId
                                          join i in _context.Imagens on o.ImgId equals i.ImgId
                                          join cpo in _context.CapitulosObras on o.ObsId equals cpo.ObsId
-                                         group new { o, i, cpo, g } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, i.ImgImagem } into obraGroup
-                                         where !obraGroup.Select(x => x.g.GnsNome).Any(genero => preferenciasUsuario.Contains(genero))
-                                         orderby obraGroup.Max(x => x.cpo.CpoDataPublicacao) descending
+                                         where !(_context.ObrasGeneros
+                                                  .Where(og => og.ObsId == o.ObsId)
+                                                  .Select(og => og.Gns.GnsNome)
+                                                  .Any(genero => preferenciasUsuario.Contains(genero)))
+                                         group new { o, i } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, i.ImgImagem } into obraGroup
                                          select new
                                          {
                                              Id = obraGroup.Key.ObsId,
                                              NomeObra = obraGroup.Key.ObsNomeObra,
                                              Status = obraGroup.Key.ObsStatus,
                                              Imagem = obraGroup.Key.ImgImagem,
-                                             Capitulos = obraGroup.OrderByDescending(x => x.cpo.CpoNumeroCapitulo)
-                                                                   .Take(3)
-                                                                   .Select(x => new
-                                                                   {
-                                                                       Id = x.cpo.CpoId,
-                                                                       Numero = x.cpo.CpoNumeroCapitulo,
-                                                                       Data = x.cpo.CpoDataPublicacao
-                                                                   }).ToArray()
-                                         }).ToArrayAsync();
+                                             Capitulos = _context.CapitulosObras
+                                                                 .Where(c => c.ObsId == obraGroup.Key.ObsId)
+                                                                 .OrderByDescending(c => c.CpoNumeroCapitulo)
+                                                                 .Take(3)
+                                                                 .Select(c => new
+                                                                 {
+                                                                     Id = c.CpoId,
+                                                                     Numero = c.CpoNumeroCapitulo,
+                                                                     Data = c.CpoDataPublicacao
+                                                                 }).ToArray()
+                                         }).ToArrayAsync(_usuarioService.Token);
 
                     List<PostagensObras> listaObras = new List<PostagensObras>();
 
@@ -406,6 +444,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<PostagensObras>();
                 }
                 catch (Exception e)
                 {
@@ -419,7 +461,7 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
 
                 try
                 {
@@ -427,12 +469,12 @@ namespace Readit.Data.Repositories
                     var obraDB = obra.ToEntity();
 
                     await _context.Imagens.AddAsync(imagemDB);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(_usuarioService.Token);
 
                     obraDB.ImgId = imagemDB.ImgId;
 
                     await _context.Obras.AddAsync(obraDB);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(_usuarioService.Token);
 
                     foreach (var genero in listaGeneros)
                     {
@@ -441,16 +483,20 @@ namespace Readit.Data.Repositories
                             GnsId = genero.Id,
                             ObsId = obraDB.ObsId
                         });
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(_usuarioService.Token);
                     }
 
-                    await transaction.CommitAsync();
+                    await transaction.CommitAsync(_usuarioService.Token);
                     return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "CadastrarObra(Obras obra, Imagens imagem, List<Generos> listaGeneros)");
-                    await transaction.RollbackAsync();
+                    await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }
             }

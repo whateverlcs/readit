@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
+using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Data.Mappers;
 using Readit.Infra.Logging;
@@ -12,11 +13,13 @@ namespace Readit.Data.Repositories
     {
         private readonly IDbContextFactory<ReaditContext> _contextFactory;
         private readonly ILoggingService _logger;
+        private readonly IUsuarioService _usuarioService;
 
-        public PaginaCapituloRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger)
+        public PaginaCapituloRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService)
         {
             _contextFactory = contextFactory;
             _logger = logger;
+            _usuarioService = usuarioService;
         }
 
         public async Task<List<PaginasCapitulo>> BuscarPaginasCapituloPorIdsAsync(List<int> idsCap)
@@ -31,12 +34,12 @@ namespace Readit.Data.Repositories
                     {
                         paginasCapituloDB = await (from p in _context.PaginasCapitulos
                                                    where idsCap.Contains(p.CpoId)
-                                                   select p).ToArrayAsync();
+                                                   select p).ToArrayAsync(_usuarioService.Token);
                     }
                     else
                     {
                         paginasCapituloDB = await (from p in _context.PaginasCapitulos
-                                                   select p).ToArrayAsync();
+                                                   select p).ToArrayAsync(_usuarioService.Token);
                     }
 
                     List<PaginasCapitulo> listaPaginasCapitulo = new List<PaginasCapitulo>();
@@ -47,6 +50,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaPaginasCapitulo;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<PaginasCapitulo>();
                 }
                 catch (Exception e)
                 {

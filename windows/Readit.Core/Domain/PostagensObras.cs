@@ -8,6 +8,7 @@ namespace Readit.Core.Domain
         public ImageSource Image { get; set; }
         public byte[] ImageByte { get; set; }
         public string Title { get; set; }
+        public string TitleOriginal { get; set; }
         public string Status { get; set; }
         public string Tipo { get; set; }
         public int TipoNumber { get; set; }

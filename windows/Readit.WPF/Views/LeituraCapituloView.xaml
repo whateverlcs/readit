@@ -70,7 +70,7 @@
             <Button x:Name="EditarPerfil" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Editar Perfil">
                 <materialDesign:PackIcon Kind="Account" Width="27" Height="30" />
             </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Realizar Logoff">
+            <Button x:Name="RealizarLogoff" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Realizar Logoff">
                 <materialDesign:PackIcon Kind="Power" Width="27" Height="30" />
             </Button>
         </StackPanel>

@@ -32,6 +32,9 @@ namespace Readit.Infra.Services
 
         public List<CapitulosObra> IdentificarArquivosInseridos(int obraId)
         {
+            if (_usuarioService.UsuarioLogado == null)
+                return new List<CapitulosObra>();
+
             try
             {
                 string caminhoPastaTemporaria = _configuracaoService.GetTempPath();

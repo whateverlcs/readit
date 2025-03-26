@@ -41,7 +41,7 @@ namespace Readit.Data.Repositories
                                            Administrador = u.UsuAdministrador,
                                            IdImagem = u.ImgId,
                                            Imagem = i.ImgImagem
-                                       }).ToArrayAsync();
+                                       }).ToArrayAsync(_usuarioService.Token);
 
                     List<Usuario> listaUsuarios = new List<Usuario>();
 
@@ -51,6 +51,10 @@ namespace Readit.Data.Repositories
                     }
 
                     return listaUsuarios;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Usuario>();
                 }
                 catch (Exception e)
                 {
@@ -64,10 +68,13 @@ namespace Readit.Data.Repositories
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
 
                 try
                 {
+                    if (_usuarioService.UsuarioLogado == null)
+                        return false;
+
                     ef.Models.Usuario usuarioDB = new ef.Models.Usuario();
                     ef.Models.Imagen imagemDB = new ef.Models.Imagen();
 
@@ -75,7 +82,7 @@ namespace Readit.Data.Repositories
                     {
                         var usuarioUpdate = await (from o in _context.Usuarios
                                                    where o.UsuId == usuario.Id
-                                                   select o).FirstOrDefaultAsync();
+                                                   select o).FirstOrDefaultAsync(_usuarioService.Token);
 
                         usuarioUpdate.UsuNome = usuario.Nome;
                         usuarioUpdate.UsuApelido = usuario.Apelido;
@@ -85,7 +92,7 @@ namespace Readit.Data.Repositories
                         {
                             var imagemUpdate = await (from i in _context.Imagens
                                                       where i.ImgId == imagem.Id
-                                                      select i).FirstOrDefaultAsync();
+                                                      select i).FirstOrDefaultAsync(_usuarioService.Token);
 
                             imagemUpdate.ImgImagem = imagem.Imagem;
                             imagemUpdate.ImgFormato = imagem.Formato;
@@ -104,7 +111,7 @@ namespace Readit.Data.Repositories
                     if (imagem != null)
                     {
                         _context.Entry(imagemDB).State = imagemDB.ImgId == 0 ? EntityState.Added : EntityState.Modified;
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(_usuarioService.Token);
 
                         usuarioDB.ImgId = imagemDB.ImgId;
                     }
@@ -113,7 +120,7 @@ namespace Readit.Data.Repositories
                     {
                         var preferenciasAtuaisUsuarioDB = await (from pf in _context.PreferenciasUsuarios
                                                   where pf.UsuId == _usuarioService.UsuarioLogado.Id
-                                                  select pf).ToArrayAsync();
+                                                  select pf).ToArrayAsync(_usuarioService.Token);
 
                         var novasPreferenciasDB = listaPreferencias.ToArray().ToEntityList();
 
@@ -129,7 +136,7 @@ namespace Readit.Data.Repositories
                                     PreId = pref.PreId,
                                     UsuId = _usuarioService.UsuarioLogado.Id
                                 }).State = EntityState.Added;
-                                await _context.SaveChangesAsync();
+                                await _context.SaveChangesAsync(_usuarioService.Token);
                             }
                         }
 
@@ -138,21 +145,25 @@ namespace Readit.Data.Repositories
                             foreach(var pref in removerPreferencias)
                             {
                                 _context.Entry(pref).State = EntityState.Deleted;
-                                await _context.SaveChangesAsync();
+                                await _context.SaveChangesAsync(_usuarioService.Token);
                             }
                         }
                     }
 
                     _context.Entry(usuarioDB).State = usuarioDB.UsuId == 0 ? EntityState.Added : EntityState.Modified;
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(_usuarioService.Token);
 
-                    await transaction.CommitAsync();
+                    await transaction.CommitAsync(_usuarioService.Token);
                     return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "CadastrarUsuarioAsync(Usuario usuario, Imagens imagem, List<Preferencias> listaPreferencias)");
-                    await transaction.RollbackAsync();
+                    await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }
             }
