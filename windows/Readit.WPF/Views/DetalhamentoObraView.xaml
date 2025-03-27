@@ -157,18 +157,20 @@
                         <RowDefinition Height="5" />
                         <RowDefinition Height="40" />
                         <RowDefinition Height="15" />
-                        <RowDefinition Height="300" />
+                        <RowDefinition Height="240" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="50" />
                         <RowDefinition Height="10" />
                         <RowDefinition Height="60" />
                         <RowDefinition Height="10" />
                         <RowDefinition Height="220" />
                     </Grid.RowDefinitions>
 
-                    <Viewbox Grid.Column="1" Grid.Row="1" Grid.RowSpan="7" Stretch="UniformToFill" HorizontalAlignment="Center">
+                    <Viewbox Grid.Column="1" Grid.Row="1" Grid.RowSpan="9" Stretch="UniformToFill" HorizontalAlignment="Center">
                         <Image Source="{Binding DadosDetalhesObra.Image}" Height="300" VerticalAlignment="Stretch" />
                     </Viewbox>
 
-                    <Button Grid.Column="1" Grid.Row="9" Height="50" x:Name="RealizarBookmarkObra"
+                    <Button Grid.Column="1" Grid.Row="11" Height="50" x:Name="RealizarBookmarkObra"
                     materialDesign:ButtonAssist.CornerRadius="5" Background="White"
                     HorizontalAlignment="Stretch" VerticalAlignment="Top"
                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
@@ -197,7 +199,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Border Grid.Column="1" Grid.Row="11" BorderBrush="#ADACAC" BorderThickness="1" CornerRadius="10">
+                    <Border Grid.Column="1" Grid.Row="13" BorderBrush="#ADACAC" BorderThickness="1" CornerRadius="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="10" />
@@ -300,15 +302,15 @@
 
                     <TextBlock Grid.Column="3" Grid.Row="7" Text="{Binding DadosDetalhesObra.Description}" FontSize="20" Foreground="White" TextWrapping="Wrap" />
 
-                    <TextBox Grid.Column="3" Grid.Row="7" Background="LightGray" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="50" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Grid.Column="3" Grid.Row="9" Background="LightGray" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="50" Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                     FontSize="13" materialDesign:HintAssist.Hint="Procure pelos capítulos" />
 
-                    <ScrollViewer Grid.Column="3" Grid.Row="9" Grid.RowSpan="3">
+                    <ScrollViewer Grid.Column="3" Grid.Row="11" Grid.RowSpan="3">
                         <ItemsControl ItemsSource="{Binding FilteredCapitulos}" >
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <!-- Define o layout com 2 colunas -->
-                                    <UniformGrid Columns="4" Rows="5" />
+                                    <UniformGrid Columns="4" Rows="4" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>

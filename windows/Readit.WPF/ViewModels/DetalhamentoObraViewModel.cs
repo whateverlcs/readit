@@ -51,7 +51,7 @@ namespace Readit.WPF.ViewModels
             {
                 _dadosDetalhesObra = value;
                 NotifyOfPropertyChange(() => DadosDetalhesObra);
-                AtualizarEstrelas();
+                AtualizarEstrelas(0);
             }
         }
 
@@ -375,7 +375,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public void AtualizarEstrelas()
+        public void AtualizarEstrelas(double rating)
         {
             if (DadosDetalhesObra == null) return;
 
@@ -384,7 +384,7 @@ namespace Readit.WPF.ViewModels
                 InicializarEstrelas();
             }
 
-            int fullStars = (int)Math.Round(DadosDetalhesObra.Rating); // Arredonda para preencher corretamente
+            int fullStars = (int)Math.Round(rating > 0 ? rating : DadosDetalhesObra.RatingUsuario); // Arredonda para preencher corretamente
             for (int i = 0; i < StarRatings.Count; i++)
             {
                 StarRatings[i].IsFilled = i < fullStars;
@@ -396,9 +396,11 @@ namespace Readit.WPF.ViewModels
         {
             if (param is int index && DadosDetalhesObra != null)
             {
-                DadosDetalhesObra.Rating = index + 1; // Atualiza o Rating com base no clique do usuário
-                AtualizarEstrelas();
-                await _avaliacaoObraRepository.AtualizarRatingAsync(DadosDetalhesObra.ObraId, DadosDetalhesObra.Rating).ConfigureAwait(false);
+                var ratingSelecionado = index + 1;
+
+                AtualizarEstrelas(ratingSelecionado);
+                await _avaliacaoObraRepository.AtualizarRatingAsync(DadosDetalhesObra.ObraId, ratingSelecionado).ConfigureAwait(false);
+                DadosDetalhesObra.Rating = Math.Round(await _avaliacaoObraRepository.BuscarRatingObraAsync(DadosDetalhesObra.ObraId), 1);
                 NotifyOfPropertyChange(() => DadosDetalhesObra);
             }
         }

@@ -323,8 +323,8 @@
         </Grid>
 
         <!-- Botão para Voltar ao Topo -->
-        <Button Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" x:Name="VoltarTopo" Width="51" Height="40" materialDesign:ButtonAssist.CornerRadius="15" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-         Visibility="{Binding ExibirBotaoVoltarTopo, Converter={StaticResource VisibilityConverter}}" Click="VoltarTopo_Click" Margin="0 0 0 70" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D">
+        <Button Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="2" x:Name="VoltarTopo" Width="51" Height="40" materialDesign:ButtonAssist.CornerRadius="15" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+         Visibility="{Binding ExibirBotaoVoltarTopo, Converter={StaticResource VisibilityConverter}}" Click="VoltarTopo_Click" Margin="0 0 20 70" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D">
             <materialDesign:PackIcon Kind="ArrowUp" Width="20" Height="20" />
         </Button>
         <materialDesign:Snackbar Grid.Column="4" x:Name="SnackbarFive" Background="{Binding CorMsgInfo, Mode=TwoWay}" ActionButtonPlacement="Inline" HorizontalAlignment="Right" VerticalAlignment="Top" IsActive="{Binding ExibirMensagem, Mode=TwoWay}" Height="90">

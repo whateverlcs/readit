@@ -23,6 +23,18 @@ namespace Readit.Core.Domain
             }
         }
 
+        private double _ratingUsuario;
+
+        public double RatingUsuario
+        {
+            get => _ratingUsuario;
+            set
+            {
+                _ratingUsuario = value;
+                NotifyOfPropertyChange(() => RatingUsuario);
+            }
+        }
+
         public string Description { get; set; }
         public string Status { get; set; }
         public int StatusNumber { get; set; }

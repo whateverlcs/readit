@@ -4,6 +4,7 @@ using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Infra.Logging;
+using System.Windows.Media;
 using ef = Readit.Data;
 
 namespace Readit.Data.Repositories
@@ -68,6 +69,29 @@ namespace Readit.Data.Repositories
                     _logger.LogError(e, "AtualizarRatingAsync(int obraId, double rating)");
                     await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
+                }
+            }
+        }
+
+        public async Task<double> BuscarRatingObraAsync(int obraId)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                try
+                {
+                    return await _context.AvaliacoesObras
+                    .Where(av => av.ObsId == obraId)
+                    .Select(av => (double?)av.AvoNota)
+                    .AverageAsync(_usuarioService.Token) ?? 0;
+                }
+                catch (TaskCanceledException)
+                {
+                    return 0;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "BuscarRatingObraAsync(int obraId)");
+                    return 0;
                 }
             }
         }

@@ -62,6 +62,9 @@ namespace Readit.Data.Repositories
                                              Imagem = obraGroup.Key.ImgImagem,
                                              Generos = obraGroup.Select(x => x.g.GnsNome).Distinct().ToArray(),
                                              Bookmark = obraGroup.Any(x => x.bkm != null),
+                                             AvaliacaoUsuario = obraGroup.Where(x => x.avg != null && x.avg.UsuId == _usuarioService.UsuarioLogado.Id)
+                                            .Select(x => (double?)x.avg.AvoNota)
+                                            .FirstOrDefault() ?? 0,
                                              Capitulos = (from cpo in _context.CapitulosObras
                                                           where cpo.ObsId == obraGroup.Key.ObsId
                                                           orderby cpo.CpoNumeroCapitulo descending

@@ -21,6 +21,7 @@ namespace Readit.Data.Mappers
                 ImageByte = obraDB.Imagem,
                 Tags = obraDB.Generos,
                 Bookmark = obraDB.Bookmark,
+                RatingUsuario = obraDB.AvaliacaoUsuario,
                 ChapterInfos = (obraDB.Capitulos as IEnumerable<dynamic>)?.Select(cap => new ChapterInfo
                 {
                     ChapterId = cap.Id,

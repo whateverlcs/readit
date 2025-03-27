@@ -37,6 +37,7 @@ namespace Readit.Infra.Services
 
             detalhesObra.Image = _imagemService.ByteArrayToImage(detalhesObra.ImageByte);
             detalhesObra.Rating = Math.Round(detalhesObra.Rating, 1);
+            detalhesObra.RatingUsuario = Math.Round(detalhesObra.RatingUsuario, 1);
             detalhesObra.Status = _enumService.ObterStatus(detalhesObra.StatusNumber);
             detalhesObra.Type = _enumService.ObterTipo(detalhesObra.TypeNumber);
             detalhesObra.Description = detalhesObra.Description.Length > 437 ? detalhesObra.Description.Substring(0, 437).Trim() + "..." : detalhesObra.Description.Trim();
