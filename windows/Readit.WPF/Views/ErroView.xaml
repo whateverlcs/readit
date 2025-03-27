@@ -6,23 +6,24 @@
              xmlns:local="clr-namespace:Readit.WPF.Views"
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             Background="{DynamicResource MaterialDesignPaper}"
-             FontFamily="{DynamicResource MaterialDesignFont}"
+             Background="#14171C"
+             FontFamily="pack://application:,,,/Resources/Fonts/#Roboto"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="50"></ColumnDefinition>
             <ColumnDefinition Width="800"></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="50"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
             <RowDefinition Height="400"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
             <RowDefinition Height="70"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
         </Grid.RowDefinitions>
         <Image Source="{Binding Imagem, Mode=TwoWay}" Stretch="Uniform" Grid.Column="1" Grid.Row="1" />
-        <TextBlock Text="{Binding Mensagem, Mode=TwoWay}" Grid.Column="1" Grid.Row="2" FontSize="30" HorizontalAlignment="Center" />
+        <TextBlock Text="{Binding Mensagem, Mode=TwoWay}" Foreground="White" Grid.Column="1" Grid.Row="3" FontSize="30" HorizontalAlignment="Center" />
     </Grid>
 </UserControl>

@@ -32,25 +32,29 @@ namespace Readit.WPF.Infrastructure
             if (_container == null)
                 throw new InvalidOperationException("Contêiner não configurado.");
 
-            var constructors = type.GetConstructors();
+            var constructors = type.GetConstructors()
+                           .OrderByDescending(c => c.GetParameters().Length);
 
             foreach (var constructor in constructors)
             {
                 var parameters = constructor.GetParameters();
                 var arguments = new List<object>();
+                var usedArgs = new HashSet<int>(); // Guarda os índices dos argumentos já usados
 
                 foreach (var param in parameters)
                 {
-                    // Se o tipo do parâmetro for igual ao de um argumento passado, usa o argumento
-                    var argument = extraArgs.FirstOrDefault(a => param.ParameterType.IsAssignableFrom(a.GetType()));
+                    // Procura um argumento extra que ainda não tenha sido usado
+                    var argumentIndex = Array.FindIndex(extraArgs, a =>
+                        a != null && param.ParameterType.IsAssignableFrom(a.GetType()) && !usedArgs.Contains(Array.IndexOf(extraArgs, a)));
 
-                    if (argument != null)
+                    if (argumentIndex != -1)
                     {
-                        arguments.Add(argument);
+                        arguments.Add(extraArgs[argumentIndex]);
+                        usedArgs.Add(argumentIndex); // Marca esse argumento como usado
                     }
                     else
                     {
-                        // Caso contrário, tenta resolver via DI
+                        // Se não encontrar um argumento, tenta resolver via DI
                         var service = _container.GetInstance(param.ParameterType, null);
                         if (service == null)
                             break; // Se não encontrar um serviço, passa para o próximo construtor

@@ -420,7 +420,8 @@ namespace Readit.Data.Repositories
                                                   .Where(og => og.ObsId == o.ObsId)
                                                   .Select(og => og.Gns.GnsNome)
                                                   .Any(genero => preferenciasUsuario.Contains(genero)))
-                                         group new { o, i } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, i.ImgImagem } into obraGroup
+                                         group new { o, i, cpo } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, i.ImgImagem } into obraGroup
+                                         orderby obraGroup.Max(x => x.cpo.CpoDataPublicacao) descending
                                          select new
                                          {
                                              Id = obraGroup.Key.ObsId,

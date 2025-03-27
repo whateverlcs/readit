@@ -11,7 +11,7 @@ namespace Readit.WPF
 
         public static async Task OpenItem<T>(params object[] args) where T : IScreen
         {
-            var viewModel = DependencyResolver.GetService<T>();
+            var viewModel = (T)DependencyResolver.CreateInstance(typeof(T), args);
             await Parent.ActivateItemAsync(viewModel);
         }
 
