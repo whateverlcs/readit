@@ -26,6 +26,7 @@ namespace Readit.Infra.Services
                 postagem.Image = _imagemService.ByteArrayToImage(postagem.ImageByte);
                 postagem.TitleOriginal = postagem.Title.Trim();
                 postagem.Title = postagem.Title.Length > 39 ? postagem.Title.Substring(0, 39).Trim() + "..." : postagem.Title.Trim();
+                postagem.ImageFlag = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(_enumService.ObterFlagPorTipo(postagem.TipoNumber)));
             }
 
             return postagens;
@@ -42,6 +43,7 @@ namespace Readit.Infra.Services
             detalhesObra.Type = _enumService.ObterTipo(detalhesObra.TypeNumber);
             detalhesObra.Description = detalhesObra.Description.Length > 437 ? detalhesObra.Description.Substring(0, 437).Trim() + "..." : detalhesObra.Description.Trim();
             detalhesObra.PostedBy = detalhesObra.PostedBy.Length > 16 ? detalhesObra.PostedBy.Substring(0, 16).Trim() + "..." : detalhesObra.PostedBy.Trim();
+            detalhesObra.ImageFlag = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(_enumService.ObterFlagPorTipo(detalhesObra.TypeNumber)));
 
             return detalhesObra;
         }
@@ -56,6 +58,7 @@ namespace Readit.Infra.Services
                 postagem.Rating = Math.Round(postagem.Rating, 1);
                 postagem.Status = _enumService.ObterStatus(postagem.StatusNumber);
                 postagem.Tipo = _enumService.ObterTipo(postagem.TipoNumber);
+                postagem.ImageFlag = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(_enumService.ObterFlagPorTipo(postagem.TipoNumber)));
             }
 
             return postagens;
@@ -69,6 +72,7 @@ namespace Readit.Infra.Services
             {
                 obra.Image = _imagemService.ByteArrayToImage(obra.ImageByte);
                 obra.Rating = Math.Round(obra.Rating, 1);
+                obra.ImageFlag = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(_enumService.ObterFlagPorTipo(obra.TipoNumber)));
             }
 
             return obrasEmDestaque;
@@ -80,6 +84,7 @@ namespace Readit.Infra.Services
             {
                 postagem.Status = _enumService.ObterStatus(postagem.StatusNumber);
                 postagem.Image = _imagemService.ByteArrayToImage(postagem.ImageByte);
+                postagem.ImageFlag = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(_enumService.ObterFlagPorTipo(postagem.TipoNumber)));
 
                 foreach (var capInfo in postagem.ChapterInfos)
                 {

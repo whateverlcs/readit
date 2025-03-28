@@ -6,6 +6,7 @@ namespace Readit.Core.Domain
     {
         public int ObraId { get; set; }
         public ImageSource Image { get; set; }
+        public ImageSource ImageFlag { get; set; }
         public byte[] ImageByte { get; set; }
         public string Title { get; set; }
         public string TitleOriginal { get; set; }

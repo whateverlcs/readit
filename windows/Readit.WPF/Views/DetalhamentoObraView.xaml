@@ -170,6 +170,8 @@
                         <Image Source="{Binding DadosDetalhesObra.Image}" Height="300" VerticalAlignment="Stretch" />
                     </Viewbox>
 
+                    <Image Grid.Column="1" Grid.Row="1" Grid.RowSpan="9" Source="{Binding DadosDetalhesObra.ImageFlag}" VerticalAlignment="Top" HorizontalAlignment="Right" Height="40" />
+
                     <Button Grid.Column="1" Grid.Row="11" Height="50" x:Name="RealizarBookmarkObra"
                     materialDesign:ButtonAssist.CornerRadius="5" Background="White"
                     HorizontalAlignment="Stretch" VerticalAlignment="Top"

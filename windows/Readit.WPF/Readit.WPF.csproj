@@ -17,7 +17,11 @@
     <None Remove="Resources\Fonts\Roboto-Light.ttf" />
     <None Remove="Resources\Fonts\Roboto-Medium.ttf" />
     <None Remove="Resources\Fonts\Roboto.ttf" />
+    <None Remove="Resources\Images\china-flag.png" />
+    <None Remove="Resources\Images\japan-flag.png" />
+    <None Remove="Resources\Images\korea-flag.png" />
     <None Remove="Resources\Images\not-found-comments.png" />
+    <None Remove="Resources\Images\unknown-flag.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +58,9 @@
     <Content Include="Resources\Data Files\phrases-loading.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\Images\japan-flag.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <ProjectReference Include="..\Readit.Core\Readit.Core.csproj" />
     <ProjectReference Include="..\Readit.Data\Readit.Data.csproj" />
     <ProjectReference Include="..\Readit.Infra\Readit.Infra.csproj" />
@@ -67,6 +74,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\alert.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\china-flag.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\korea-flag.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\loading-gif.gif">
@@ -85,6 +98,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
 	<Resource Include="Resources\Images\profile-default.jpg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="Resources\Images\unknown-flag.png">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Resource>
     <Resource Include="Resources\Images\upload-image.png">

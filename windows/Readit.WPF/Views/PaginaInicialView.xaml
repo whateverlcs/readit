@@ -337,7 +337,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- Título -->
+                    <!-- Título -->
                         <TextBlock Text="Últimas atualizações"
                            FontSize="20"
                            FontWeight="Bold"
@@ -374,7 +374,8 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Grid>
-                                                        <Image x:Name="HoverImage"
+
+                                                    <Image x:Name="HoverImage"
                                                            Source="{Binding Image}"
                                                            MaxHeight="190"
                                                            HorizontalAlignment="Center"
@@ -382,7 +383,9 @@
                                                            SnapsToDevicePixels="True"
                                                            Stretch="UniformToFill"/>
 
-                                                        <!-- Camada para hover -->
+                                                    <Image Source="{Binding ImageFlag}" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25" />
+
+                                                    <!-- Camada para hover -->
                                                         <Border x:Name="HoverOverlay"
                                                         Background="White"
                                                         Opacity="0"
@@ -571,6 +574,8 @@
                                                         VerticalAlignment="Stretch"
                                                         SnapsToDevicePixels="True"
                                                         Stretch="UniformToFill"/>
+
+                                                        <Image Source="{Binding ImageFlag}" VerticalAlignment="Top" HorizontalAlignment="Right" Height="20" />
 
                                                         <!-- Camada para hover -->
                                                         <Border x:Name="HoverOverlay"

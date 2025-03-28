@@ -6,11 +6,13 @@ namespace Readit.Core.Domain
     {
         public int Rank { get; set; }
         public ImageSource Image { get; set; }
+        public ImageSource ImageFlag { get; set; }
         public byte[] ImageByte { get; set; }
         public string Title { get; set; }
         public List<string> Genres { get; set; } = new List<string>();
         public double Rating { get; set; }
         public string Filter { get; set; }
+        public int TipoNumber { get; set; }
 
         public bool IsLastGenre(string genre)
         {

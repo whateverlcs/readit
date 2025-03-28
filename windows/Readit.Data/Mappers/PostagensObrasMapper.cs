@@ -16,6 +16,7 @@ namespace Readit.Data.Mappers
                     ImageByte = obraDB.Imagem,
                     Title = obraDB.NomeObra,
                     StatusNumber = obraDB.Status,
+                    TipoNumber = Convert.ToInt32(obraDB.Tipo),
                     ChapterInfos = capitulos.Select(cap => new ChapterInfo
                     {
                         ChapterId = cap.Id,
@@ -33,7 +34,8 @@ namespace Readit.Data.Mappers
             {
                 ObraId = obraDB.Id,
                 ImageByte = obraDB.Imagem,
-                Title = obraDB.NomeObra
+                Title = obraDB.NomeObra,
+                TipoNumber = Convert.ToInt32(obraDB.Tipo)
             }).ToList();
         }
 

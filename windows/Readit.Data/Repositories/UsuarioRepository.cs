@@ -72,7 +72,7 @@ namespace Readit.Data.Repositories
 
                 try
                 {
-                    if (_usuarioService.UsuarioLogado == null)
+                    if (_usuarioService.UsuarioLogado == null && listaPreferencias != null)
                         return false;
 
                     ef.Models.Usuario usuarioDB = new ef.Models.Usuario();
