@@ -3,15 +3,10 @@ using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Data.Context;
-using Readit.Infra.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ef = Readit.Data;
 using Readit.Data.Mappers;
 using Readit.Data.Models;
+using Readit.Infra.Logging;
+using ef = Readit.Data;
 
 namespace Readit.Data.Repositories
 {
@@ -219,6 +214,97 @@ namespace Readit.Data.Repositories
                 catch (Exception e)
                 {
                     _logger.LogError(e, "CadastrarRemoverAvaliacaoComentarioAsync(Comentarios comentario, string tipoAvaliacao, string tipoAcao)");
+                    await transaction.RollbackAsync(_usuarioService.Token);
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> EditarComentarioAsync(Comentarios comentario)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
+
+                try
+                {
+                    var comentarioDB = comentario.ToEntity();
+
+                    _context.Entry(comentarioDB).State = EntityState.Modified;
+                    await _context.SaveChangesAsync(_usuarioService.Token);
+
+                    await transaction.CommitAsync(_usuarioService.Token);
+                    return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "EditarComentarioAsync(Comentarios comentario)");
+                    await transaction.RollbackAsync(_usuarioService.Token);
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> ExcluirComentarioAsync(int idComentario)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync(_usuarioService.Token);
+
+                try
+                {
+                    var respostaComentarioDB = await (from ac in _context.RespostasComentarios
+                                                      where ac.CtsId == idComentario || ac.ResId == idComentario
+                                                      select ac).ToArrayAsync(_usuarioService.Token);
+
+                    if (respostaComentarioDB.Length > 0)
+                    {
+                        foreach (var rcDB in respostaComentarioDB)
+                        {
+                            _context.Entry(rcDB).State = EntityState.Deleted;
+                            await _context.SaveChangesAsync(_usuarioService.Token);
+                        }
+                    }
+
+                    var idRespostas = respostaComentarioDB.Length > 0 ? respostaComentarioDB.Select(g => g.ResId).ToArray() : Array.Empty<int>();
+
+                    var avaliacaoComentarioDB = await (from ac in _context.AvaliacoesComentarios
+                                                       where ac.CtsId == idComentario || (idRespostas.Length > 0 && idRespostas.Contains(ac.CtsId))
+                                                       select ac).ToArrayAsync(_usuarioService.Token);
+
+                    if (avaliacaoComentarioDB.Length > 0)
+                    {
+                        foreach (var avDB in avaliacaoComentarioDB)
+                        {
+                            _context.Entry(avDB).State = EntityState.Deleted;
+                            await _context.SaveChangesAsync(_usuarioService.Token);
+                        }
+                    }
+
+                    var comentarioDB = await (from c in _context.Comentarios
+                                              where c.CtsId == idComentario || (idRespostas.Length > 0 && idRespostas.Contains(c.CtsId))
+                                              select c).ToArrayAsync(_usuarioService.Token);
+
+                    foreach (var cDB in comentarioDB)
+                    {
+                        _context.Entry(cDB).State = EntityState.Deleted;
+                        await _context.SaveChangesAsync(_usuarioService.Token);
+                    }
+
+                    await transaction.CommitAsync(_usuarioService.Token);
+                    return true;
+                }
+                catch (TaskCanceledException)
+                {
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "ExcluirComentarioAsync(int idComentario)");
                     await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }

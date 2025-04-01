@@ -10,14 +10,37 @@ namespace Readit.Core.Domain
         public ImageSource ImagemPerfil { get; set; }
         public byte[] ImageByte { get; set; }
         public string UsuarioApelido { get; set; }
-        public string TempoDecorridoFormatado { get; set; }
         public string TempoUltimaAtualizacaoFormatado { get; set; }
         public DateTime? TempoDecorrido { get; set; }
         public DateTime? TempoUltimaAtualizacaoDecorrido { get; set; }
-        public string ComentarioTexto { get; set; }
         public int IdObra { get; set; }
         public int? IdCapitulo { get; set; }
         public int IdUsuario { get; set; }
+        public bool IsUsuarioOuAdministrador { get; set; }
+
+        private string _tempoDecorridoFormatado;
+
+        public string TempoDecorridoFormatado
+        {
+            get => _tempoDecorridoFormatado;
+            set
+            {
+                _tempoDecorridoFormatado = value;
+                NotifyOfPropertyChange(() => TempoDecorridoFormatado);
+            }
+        }
+
+        private string _comentarioTexto;
+
+        public string ComentarioTexto
+        {
+            get => _comentarioTexto;
+            set
+            {
+                _comentarioTexto = value;
+                NotifyOfPropertyChange(() => ComentarioTexto);
+            }
+        }
 
         private int _contadorLikes;
 
@@ -67,6 +90,30 @@ namespace Readit.Core.Domain
             }
         }
 
+        private bool _isEdicaoComentarioVisivel;
+
+        public bool IsEdicaoComentarioVisivel
+        {
+            get => _isEdicaoComentarioVisivel;
+            set
+            {
+                _isEdicaoComentarioVisivel = value;
+                NotifyOfPropertyChange(() => IsEdicaoComentarioVisivel);
+            }
+        }
+
+        private bool _isEdicaoRespostaVisivel;
+
+        public bool IsEdicaoRespostaVisivel
+        {
+            get => _isEdicaoRespostaVisivel;
+            set
+            {
+                _isEdicaoRespostaVisivel = value;
+                NotifyOfPropertyChange(() => IsEdicaoRespostaVisivel);
+            }
+        }
+
         public Comentarios Pai { get; set; }
 
         public Comentarios()
@@ -80,9 +127,27 @@ namespace Readit.Core.Domain
             NotifyOfPropertyChange(() => IsRespostaVisivel);
         }
 
+        public void MostrarEdicao()
+        {
+            IsEdicaoComentarioVisivel = true;
+            NotifyOfPropertyChange(() => IsEdicaoComentarioVisivel);
+        }
+
+        public void MostrarEdicaoResposta()
+        {
+            IsEdicaoRespostaVisivel = true;
+            NotifyOfPropertyChange(() => IsEdicaoRespostaVisivel);
+        }
+
         public void AdicionarResposta(Comentarios resposta)
         {
             _respostas.Add(resposta);
+            NotifyOfPropertyChange(() => Respostas);
+        }
+
+        public void RemoverResposta(Comentarios resposta)
+        {
+            resposta.Pai.Respostas.Remove(resposta);
             NotifyOfPropertyChange(() => Respostas);
         }
     }

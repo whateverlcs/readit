@@ -4,6 +4,7 @@ using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Infra.Helpers;
 using Readit.WPF.Infrastructure;
+using SharpCompress;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -193,6 +194,30 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        private string _novaEdicaoComentario;
+
+        public string NovaEdicaoComentario
+        {
+            get { return _novaEdicaoComentario; }
+            set
+            {
+                _novaEdicaoComentario = value;
+                NotifyOfPropertyChange(() => NovaEdicaoComentario);
+            }
+        }
+
+        private string _novaEdicaoResposta;
+
+        public string NovaEdicaoResposta
+        {
+            get { return _novaEdicaoResposta; }
+            set
+            {
+                _novaEdicaoResposta = value;
+                NotifyOfPropertyChange(() => NovaEdicaoResposta);
+            }
+        }
+
         private ObservableCollection<Comentarios> _comentarios;
 
         public ObservableCollection<Comentarios> Comentarios
@@ -283,7 +308,16 @@ namespace Readit.WPF.ViewModels
         public ICommand FiltroAntigosCommand { get; set; }
         public ICommand LikeCommand { get; set; }
         public ICommand DislikeCommand { get; set; }
-        public ICommand ResponderCommand { get; set; }
+        public ICommand ExibirResponderComentarioCommand { get; set; }
+
+        public ICommand ExibirEditarComentarioCommand { get; set; }
+        public ICommand ExcluirComentarioCommand { get; set; }
+        public ICommand CancelarEdicaoCommand { get; set; }
+        public ICommand EditarComentarioCommand { get; set; }
+
+        public ICommand ExibirEditarRespostaCommand { get; set; }
+        public ICommand CancelarEdicaoRespostaCommand { get; set; }
+
         public ICommand ResponderComentarioCommand { get; set; }
         public ICommand CancelarComentarioCommand { get; set; }
 
@@ -298,8 +332,9 @@ namespace Readit.WPF.ViewModels
         private readonly IObraService _obraService;
         private readonly IComentarioService _comentarioService;
         private readonly IImagemService _imagemService;
+        private readonly IUtilService _utilService;
 
-        public DetalhamentoObraViewModel(IUsuarioService usuarioService, IAvaliacaoObraRepository avaliacaoObraRepository, IVisualizacaoObraRepository visualizacaoObraRepository, IBookmarkRepository bookmarkRepository, IComentarioRepository comentarioRepository, IArquivoService arquivoService, IObraService obraService, IComentarioService comentarioService, IImagemService imagemService, string nomeObra)
+        public DetalhamentoObraViewModel(IUsuarioService usuarioService, IAvaliacaoObraRepository avaliacaoObraRepository, IVisualizacaoObraRepository visualizacaoObraRepository, IBookmarkRepository bookmarkRepository, IComentarioRepository comentarioRepository, IArquivoService arquivoService, IObraService obraService, IComentarioService comentarioService, IImagemService imagemService, IUtilService utilService, string nomeObra)
         {
             _usuarioService = usuarioService;
             _avaliacaoObraRepository = avaliacaoObraRepository;
@@ -310,6 +345,7 @@ namespace Readit.WPF.ViewModels
             _obraService = obraService;
             _comentarioService = comentarioService;
             _imagemService = imagemService;
+            _utilService = utilService;
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
             _nomeObra = nomeObra;
             _texts = _arquivoService.ExtrairDadosFrasesLoading();
@@ -328,15 +364,27 @@ namespace Readit.WPF.ViewModels
 
             #region Comentários
 
-            ComentarCommand = new AsyncRelayCommand<object>(Comentar);
+            ComentarCommand = new AsyncRelayCommand<object>(RealizarComentario);
+
             FiltroMelhoresCommand = new RelayCommandHelper<object>(FiltroMelhores);
             FiltroRecentesCommand = new RelayCommandHelper<object>(FiltroRecentes);
             FiltroAntigosCommand = new RelayCommandHelper<object>(FiltroAntigos);
+
             LikeCommand = new AsyncRelayCommand<Comentarios>(CurtirComentario);
             DislikeCommand = new AsyncRelayCommand<Comentarios>(DislikarComentario);
-            ResponderCommand = new RelayCommandHelper<Comentarios>(Responder);
+
+            ExibirResponderComentarioCommand = new RelayCommandHelper<Comentarios>(ExibirCampoResponder);
             ResponderComentarioCommand = new AsyncRelayCommand<Comentarios>(ResponderComentario);
+
             CancelarComentarioCommand = new RelayCommandHelper<Comentarios>(CancelarComentario);
+
+            ExibirEditarComentarioCommand = new RelayCommandHelper<Comentarios>(ExibirCampoEditarComentario);
+            ExcluirComentarioCommand = new AsyncRelayCommand<Comentarios>(ExcluirComentario);
+            CancelarEdicaoCommand = new RelayCommandHelper<Comentarios>(CancelarEdicaoComentarioCommand);
+            EditarComentarioCommand = new AsyncRelayCommand<Comentarios>(EditarComentario);
+
+            ExibirEditarRespostaCommand = new RelayCommandHelper<Comentarios>(ExibirCampoEditarResposta);
+            CancelarEdicaoRespostaCommand = new RelayCommandHelper<Comentarios>(CancelarEdicaoRespostaComentarioCommand);
 
             #endregion Comentários
         }
@@ -478,7 +526,7 @@ namespace Readit.WPF.ViewModels
             HabilitarCampos = true;
         }
 
-        public async Task Comentar(object obj)
+        public async Task RealizarComentario(object obj)
         {
             if (!string.IsNullOrEmpty(NovoComentario))
             {
@@ -494,6 +542,7 @@ namespace Readit.WPF.ViewModels
                     IdCapitulo = null,
                     IdUsuario = _usuarioService.UsuarioLogado.Id,
                     ImagemPerfil = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
+                    IsUsuarioOuAdministrador = true
                 };
 
                 var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novoComentario).ConfigureAwait(false);
@@ -535,6 +584,7 @@ namespace Readit.WPF.ViewModels
                     IdCapitulo = null,
                     IdUsuario = _usuarioService.UsuarioLogado.Id,
                     ImagemPerfil = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
+                    IsUsuarioOuAdministrador = true
                 };
 
                 var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novaResposta).ConfigureAwait(false);
@@ -560,18 +610,97 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        public async Task EditarComentario(Comentarios comentario)
+        {
+            if (!string.IsNullOrEmpty(NovaEdicaoComentario) || !string.IsNullOrEmpty(NovaEdicaoResposta))
+            {
+                comentario.ComentarioTexto = string.IsNullOrEmpty(NovaEdicaoComentario) ? NovaEdicaoResposta : NovaEdicaoComentario;
+                comentario.TempoUltimaAtualizacaoDecorrido = DateTime.Now;
+                comentario.TempoDecorridoFormatado = _utilService.FormatarData(comentario.TempoUltimaAtualizacaoDecorrido);
+
+                var sucesso = await _comentarioRepository.EditarComentarioAsync(comentario).ConfigureAwait(false);
+
+                if (sucesso)
+                {
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        NovaEdicaoComentario = string.Empty;
+                        NovaEdicaoResposta = string.Empty;
+                        comentario.IsEdicaoComentarioVisivel = false;
+                        comentario.IsEdicaoRespostaVisivel = false;
+                        NotifyOfPropertyChange(() => Comentarios);
+                    });
+                }
+                else
+                {
+                    await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao editar o comentário da obra."]);
+                }
+            }
+        }
+
+        public async Task ExcluirComentario(Comentarios comentario)
+        {
+            var sucesso = await _comentarioRepository.ExcluirComentarioAsync(comentario.Id).ConfigureAwait(false);
+
+            if (sucesso)
+            {
+                await RealizarExclusaoComentario(comentario);
+            }
+            else
+            {
+                await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao realizar ao excluir o comentário."]);
+            }
+        }
+
+        public async Task RealizarExclusaoComentario(Comentarios comentario)
+        {
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                if (comentario.Pai != null)
+                {
+                    comentario.RemoverResposta(comentario);
+                }
+                else
+                {
+                    Comentarios.Remove(comentario);
+                }
+
+                ComentariosCount = Comentarios.Count + Comentarios.Sum(c => c.Respostas.Count);
+                NotifyOfPropertyChange(() => Comentarios);
+            });
+        }
+
         public void CancelarComentario(Comentarios comentario)
         {
             comentario.IsRespostaVisivel = false;
             NovaResposta = string.Empty;
         }
 
+        public void CancelarEdicaoComentarioCommand(Comentarios comentario)
+        {
+            comentario.IsEdicaoComentarioVisivel = false;
+            NovaEdicaoComentario = string.Empty;
+        }
+
+        public void CancelarEdicaoRespostaComentarioCommand(Comentarios comentario)
+        {
+            comentario.IsEdicaoRespostaVisivel = false;
+            NovaEdicaoResposta = string.Empty;
+        }
+
         public async Task CurtirComentario(Comentarios comentario)
         {
             var podeRealizarLike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Like").ConfigureAwait(false);
+            var podeRealizarDislike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Dislike").ConfigureAwait(false);
 
             if (podeRealizarLike)
             {
+                if (!podeRealizarDislike)
+                {
+                    await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Dislike", "Remover").ConfigureAwait(false);
+                    comentario.ContadorDislikes--;
+                }
+
                 await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Like", "Adicionar").ConfigureAwait(false);
                 comentario.ContadorLikes++;
             }
@@ -585,9 +714,16 @@ namespace Readit.WPF.ViewModels
         public async Task DislikarComentario(Comentarios comentario)
         {
             var podeRealizarDislike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Dislike").ConfigureAwait(false);
+            var podeRealizarLike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Like").ConfigureAwait(false);
 
             if (podeRealizarDislike)
             {
+                if (!podeRealizarLike)
+                {
+                    await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Like", "Remover").ConfigureAwait(false);
+                    comentario.ContadorLikes--;
+                }
+
                 await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Dislike", "Adicionar").ConfigureAwait(false);
                 comentario.ContadorDislikes++;
             }
@@ -598,9 +734,84 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public void Responder(Comentarios comentario)
+        public void ExibirCampoResponder(Comentarios comentario)
         {
             comentario.MostrarResposta();
+            Comentarios.ForEach(x =>
+            {
+                if (x.Id != comentario.Id)
+                {
+                    x.IsRespostaVisivel = false;
+                }
+
+                x.IsEdicaoComentarioVisivel = false;
+                x.IsEdicaoRespostaVisivel = false;
+
+                x.Respostas.ForEach(y =>
+                {
+                    if (y.Id != comentario.Id)
+                    {
+                        y.IsRespostaVisivel = false;
+                    }
+
+                    y.IsEdicaoComentarioVisivel = false;
+                    y.IsEdicaoRespostaVisivel = false;
+                });
+            });
+        }
+
+        public void ExibirCampoEditarComentario(Comentarios comentario)
+        {
+            NovaEdicaoComentario = comentario.ComentarioTexto;
+            comentario.MostrarEdicao();
+            Comentarios.ForEach(x =>
+            {
+                if (x.Id != comentario.Id)
+                {
+                    x.IsEdicaoComentarioVisivel = false;
+                }
+
+                x.IsRespostaVisivel = false;
+                x.IsEdicaoRespostaVisivel = false;
+
+                x.Respostas.ForEach(y =>
+                {
+                    if (y.Id != comentario.Id)
+                    {
+                        y.IsEdicaoComentarioVisivel = false;
+                    }
+
+                    y.IsRespostaVisivel = false;
+                    y.IsEdicaoRespostaVisivel = false;
+                });
+            });
+        }
+
+        public void ExibirCampoEditarResposta(Comentarios comentario)
+        {
+            NovaEdicaoResposta = comentario.ComentarioTexto;
+            comentario.MostrarEdicaoResposta();
+            Comentarios.ForEach(x =>
+            {
+                if (x.Id != comentario.Id)
+                {
+                    x.IsEdicaoRespostaVisivel = false;
+                }
+
+                x.IsEdicaoComentarioVisivel = false;
+                x.IsRespostaVisivel = false;
+
+                x.Respostas.ForEach(y =>
+                {
+                    if (y.Id != comentario.Id)
+                    {
+                        y.IsEdicaoRespostaVisivel = false;
+                    }
+
+                    y.IsEdicaoComentarioVisivel = false;
+                    y.IsRespostaVisivel = false;
+                });
+            });
         }
 
         public void FiltroMelhores(object obj)

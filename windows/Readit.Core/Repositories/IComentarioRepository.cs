@@ -8,6 +8,10 @@ namespace Readit.Core.Repositories
 
         public Task<(bool, int)> CadastrarComentarioAsync(Comentarios comentario);
 
+        public Task<bool> EditarComentarioAsync(Comentarios comentario);
+
+        public Task<bool> ExcluirComentarioAsync(int idComentario);
+
         public Task<bool> ConsultarLikesDeslikesUsuarioAsync(Comentarios comentario, string tipoAvaliacao);
 
         public Task<bool> CadastrarRemoverAvaliacaoComentarioAsync(Comentarios comentario, string tipoAvaliacao, string tipoAcao);
