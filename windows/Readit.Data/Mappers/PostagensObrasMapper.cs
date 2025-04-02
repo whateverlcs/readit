@@ -1,4 +1,5 @@
 ﻿using Readit.Core.Domain;
+using Readit.Data.Models;
 
 namespace Readit.Data.Mappers
 {
@@ -53,6 +54,20 @@ namespace Readit.Data.Mappers
                 DataPublicacao = obraDB.DataPublicacao,
                 DataAtualizacao = obraDB.DataAtualizacao
             }).ToList();
+        }
+
+        public static PostagensObras MapCadastroEdicaoObras(dynamic obraDB)
+        {
+            return new PostagensObras
+            {
+                ObraId = obraDB.Id,
+                ImageByte = obraDB.Imagem,
+                Title = obraDB.NomeObra,
+                StatusNumber = Convert.ToInt32(obraDB.Status),
+                TipoNumber = Convert.ToInt32(obraDB.Tipo),
+                Genres = obraDB.Genres,
+                Descricao = obraDB.Descricao
+            };
         }
     }
 }

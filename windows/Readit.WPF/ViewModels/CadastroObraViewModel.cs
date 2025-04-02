@@ -6,9 +6,11 @@ using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Infra.Logging;
 using Readit.WPF.Infrastructure;
+using SharpCompress;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
 
 namespace Readit.WPF.ViewModels
 {
@@ -85,6 +87,8 @@ namespace Readit.WPF.ViewModels
                 NotifyOfPropertyChange(() => ExibirMensagem);
             }
         }
+
+        #region Cadastro Obra
 
         private string _obraDigitada;
 
@@ -206,9 +210,11 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        private string _imagemSelecionada = "../Resources/Images/upload-image.png";
+        private string CaminhoImagem = "../Resources/Images/upload-image.png";
 
-        public string ImagemSelecionada
+        private ImageSource _imagemSelecionada;
+
+        public ImageSource ImagemSelecionada
         {
             get { return _imagemSelecionada; }
             set
@@ -230,6 +236,103 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        private string _tituloPrincipal = "CADASTRAR OBRAS";
+
+        public string TituloPrincipal
+        {
+            get { return _tituloPrincipal; }
+            set
+            {
+                _tituloPrincipal = value;
+                NotifyOfPropertyChange(() => TituloPrincipal);
+            }
+        }
+
+        private string _tituloBotao = "Cadastrar Obra";
+
+        public string TituloBotao
+        {
+            get { return _tituloBotao; }
+            set
+            {
+                _tituloBotao = value;
+                NotifyOfPropertyChange(() => TituloBotao);
+            }
+        }
+
+        #endregion Cadastro Obra
+
+        #region Edição de Obras
+
+        private string ModoAtual = "Cadastrar";
+
+        private ObservableCollection<Obras> _listaObrasEdicao = new ObservableCollection<Obras>();
+
+        public ObservableCollection<Obras> ListaObrasEdicao
+        {
+            get { return _listaObrasEdicao; }
+            set
+            {
+                _listaObrasEdicao = value;
+                NotifyOfPropertyChange(() => ListaObrasEdicao);
+            }
+        }
+
+        private Obras _obraSelecionada;
+
+        public Obras ObraSelecionada
+        {
+            get { return _obraSelecionada; }
+            set
+            {
+                _obraSelecionada = value;
+                if (_obraSelecionada != null)
+                {
+                    AplicarLoading(true);
+                    Task.Run(() => CarregarDadosEdicaoObra(_obraSelecionada)).ConfigureAwait(false);
+                    NotifyOfPropertyChange(() => ObraSelecionada);
+                }
+            }
+        }
+
+        private bool _exibirSelectEdicao;
+
+        public bool ExibirSelectEdicao
+        {
+            get { return _exibirSelectEdicao; }
+            set
+            {
+                _exibirSelectEdicao = value;
+                NotifyOfPropertyChange(() => ExibirSelectEdicao);
+            }
+        }
+
+        private bool _habilitarSelectEdicao;
+
+        public bool HabilitarSelectEdicao
+        {
+            get { return _habilitarSelectEdicao; }
+            set
+            {
+                _habilitarSelectEdicao = value;
+                NotifyOfPropertyChange(() => HabilitarSelectEdicao);
+            }
+        }
+
+        private string _toggleTitulo = "EDITAR OBRAS";
+
+        public string ToggleTitulo
+        {
+            get { return _toggleTitulo; }
+            set
+            {
+                _toggleTitulo = value;
+                NotifyOfPropertyChange(() => ToggleTitulo);
+            }
+        }
+
+        #endregion Edição de Obras
+
         private readonly IUsuarioService _usuarioService;
         private readonly IObraRepository _obraRepository;
         private readonly IGeneroRepository _generoRepository;
@@ -246,6 +349,58 @@ namespace Readit.WPF.ViewModels
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
 
             Task.Run(() => PopularCamposAsync()).ConfigureAwait(false);
+        }
+
+        public void AlterarModo()
+        {
+            LimparDados();
+
+            if (ModoAtual == "Cadastrar")
+            {
+                ModoAtual = "Editar";
+                ToggleTitulo = "CADASTRAR OBRAS";
+                ExibirSelectEdicao = true;
+                TituloBotao = "Editar Obra";
+                TituloPrincipal = "EDITAR OBRAS";
+                HabilitarCampos = false;
+                HabilitarSelectEdicao = true;
+            }
+            else
+            {
+                ModoAtual = "Cadastrar";
+                ToggleTitulo = "EDITAR OBRAS";
+                ExibirSelectEdicao = false;
+                TituloBotao = "Cadastrar Obra";
+                TituloPrincipal = "CADASTRAR OBRAS";
+                HabilitarCampos = true;
+                HabilitarSelectEdicao = false;
+            }
+        }
+
+        public async Task CarregarDadosEdicaoObra(Obras obra)
+        {
+            if (obra != null)
+            {
+                var dados = await _obraRepository.BuscarDadosObraPorIdAsync(obra.Id).ConfigureAwait(false);
+
+                if (dados != null)
+                {
+                    ObraDigitada = dados.Title;
+                    ListaGeneros.ForEach(x =>
+                    {
+                        x.IsSelected = dados.Genres.Contains(x.Nome) ? true : false;
+                    });
+                    GenerosSelecionadosDisplay = string.Join(", ", ListaGeneros.Where(i => i.IsSelected).Select(i => i.Nome));
+                    StatusSelecionado = ListaStatus.Where(x => x.Id == dados.StatusNumber).First();
+                    TipoSelecionado = ListaTipos.Where(x => x.Id == dados.TipoNumber).First();
+                    DescricaoObra = dados.Descricao;
+                    ImagemSelecionada = _imagemService.ByteArrayToImage(dados.ImageByte);
+                    CaminhoImagem = "Imagem Obra";
+                    TxtUploadFotoObra = "Capa da obra";
+                }
+            }
+
+            AplicarLoading(false);
         }
 
         public void AtualizarSugestoes()
@@ -274,13 +429,14 @@ namespace Readit.WPF.ViewModels
 
             PopularTipos();
             PopularStatus();
+            ImagemSelecionada = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
+            CaminhoImagem = "../Resources/Images/upload-image.png";
         }
 
         public async Task PopularObrasAsync()
         {
             var obras = await _obraRepository.BuscarObrasPorIdAsync(null).ConfigureAwait(false);
-            ListaObras = new ObservableCollection<Obras>(obras.OrderBy(x => x.NomeObra));
-            Obras = new ObservableCollection<Obras>(obras.OrderBy(x => x.NomeObra));
+            ListaObras = Obras = ListaObrasEdicao = new ObservableCollection<Obras>(obras.OrderBy(x => x.NomeObra));
         }
 
         public async Task PopularGenerosAsync()
@@ -335,14 +491,14 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public void CadastrarObra()
+        public void CadastrarEditarObra()
         {
             AplicarLoading(true);
 
-            Task.Run(() => CadastrarObraAsync()).ConfigureAwait(false);
+            Task.Run(() => CadastrarEditarObraAsync()).ConfigureAwait(false);
         }
 
-        public async Task CadastrarObraAsync()
+        public async Task CadastrarEditarObraAsync()
         {
             List<string> erros = ValidarCampos();
 
@@ -353,7 +509,7 @@ namespace Readit.WPF.ViewModels
                 return;
             }
 
-            if ((await _obraRepository.BuscarObrasPorNomeAsync(ObraDigitada).ConfigureAwait(false)).Count > 0)
+            if (ModoAtual == "Cadastrar" && (await _obraRepository.BuscarObrasPorNomeAsync(ObraDigitada).ConfigureAwait(false)).Count > 0)
             {
                 await ExibirMensagemFlashAsync("Erro", ["O Nome da Obra inserido já existe no sistema."]);
                 AplicarLoading(false);
@@ -362,35 +518,37 @@ namespace Readit.WPF.ViewModels
 
             try
             {
-                bool sucesso = await _obraRepository.CadastrarObraAsync(new Obras
+                bool sucesso = await _obraRepository.CadastrarEditarObraAsync(new Obras
                 {
+                    Id = ModoAtual == "Editar" ? ObraSelecionada.Id : 0,
                     NomeObra = ObraDigitada,
                     Status = (byte)StatusSelecionado.Id,
                     Tipo = (byte)TipoSelecionado.Id,
                     Descricao = DescricaoObra,
-                    UsuarioId = _usuarioService.UsuarioLogado.Id
+                    UsuarioId = _usuarioService.UsuarioLogado.Id,
+                    ImagemId = ModoAtual == "Editar" ? ObraSelecionada.ImagemId : 0,
                 },
                 new Imagens
                 {
-                    Imagem = _imagemService.ConvertImageToByteArray(ImagemSelecionada),
-                    Formato = Path.GetExtension(ImagemSelecionada),
+                    Imagem = _imagemService.ConvertBitmapImageToByteArray(ImagemSelecionada),
+                    Formato = Path.GetExtension(CaminhoImagem),
                     Tipo = (byte)EnumObra.TipoImagem.Obra
                 },
                 ListaGeneros.Where(x => x.IsSelected).ToList()).ConfigureAwait(false);
 
                 if (sucesso)
                 {
-                    await ExibirMensagemFlashAsync("Sucesso", ["Obra cadastrada com sucesso!"]);
+                    await ExibirMensagemFlashAsync("Sucesso", [$"Obra {(ModoAtual == "Cadastrar" ? "cadastrada" : "editada")} com sucesso!"]);
                 }
                 else
                 {
-                    await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao realizar o cadastro, favor tentar novamente em alguns minutos."]);
+                    await ExibirMensagemFlashAsync("Erro", [$"Ocorreu um erro ao realizar {(ModoAtual == "Cadastrar" ? "o cadastro" : "a edição")}, favor tentar novamente em alguns minutos."]);
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "CadastrarObraThread()");
-                await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao realizar o cadastro, favor tentar novamente em alguns minutos."]);
+                _logger.LogError(e, "CadastrarEditarObraAsync()");
+                await ExibirMensagemFlashAsync("Erro", [$"Ocorreu um erro ao realizar {(ModoAtual == "Cadastrar" ? "o cadastro" : "a edição")}, favor tentar novamente em alguns minutos."]);
             }
             finally
             {
@@ -402,7 +560,7 @@ namespace Readit.WPF.ViewModels
         {
             List<string> erros = [];
 
-            if (string.IsNullOrEmpty(ImagemSelecionada) || ImagemSelecionada.Equals("../Resources/Images/upload-image.png")) { erros.Add("A Imagem da capa da obra não foi selecionada."); }
+            if (string.IsNullOrEmpty(CaminhoImagem) || CaminhoImagem.Equals("../Resources/Images/upload-image.png")) { erros.Add("A Imagem da capa da obra não foi selecionada."); }
             if (!string.IsNullOrEmpty(ObraDigitada) && ObraDigitada.Length > 255) { erros.Add("O Nome da Obra não pode ser maior do que 255 caracteres."); }
             if (string.IsNullOrEmpty(ObraDigitada)) { erros.Add("O Nome da Obra não foi digitado."); }
             if (ListaGeneros.All(x => !x.IsSelected)) { erros.Add("Os Gêneros da Obra não foram selecionados."); }
@@ -427,7 +585,8 @@ namespace Readit.WPF.ViewModels
 
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    ImagemSelecionada = dialog.FileName;
+                    ImagemSelecionada = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(dialog.FileName));
+                    CaminhoImagem = dialog.FileName;
 
                     string nomeImagem = Path.GetFileName(dialog.FileName);
                     TxtUploadFotoObra = nomeImagem.Length <= 31 ? nomeImagem : $"{nomeImagem[..31]}...";
@@ -441,7 +600,8 @@ namespace Readit.WPF.ViewModels
 
         public void LimparDados()
         {
-            ImagemSelecionada = "../Resources/Images/upload-image.png";
+            CaminhoImagem = "../Resources/Images/upload-image.png";
+            ImagemSelecionada = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
             TxtUploadFotoObra = "Realizar Upload da Foto da Obra";
             var listaAuxGeneros = ListaGeneros;
             listaAuxGeneros.ToList().ForEach(x => x.IsSelected = false);
@@ -452,6 +612,7 @@ namespace Readit.WPF.ViewModels
             GeneroSelecionado = null;
             StatusSelecionado = null;
             TipoSelecionado = null;
+            ObraSelecionada = null;
             AplicarLoading(false);
 
             Task.Run(() => PopularObrasAsync()).ConfigureAwait(false);
@@ -461,6 +622,7 @@ namespace Readit.WPF.ViewModels
         {
             Loading = !loading ? false : true;
             HabilitarCampos = !loading ? true : false;
+            HabilitarSelectEdicao = !loading ? true : false;
         }
 
         public void AtualizarGenerosSelecionadosDisplay()

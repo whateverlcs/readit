@@ -4,6 +4,7 @@ using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Data.Mappers;
+using Readit.Data.Models;
 using Readit.Infra.Logging;
 using ef = Readit.Data;
 
@@ -22,6 +23,43 @@ namespace Readit.Data.Repositories
             _logger = logger;
             _usuarioService = usuarioService;
             _preferenciaRepository = preferenciaRepository;
+        }
+
+        public async Task<PostagensObras> BuscarDadosObraPorIdAsync(int idObra)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                try
+                {
+                    var obrasDB = await (from o in _context.Obras
+                                         join i in _context.Imagens on o.ImgId equals i.ImgId
+                                         join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
+                                         join g in _context.Generos on og.GnsId equals g.GnsId
+                                         group new { o, i, g } by new { o.ObsId, o.ObsNomeObra, i.ImgImagem, o.ObsStatus, o.ObsTipo, o.ObsDescricao } into obraGroup
+                                         where obraGroup.Key.ObsId == idObra
+                                         select new
+                                         {
+                                             Id = obraGroup.Key.ObsId,
+                                             NomeObra = obraGroup.Key.ObsNomeObra,
+                                             Imagem = obraGroup.Key.ImgImagem,
+                                             Status = obraGroup.Key.ObsStatus,
+                                             Tipo = obraGroup.Key.ObsTipo,
+                                             Descricao = obraGroup.Key.ObsDescricao,
+                                             Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
+                                         }).FirstAsync(_usuarioService.Token);
+
+                    return PostagensObrasMapper.MapCadastroEdicaoObras(obrasDB);
+                }
+                catch (TaskCanceledException)
+                {
+                    return new PostagensObras();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "BuscarDadosObraPorIdAsync(int idObra)");
+                    return new PostagensObras();
+                }
+            }
         }
 
         public async Task<DetalhesObra> BuscarDetalhesObraAsync(string nomeObra)
@@ -466,7 +504,7 @@ namespace Readit.Data.Repositories
             }
         }
 
-        public async Task<bool> CadastrarObraAsync(Obras obra, Imagens imagem, List<Generos> listaGeneros)
+        public async Task<bool> CadastrarEditarObraAsync(Obras obra, Imagens imagem, List<Generos> listaGeneros)
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
@@ -474,24 +512,69 @@ namespace Readit.Data.Repositories
 
                 try
                 {
-                    var imagemDB = imagem.ToEntity();
-                    var obraDB = obra.ToEntity();
+                    Obra? obraDB = null;
+                    Imagen? imagemDB = null;
+                    List<int> listaGenerosAdicionar = [];
+                    List<ObrasGenero> listaGenerosRemover = [];
 
-                    await _context.Imagens.AddAsync(imagemDB);
+                    if (obra.Id != 0)
+                    {
+                        obraDB = await (from o in _context.Obras
+                                        where o.ObsId == obra.Id
+                                        select o).FirstAsync(_usuarioService.Token);
+
+                        obraDB.ObsNomeObra = obra.NomeObra;
+                        obraDB.ObsStatus = obra.Status;
+                        obraDB.ObsTipo = obra.Tipo;
+                        obraDB.ObsDescricao = obra.Descricao;
+                        obraDB.ObsDataAtualizacao = DateTime.Now;
+
+                        imagemDB = await (from i in _context.Imagens
+                                          where i.ImgId == obra.ImagemId
+                                          select i).FirstAsync(_usuarioService.Token);
+
+                        imagemDB.ImgImagem = imagem.Imagem;
+                        imagemDB.ImgFormato = imagem.Formato;
+                        imagemDB.ImgTipo = imagem.Tipo;
+
+                        var generosDB = await (from og in _context.ObrasGeneros
+                                               where obra.Id == og.ObsId
+                                               select og).ToArrayAsync(_usuarioService.Token);
+
+                        listaGenerosAdicionar = listaGeneros.Where(x => !generosDB.Select(g => g.GnsId).Contains(x.Id)).Select(g => g.Id).ToList();
+                        listaGenerosRemover = generosDB.Where(x => !listaGeneros.Select(g => g.Id).Contains(x.GnsId)).ToList();
+                    }
+                    else
+                    {
+                        imagemDB = imagem.ToEntity();
+                        obraDB = obra.ToEntity();
+                    }
+
+                    _context.Entry(imagemDB).State = imagemDB.ImgId == 0 ? EntityState.Added : EntityState.Modified;
                     await _context.SaveChangesAsync(_usuarioService.Token);
 
                     obraDB.ImgId = imagemDB.ImgId;
 
-                    await _context.Obras.AddAsync(obraDB);
+                    _context.Entry(obraDB).State = obraDB.ObsId == 0 ? EntityState.Added : EntityState.Modified;
                     await _context.SaveChangesAsync(_usuarioService.Token);
 
-                    foreach (var genero in listaGeneros)
+                    listaGenerosAdicionar = obra.Id == 0 ? listaGeneros.Select(g => g.Id).ToList() : listaGenerosAdicionar;
+
+                    foreach (var genero in listaGenerosAdicionar)
                     {
-                        await _context.ObrasGeneros.AddAsync(new ef.Models.ObrasGenero
+                        var obrasGenero = new ef.Models.ObrasGenero
                         {
-                            GnsId = genero.Id,
+                            GnsId = genero,
                             ObsId = obraDB.ObsId
-                        });
+                        };
+
+                        _context.Entry(obrasGenero).State = EntityState.Added;
+                        await _context.SaveChangesAsync(_usuarioService.Token);
+                    }
+
+                    foreach (var obraGenero in listaGenerosRemover)
+                    {
+                        _context.Entry(obraGenero).State = EntityState.Deleted;
                         await _context.SaveChangesAsync(_usuarioService.Token);
                     }
 
@@ -504,7 +587,7 @@ namespace Readit.Data.Repositories
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "CadastrarObra(Obras obra, Imagens imagem, List<Generos> listaGeneros)");
+                    _logger.LogError(e, "CadastrarEditarObraAsync(Obras obra, Imagens imagem, List<Generos> listaGeneros)");
                     await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }

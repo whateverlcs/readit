@@ -54,7 +54,7 @@
                 </Button>
             </StackPanel>
 
-            <Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Background="#14213D" MaxHeight="720" MaxWidth="950" Loaded="Grid_Loaded">
+            <Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Background="#14213D" MaxHeight="790" MaxWidth="950" Loaded="Grid_Loaded">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="300" />
@@ -66,6 +66,7 @@
                     <RowDefinition Height="40" />
                     <RowDefinition Height="40" />
                     <RowDefinition Height="40" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="70" />
                     <RowDefinition Height="70" />
                     <RowDefinition Height="70" />
@@ -76,13 +77,32 @@
                     <RowDefinition Height="70" />
                     <RowDefinition Height="40" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Text="CADASTRAR OBRAS" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Text="{Binding TituloPrincipal, Mode=TwoWay}" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-                <Border Grid.Column="1" Grid.Row="3" Grid.RowSpan="4" Background="#29446B" CornerRadius="20" BorderBrush="White" BorderThickness="1">
+                <StackPanel Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ToggleTitulo, Mode=TwoWay}" FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 10 0" />
+                    <ToggleButton
+                        cal:Message.Attach="[Event Click] = [Action AlterarModo()]"
+                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                        Content="{materialDesign:PackIcon Kind=PencilOutline}"
+                        ToolTip="Editar Obras"
+                        Height="40" Width="60">
+                        <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                            <SolidColorBrush
+                                Color="SkyBlue" />
+                        </materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                        <materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                            <SolidColorBrush
+                                Color="White" />
+                        </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                    </ToggleButton>
+                </StackPanel>
+
+                <Border Grid.Column="1" Grid.Row="4" Grid.RowSpan="4" Background="#29446B" CornerRadius="20" BorderBrush="White" BorderThickness="1" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20" />
-                            <RowDefinition Height="200" />
+                            <RowDefinition Height="*" />
                             <RowDefinition Height="40" />
                             <RowDefinition Height="20" />
                         </Grid.RowDefinitions>
@@ -92,8 +112,10 @@
                     </Grid>
                 </Border>
 
+                <ComboBox x:Name="Obras" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding ListaObrasEdicao}" DisplayMemberPath="NomeObra" IsEditable="True" SelectedItem="{Binding ObraSelecionada, Mode=TwoWay}" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="3" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Obra" Margin="0 0 0 10" Visibility="{Binding ExibirSelectEdicao, Converter={StaticResource VisibilityConverter}}" IsEnabled="{Binding HabilitarSelectEdicao, Mode=TwoWay}"/>
+
                 <materialDesign:AutoSuggestBox
-                  Grid.Column="3" Grid.Row="3"
+                  Grid.Column="3" Grid.Row="4"
                   VerticalAlignment="Top" HorizontalAlignment="Stretch"
                   FontSize="15" Height="60"
                   Background="White"
@@ -108,7 +130,7 @@
                   ValueMember="NomeObra"
                  />
 
-                <ComboBox x:Name="Generos" Style="{StaticResource MaterialDesignOutlinedComboBox}" Grid.Column="3" Grid.Row="4" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Gêneros" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" IsEditable="True" StaysOpenOnEdit="True">
+                <ComboBox x:Name="Generos" Style="{StaticResource MaterialDesignOutlinedComboBox}" Grid.Column="3" Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Gêneros" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" IsEditable="True" StaysOpenOnEdit="True">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <CheckBox Content="{Binding Nome}"
@@ -126,14 +148,14 @@
                     </ComboBox.ItemsSource>
                 </ComboBox>
 
-                <ComboBox x:Name="Status" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding ListaStatus}" DisplayMemberPath="Nome" SelectedItem="{Binding StatusSelecionado, Mode=TwoWay}" Grid.Column="3" Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Status" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
-                <ComboBox x:Name="Tipo" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding ListaTipos}" DisplayMemberPath="Nome" SelectedItem="{Binding TipoSelecionado, Mode=TwoWay}" Grid.Column="3" Grid.Row="6" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Tipo" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
-                <TextBox x:Name="DescricaoObra" Style="{StaticResource MaterialDesignOutlinedTextBox}" TextWrapping="Wrap" AcceptsReturn="True" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" FontSize="15" Background="White" materialDesign:ButtonAssist.CornerRadius="10" materialDesign:HintAssist.Hint="Descrição da Obra" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+                <ComboBox x:Name="Status" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding ListaStatus}" DisplayMemberPath="Nome" SelectedItem="{Binding StatusSelecionado, Mode=TwoWay}" Grid.Column="3" Grid.Row="6" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Status" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+                <ComboBox x:Name="Tipo" Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding ListaTipos}" DisplayMemberPath="Nome" SelectedItem="{Binding TipoSelecionado, Mode=TwoWay}" Grid.Column="3" Grid.Row="7" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Tipo" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+                <TextBox x:Name="DescricaoObra" Style="{StaticResource MaterialDesignOutlinedTextBox}" TextWrapping="Wrap" AcceptsReturn="True" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="9" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" FontSize="15" Background="White" materialDesign:ButtonAssist.CornerRadius="10" materialDesign:HintAssist.Hint="Descrição da Obra" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
 
-                <Button x:Name="CadastrarObra" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Grid.Column="3" Grid.Row="10" VerticalAlignment="Top" HorizontalAlignment="Right" Width="350" Height="60" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" materialDesign:ButtonAssist.CornerRadius="10" >
+                <Button x:Name="CadastrarEditarObra" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Grid.Column="3" Grid.Row="11" VerticalAlignment="Top" HorizontalAlignment="Right" Width="350" Height="60" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" materialDesign:ButtonAssist.CornerRadius="10" >
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar Width="20" Height="20" Style="{DynamicResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Value="33" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"/>
-                        <TextBlock Text="Cadastrar Obra" FontSize="18" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TituloBotao, Mode=TwoWay}" FontSize="18" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>

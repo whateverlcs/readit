@@ -12,6 +12,7 @@ namespace Readit.Core.Domain
         public string TitleOriginal { get; set; }
         public string Status { get; set; }
         public string Tipo { get; set; }
+        public string Descricao { get; set; }
         public int TipoNumber { get; set; }
         public List<string> Genres { get; set; } = new List<string>();
         public double Rating { get; set; }

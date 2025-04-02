@@ -6,6 +6,8 @@ namespace Readit.Core.Repositories
     {
         public Task<List<Obras>> BuscarObrasPorIdAsync(int? idObra);
 
+        public Task<PostagensObras> BuscarDadosObraPorIdAsync(int idObra);
+
         public Task<List<Obras>> BuscarObrasPorNomeAsync(string nomeObra);
 
         public Task<List<SlideshowItem>> BuscarObrasSlideShowAsync();
@@ -20,6 +22,6 @@ namespace Readit.Core.Repositories
 
         public Task<DetalhesObra> BuscarDetalhesObraAsync(string nomeObra);
 
-        public Task<bool> CadastrarObraAsync(Obras obra, Imagens imagem, List<Generos> listaGeneros);
+        public Task<bool> CadastrarEditarObraAsync(Obras obra, Imagens imagem, List<Generos> listaGeneros);
     }
 }
