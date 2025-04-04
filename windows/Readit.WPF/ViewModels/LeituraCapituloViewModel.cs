@@ -426,8 +426,8 @@ namespace Readit.WPF.ViewModels
             Paginas = DadosCapituloAtual.ListaPaginas;
             CapituloSelecionado = Capitulos.Where(x => x.Id == chapter.ChapterId).FirstOrDefault();
             TituloCapitulo = $"{DadosCapituloAtual.NomeObra} - {DadosCapituloAtual.NumeroCapituloDisplay}";
-            CapituloAnteriorHabilitado = Capitulos.Any(x => x.NumeroCapitulo == CapituloSelecionado.NumeroCapitulo - 1);
-            ProximoCapituloHabilitado = Capitulos.Any(x => x.NumeroCapitulo == CapituloSelecionado.NumeroCapitulo + 1);
+            CapituloAnteriorHabilitado = Capitulos.Any(x => x.NumeroCapitulo < CapituloSelecionado.NumeroCapitulo);
+            ProximoCapituloHabilitado = Capitulos.Any(x => x.NumeroCapitulo > CapituloSelecionado.NumeroCapitulo);
             AplicarLoading(false);
         }
 
@@ -486,8 +486,8 @@ namespace Readit.WPF.ViewModels
                 isUpdatingCapituloSelecionado = false;
             }
 
-            CapituloAnteriorHabilitado = Capitulos.Any(x => x.NumeroCapitulo == CapituloSelecionado.NumeroCapitulo - 1);
-            ProximoCapituloHabilitado = Capitulos.Any(x => x.NumeroCapitulo == CapituloSelecionado.NumeroCapitulo + 1);
+            CapituloAnteriorHabilitado = Capitulos.Any(x => x.NumeroCapitulo < CapituloSelecionado.NumeroCapitulo);
+            ProximoCapituloHabilitado = Capitulos.Any(x => x.NumeroCapitulo > CapituloSelecionado.NumeroCapitulo);
 
             AplicarLoading(false);
         }

@@ -8,6 +8,6 @@ namespace Readit.Core.Repositories
 
         public Task<(List<CapitulosObra>, CapitulosObra)> BuscarCapituloObrasPorIdAsync(int idObra, int chapterId, bool numeroCapitulos, bool paginasCapitulo);
 
-        public Task<bool> CadastrarCapitulosAsync(List<CapitulosObra> listaCapitulosObra);
+        public Task<bool> CadastrarRemoverCapitulosAsync(List<CapitulosObra> listaCapitulosObra, List<CapitulosObra> listaCapitulosObraRemover);
     }
 }

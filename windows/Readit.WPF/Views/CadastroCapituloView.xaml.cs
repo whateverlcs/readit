@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Readit.Core.Services;
+using Readit.WPF.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -96,6 +97,32 @@ namespace Readit.WPF.Views
         private void DropCapitulos_PreviewDragOver(object sender, DragEventArgs e)
         {
             e.Handled = true;
+        }
+
+        private void ItemsControl_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void ItemsControl_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                foreach (var file in files)
+                {
+                    if (_supportedExtensions.Any(ext => file.EndsWith(ext, System.StringComparison.OrdinalIgnoreCase)))
+                    {
+                        _usuarioService.ListaCapitulosSelecionados.Add(file);
+
+                        if (DataContext is CadastroCapituloViewModel vm)
+                        {
+                            vm.AdicionarCapitulo(file);
+                        }
+                    }
+                }
+            }
         }
     }
 }

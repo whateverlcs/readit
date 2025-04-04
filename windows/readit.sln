@@ -7,11 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.WPF", "Readit.WPF\Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.Data", "Readit.Data\Readit.Data.csproj", "{F56C6140-0A93-420D-AA79-926096F815B3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.Tests", "Readit.Tests\Readit.Tests.csproj", "{83EBCD09-07A1-4113-AF4B-4B5BE9015CFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.Infra", "Readit.Infra\Readit.Infra.csproj", "{D4C41206-BBD1-4335-9580-37F731A02FBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Readit.Infra", "Readit.Infra\Readit.Infra.csproj", "{D4C41206-BBD1-4335-9580-37F731A02FBD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Readit.Core", "Readit.Core\Readit.Core.csproj", "{A95FF0BA-C673-4406-8D0B-69A06C9E34BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.Core", "Readit.Core\Readit.Core.csproj", "{A95FF0BA-C673-4406-8D0B-69A06C9E34BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +25,6 @@ Global
 		{F56C6140-0A93-420D-AA79-926096F815B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F56C6140-0A93-420D-AA79-926096F815B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F56C6140-0A93-420D-AA79-926096F815B3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83EBCD09-07A1-4113-AF4B-4B5BE9015CFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83EBCD09-07A1-4113-AF4B-4B5BE9015CFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83EBCD09-07A1-4113-AF4B-4B5BE9015CFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83EBCD09-07A1-4113-AF4B-4B5BE9015CFB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D4C41206-BBD1-4335-9580-37F731A02FBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D4C41206-BBD1-4335-9580-37F731A02FBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4C41206-BBD1-4335-9580-37F731A02FBD}.Release|Any CPU.ActiveCfg = Release|Any CPU

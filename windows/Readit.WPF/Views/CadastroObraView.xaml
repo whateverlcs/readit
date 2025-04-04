@@ -85,7 +85,7 @@
                         cal:Message.Attach="[Event Click] = [Action AlterarModo()]"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         Content="{materialDesign:PackIcon Kind=PencilOutline}"
-                        ToolTip="Editar Obras"
+                        ToolTip="{Binding TituloBotao, Mode=TwoWay}"
                         Height="40" Width="60">
                         <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
                             <SolidColorBrush

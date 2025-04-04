@@ -14,12 +14,14 @@ namespace Readit.Data.Repositories
         private readonly IDbContextFactory<ReaditContext> _contextFactory;
         private readonly ILoggingService _logger;
         private readonly IUsuarioService _usuarioService;
+        private readonly IComentarioRepository _comentarioRepository;
 
-        public CapituloRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService)
+        public CapituloRepository(IDbContextFactory<ReaditContext> contextFactory, ILoggingService logger, IUsuarioService usuarioService, IComentarioRepository comentarioRepository)
         {
             _contextFactory = contextFactory;
             _logger = logger;
             _usuarioService = usuarioService;
+            _comentarioRepository = comentarioRepository;
         }
 
         public async Task<(List<CapitulosObra>, CapitulosObra)> BuscarCapituloObrasPorIdAsync(int idObra, int chapterId, bool numeroCapitulos, bool paginasCapitulo)
@@ -126,7 +128,7 @@ namespace Readit.Data.Repositories
             }
         }
 
-        public async Task<bool> CadastrarCapitulosAsync(List<CapitulosObra> listaCapitulosObra)
+        public async Task<bool> CadastrarRemoverCapitulosAsync(List<CapitulosObra> listaCapitulosObra, List<CapitulosObra> listaCapitulosObraRemover)
         {
             using (var _context = _contextFactory.CreateDbContext())
             {
@@ -152,7 +154,40 @@ namespace Readit.Data.Repositories
                         }
                     }
 
-                    int idObra = listaCapitulosObra.First().ObraId;
+                    foreach (var capObra in listaCapitulosObraRemover)
+                    {
+                        var capObraDB = capObra.ToEntity();
+
+                        var paginasCapDB = await (from pg in _context.PaginasCapitulos
+                                                  where pg.CpoId == capObra.Id
+                                                  select pg).ToArrayAsync(_usuarioService.Token);
+
+                        foreach (var pagObra in paginasCapDB)
+                        {
+                            _context.Entry(pagObra).State = EntityState.Deleted;
+                            await _context.SaveChangesAsync(_usuarioService.Token);
+
+                            var comentariosDB = await (from c in _context.Comentarios
+                                                       where c.CpoId == capObra.Id
+                                                       select c).ToArrayAsync(_usuarioService.Token);
+
+                            foreach (var comentarioDB in comentariosDB)
+                            {
+                                bool sucesso = await _comentarioRepository.ExcluirComentarioAsync(comentarioDB.CtsId);
+
+                                if (!sucesso)
+                                {
+                                    await transaction.RollbackAsync(_usuarioService.Token);
+                                    return false;
+                                }
+                            }
+                        }
+
+                        _context.Entry(capObraDB).State = EntityState.Deleted;
+                        await _context.SaveChangesAsync(_usuarioService.Token);
+                    }
+
+                    int idObra = listaCapitulosObra.Count > 0 ? listaCapitulosObra.First().ObraId : listaCapitulosObraRemover.First().ObraId;
 
                     ef.Models.Obra obraDB = await (from o in _context.Obras where o.ObsId == idObra select o).FirstOrDefaultAsync();
 
@@ -173,7 +208,7 @@ namespace Readit.Data.Repositories
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "CadastrarCapitulosAsync(List<CapitulosObra> listaCapitulosObra)");
+                    _logger.LogError(e, "CadastrarRemoverCapitulosAsync(List<CapitulosObra> listaCapitulosObra, List<CapitulosObra> listaCapitulosObraRemover)");
                     await transaction.RollbackAsync(_usuarioService.Token);
                     return false;
                 }

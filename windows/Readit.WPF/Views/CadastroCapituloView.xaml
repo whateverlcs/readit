@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Readit.WPF.Views"
              xmlns:cal="http://www.caliburnproject.org"
+             xmlns:l="clr-namespace:Readit.Infra.Helpers;assembly=Readit.Infra"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              Background="#14171C"
              FontFamily="pack://application:,,,/Resources/Fonts/#Roboto"
@@ -13,6 +14,8 @@
              d:DesignHeight="1000" d:DesignWidth="1140">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+        <l:IsEmptyToVisibilityConverterHelper x:Key="IsEmptyVisibilityConverter"/>
+        <l:InvertedBooleanToVisibilityConverterHelper x:Key="InvertedVisibilityConverter"/>
     </UserControl.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <Grid>
@@ -54,7 +57,7 @@
                 </Button>
             </StackPanel>
 
-            <Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Background="#14213D" MaxHeight="700" MaxWidth="950" Loaded="Grid_Loaded">
+            <Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Background="#14213D" MaxHeight="1090" MaxWidth="950" Loaded="Grid_Loaded">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="*" />
@@ -64,16 +67,72 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="120" />
-                    <RowDefinition Height="280" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="20" />
-                    <RowDefinition Height="70" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="20" />
                     <RowDefinition Height="70" />
                     <RowDefinition Height="20" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" Text="CADASTRAR CAPÍTULOS" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" Text="{Binding TituloPrincipal, Mode=TwoWay}" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-                <Border x:Name="DropCapitulos" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Background="Transparent" CornerRadius="20" BorderBrush="LightSlateGray" BorderThickness="1" AllowDrop="True" MouseLeftButtonDown="DropCapitulos_MouseLeftButtonDown" Drop="DropCapitulos_Drop" PreviewDragOver="DropCapitulos_PreviewDragOver">
+                <StackPanel Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ToggleTitulo, Mode=TwoWay}" FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 10 0" />
+                        <ToggleButton
+                            cal:Message.Attach="[Event Click] = [Action AlterarModo()]"
+                            Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                            Content="{materialDesign:PackIcon Kind=PencilOutline}"
+                            ToolTip="{Binding TituloBotao, Mode=TwoWay}"
+                            Height="40" Width="60">
+                        <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                            <SolidColorBrush
+                                Color="SkyBlue" />
+                        </materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                        <materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                            <SolidColorBrush
+                                Color="White" />
+                        </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                    </ToggleButton>
+                </StackPanel>
+
+                <ComboBox Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" x:Name="EdicaoObra" Style="{StaticResource MaterialDesignOutlinedComboBox}" MaxDropDownHeight="300" IsEditable="True" ItemsSource="{Binding ListaObras}" DisplayMemberPath="NomeObra" SelectedItem="{Binding ObraEdicaoSelecionada, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Obra" IsEnabled="{Binding HabilitarSelectEdicao, Mode=TwoWay}" Visibility="{Binding ExibirDadosEdicao, Converter={StaticResource VisibilityConverter}}" Margin="0 0 0 10" />
+
+                <Grid Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2" Visibility="{Binding ExibirCapitulosEdicao, Converter={StaticResource VisibilityConverter}}" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" AllowDrop="True" Drop="ItemsControl_Drop" PreviewDragOver="ItemsControl_PreviewDragOver" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent">
+                    <StackPanel x:Name="EmptyStatePanel" Visibility="{Binding CapitulosObra.Count, Converter={StaticResource IsEmptyVisibilityConverter}}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Image Source="../Resources/Images/not-found-chapter.png" Width="200" Height="200"/>
+                        <TextBlock Text="Ainda não foi adicionado nenhum capítulo na obra!"
+                            Foreground="White" FontSize="20"
+                            HorizontalAlignment="Center" Margin="10"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding CapitulosObra}" Background="Transparent" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{Binding CapitulosObra.Count, Converter={StaticResource InvertedVisibilityConverter}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="4" Rows="4" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Button BorderBrush="#D9D9D9" Background="Transparent" Foreground="White" Height="60" Margin="0 0 5 0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding NumeroCapituloDisplay}" FontSize="14" HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Width="50" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent"
+                            Command="{Binding DataContext.RemoveChapterCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}">
+                                        <materialDesign:PackIcon Kind="CloseOutline" Foreground="Red" Width="20" Height="20" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+
+                <Border x:Name="DropCapitulos" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2" Background="Transparent" CornerRadius="20" BorderBrush="LightSlateGray" BorderThickness="1" AllowDrop="True" MouseLeftButtonDown="DropCapitulos_MouseLeftButtonDown" Drop="DropCapitulos_Drop" PreviewDragOver="DropCapitulos_PreviewDragOver" Visibility="{Binding ExibirDadosCadastro, Converter={StaticResource VisibilityConverter}}" MinHeight="280">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="20" />
@@ -86,12 +145,12 @@
                     </Grid>
                 </Border>
 
-                <ComboBox x:Name="Obra" Style="{StaticResource MaterialDesignOutlinedComboBox}" MaxDropDownHeight="300" IsEditable="True" ItemsSource="{Binding ListaObras}" DisplayMemberPath="NomeObra" SelectedItem="{Binding ObraSelecionada, Mode=TwoWay}" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Obra" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" />
+                <ComboBox x:Name="Obra" Style="{StaticResource MaterialDesignOutlinedComboBox}" MaxDropDownHeight="300" IsEditable="True" ItemsSource="{Binding ListaObras}" DisplayMemberPath="NomeObra" SelectedItem="{Binding ObraSelecionada, Mode=TwoWay}" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Stretch" FontSize="15" Height="60" Background="White" materialDesign:HintAssist.Hint="Obra" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" Visibility="{Binding ExibirDadosCadastro, Converter={StaticResource VisibilityConverter}}" />
 
-                <Button x:Name="CadastrarCapitulo" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Grid.Column="3" Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Right" Width="350" Height="60" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" materialDesign:ButtonAssist.CornerRadius="10" >
+                <Button x:Name="CadastrarEditarCapitulo" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Grid.Column="3" Grid.Row="6" VerticalAlignment="Top" HorizontalAlignment="Right" Width="350" Height="60" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" materialDesign:ButtonAssist.CornerRadius="10" >
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar Width="20" Height="20" Style="{DynamicResource MaterialDesignCircularProgressBar}" IsIndeterminate="True" Value="33" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}"/>
-                        <TextBlock Text="Cadastrar Capítulo(s)" FontSize="18" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TituloBotao, Mode=TwoWay}" FontSize="18" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </Grid>

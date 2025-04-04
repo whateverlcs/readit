@@ -536,6 +536,7 @@ namespace Readit.Data.Repositories
                         imagemDB.ImgImagem = imagem.Imagem;
                         imagemDB.ImgFormato = imagem.Formato;
                         imagemDB.ImgTipo = imagem.Tipo;
+                        imagemDB.ImgDataAtualizacao = DateTime.Now;
 
                         var generosDB = await (from og in _context.ObrasGeneros
                                                where obra.Id == og.ObsId

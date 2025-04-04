@@ -2,10 +2,13 @@
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
+using Readit.Infra.Helpers;
 using Readit.Infra.Logging;
 using Readit.WPF.Infrastructure;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Readit.WPF.ViewModels
 {
@@ -119,6 +122,129 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        private string _tituloPrincipal = "CADASTRAR CAPÍTULOS";
+
+        public string TituloPrincipal
+        {
+            get { return _tituloPrincipal; }
+            set
+            {
+                _tituloPrincipal = value;
+                NotifyOfPropertyChange(() => TituloPrincipal);
+            }
+        }
+
+        private string _tituloBotao = "Cadastrar Capítulo(s)";
+
+        public string TituloBotao
+        {
+            get { return _tituloBotao; }
+            set
+            {
+                _tituloBotao = value;
+                NotifyOfPropertyChange(() => TituloBotao);
+            }
+        }
+
+        #region Editar Capítulos
+
+        private string ModoAtual = "Cadastrar";
+
+        private ObservableCollection<CapitulosObra> _capitulosObra = new ObservableCollection<CapitulosObra>();
+
+        public ObservableCollection<CapitulosObra> CapitulosObra
+        {
+            get { return _capitulosObra; }
+            set
+            {
+                _capitulosObra = value;
+                NotifyOfPropertyChange(() => CapitulosObra);
+            }
+        }
+
+        private Obras _obraEdicaoSelecionada;
+
+        public Obras ObraEdicaoSelecionada
+        {
+            get { return _obraEdicaoSelecionada; }
+            set
+            {
+                _obraEdicaoSelecionada = value;
+                if (_obraEdicaoSelecionada != null)
+                {
+                    AplicarLoading(true);
+                    Task.Run(() => CarregarDadosEdicaoObra(_obraEdicaoSelecionada)).ConfigureAwait(false);
+                }
+                NotifyOfPropertyChange(() => ObraEdicaoSelecionada);
+            }
+        }
+
+        private bool _exibirDadosEdicao;
+
+        public bool ExibirDadosEdicao
+        {
+            get { return _exibirDadosEdicao; }
+            set
+            {
+                _exibirDadosEdicao = value;
+                NotifyOfPropertyChange(() => ExibirDadosEdicao);
+            }
+        }
+
+        private bool _exibirCapitulosEdicao;
+
+        public bool ExibirCapitulosEdicao
+        {
+            get { return _exibirCapitulosEdicao; }
+            set
+            {
+                _exibirCapitulosEdicao = value;
+                NotifyOfPropertyChange(() => ExibirCapitulosEdicao);
+            }
+        }
+
+        private bool _exibirDadosCadastro = true;
+
+        public bool ExibirDadosCadastro
+        {
+            get { return _exibirDadosCadastro; }
+            set
+            {
+                _exibirDadosCadastro = value;
+                NotifyOfPropertyChange(() => ExibirDadosCadastro);
+            }
+        }
+
+        private bool _habilitarSelectEdicao;
+
+        public bool HabilitarSelectEdicao
+        {
+            get { return _habilitarSelectEdicao; }
+            set
+            {
+                _habilitarSelectEdicao = value;
+                NotifyOfPropertyChange(() => HabilitarSelectEdicao);
+            }
+        }
+
+        private string _toggleTitulo = "EDITAR CAPÍTULOS";
+
+        public string ToggleTitulo
+        {
+            get { return _toggleTitulo; }
+            set
+            {
+                _toggleTitulo = value;
+                NotifyOfPropertyChange(() => ToggleTitulo);
+            }
+        }
+
+        public List<CapitulosObra> ListaRemoverCapitulos = new List<CapitulosObra>();
+
+        public ICommand RemoveChapterCommand { get; set; }
+
+        #endregion Editar Capítulos
+
         private readonly IUsuarioService _usuarioService;
         private readonly IObraRepository _obraRepository;
         private readonly ICapituloRepository _capituloRepository;
@@ -137,6 +263,8 @@ namespace Readit.WPF.ViewModels
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
 
             Task.Run(() => PopularObrasAsync()).ConfigureAwait(false);
+
+            RemoveChapterCommand = new RelayCommandHelper<CapitulosObra>(RemoveChapter);
         }
 
         public async Task PopularObrasAsync()
@@ -145,14 +273,14 @@ namespace Readit.WPF.ViewModels
             ListaObras = new(obras.OrderBy(x => x.NomeObra));
         }
 
-        public void CadastrarCapitulo()
+        public void CadastrarEditarCapitulo()
         {
             AplicarLoading(true);
 
-            Task.Run(() => CadastrarCapituloAsync()).ConfigureAwait(false);
+            Task.Run(() => CadastrarEditarCapituloAsync()).ConfigureAwait(false);
         }
 
-        public async Task CadastrarCapituloAsync()
+        public async Task CadastrarEditarCapituloAsync()
         {
             List<string> erros = ValidarCampos();
 
@@ -163,50 +291,126 @@ namespace Readit.WPF.ViewModels
                 return;
             }
 
-            var capitulosObra = await Task.Run(() => _arquivoService.IdentificarArquivosInseridos(ObraSelecionada.Id))
+            var capitulosObra = await Task.Run(() => _arquivoService.IdentificarArquivosInseridos(ModoAtual == "Cadastrar" ? ObraSelecionada.Id : ObraEdicaoSelecionada.Id))
                                           .ConfigureAwait(false);
 
-            if (capitulosObra.Count == 0)
+            if (ModoAtual == "Cadastrar" && capitulosObra.Count == 0)
             {
                 await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao identificar os arquivos inseridos, favor tentar novamente em alguns minutos."]);
                 AplicarLoading(false);
                 return;
             }
 
-            var capitulosExistentes = await Task.Run(() => _capituloService.IdentificarCapitulosExistentesBanco(capitulosObra))
-                                                .ConfigureAwait(false);
-
-            if (capitulosExistentes.Count > 0)
+            if (capitulosObra.Count > 0)
             {
-                await ExibirMensagemFlashAsync("Erro", [$"Os seguintes capítulos já existem: {string.Join(", ", capitulosExistentes)}"]);
-                AplicarLoading(false);
-                return;
+                var capitulosExistentes = await Task.Run(() => _capituloService.IdentificarCapitulosExistentesBanco(capitulosObra))
+                                            .ConfigureAwait(false);
+
+                if (capitulosExistentes.Count > 0)
+                {
+                    await ExibirMensagemFlashAsync("Erro", [$"Os seguintes capítulos já existem: {string.Join(", ", capitulosExistentes)}"]);
+                    AplicarLoading(false);
+                    return;
+                }
             }
 
             try
             {
-                var sucesso = await Task.Run(() => _capituloRepository.CadastrarCapitulosAsync(capitulosObra))
+                var sucesso = await Task.Run(() => _capituloRepository.CadastrarRemoverCapitulosAsync(capitulosObra, ListaRemoverCapitulos))
                                         .ConfigureAwait(false);
 
                 if (sucesso)
                 {
-                    await ExibirMensagemFlashAsync("Sucesso", ["Capítulo(s) cadastrado(s) com sucesso!"]);
+                    await ExibirMensagemFlashAsync("Sucesso", [$"Capítulo(s) {(ModoAtual == "Cadastrar" ? "cadastrado(s)" : "editado(s)")} com sucesso!"]);
                 }
                 else
                 {
-                    await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao realizar o cadastro, favor tentar novamente em alguns minutos."]);
+                    await ExibirMensagemFlashAsync("Erro", [$"Ocorreu um erro ao realizar {(ModoAtual == "Cadastrar" ? "o cadastro" : "a edição")}, favor tentar novamente em alguns minutos."]);
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "CadastrarCapituloThread()");
-                await ExibirMensagemFlashAsync("Erro", ["Ocorreu um erro ao realizar o cadastro, favor tentar novamente em alguns minutos."]);
+                await ExibirMensagemFlashAsync("Erro", [$"Ocorreu um erro ao realizar {(ModoAtual == "Cadastrar" ? "o cadastro" : "a edição")}, favor tentar novamente em alguns minutos."]);
             }
             finally
             {
                 await Application.Current.Dispatcher.InvokeAsync(LimparDados);
             }
         }
+
+        #region Edição de Capítulos
+
+        public void AlterarModo()
+        {
+            LimparDados();
+
+            if (ModoAtual == "Cadastrar")
+            {
+                ModoAtual = "Editar";
+                ToggleTitulo = "CADASTRAR OBRAS";
+                ExibirDadosEdicao = true;
+                ExibirDadosCadastro = false;
+                TituloBotao = "Editar Obra";
+                TituloPrincipal = "EDITAR OBRAS";
+                HabilitarCampos = false;
+                HabilitarSelectEdicao = true;
+            }
+            else
+            {
+                ModoAtual = "Cadastrar";
+                ToggleTitulo = "EDITAR OBRAS";
+                ExibirDadosEdicao = false;
+                ExibirDadosCadastro = true;
+                TituloBotao = "Cadastrar Obra";
+                TituloPrincipal = "CADASTRAR OBRAS";
+                HabilitarCampos = true;
+                HabilitarSelectEdicao = false;
+            }
+        }
+
+        public async Task CarregarDadosEdicaoObra(Obras obra)
+        {
+            if (obra != null)
+            {
+                var dados = await _capituloRepository.BuscarCapituloObrasPorIdAsync(obra.Id, 0, true, false).ConfigureAwait(false);
+
+                CapitulosObra = new ObservableCollection<CapitulosObra>(dados.Item1);
+            }
+
+            ExibirCapitulosEdicao = true;
+            AplicarLoading(false);
+        }
+
+        public void AdicionarCapitulo(string caminhoArquivo)
+        {
+            var cap = Convert.ToInt32(Path.GetFileNameWithoutExtension(caminhoArquivo));
+
+            CapitulosObra.Add(new CapitulosObra
+            {
+                NumeroCapitulo = cap,
+                NumeroCapituloDisplay = $"Capítulo {cap:D2}",
+                CaminhoArquivo = caminhoArquivo
+            });
+        }
+
+        public void RemoveChapter(CapitulosObra capitulo)
+        {
+            if (capitulo != null && CapitulosObra.Contains(capitulo))
+            {
+                if (capitulo.Id != 0)
+                    ListaRemoverCapitulos.Add(capitulo);
+
+                if (!string.IsNullOrEmpty(capitulo.CaminhoArquivo))
+                {
+                    _usuarioService.ListaCapitulosSelecionados = _usuarioService.ListaCapitulosSelecionados.Where(x => x != capitulo.CaminhoArquivo).ToList();
+                }
+
+                CapitulosObra.Remove(capitulo);
+            }
+        }
+
+        #endregion Edição de Capítulos
 
         public async Task ExibirMensagemFlashAsync(string tipoMensagem, List<string> mensagens)
         {
@@ -238,22 +442,27 @@ namespace Readit.WPF.ViewModels
         {
             AplicarLoading(false);
             ObraSelecionada = null;
+            ObraEdicaoSelecionada = null;
+            ExibirCapitulosEdicao = false;
             TxtDropCapitulos = "Nenhum capítulo inserido";
             _usuarioService.ListaCapitulosSelecionados.Clear();
+            ListaRemoverCapitulos.Clear();
         }
 
         public void AplicarLoading(bool loading)
         {
             Loading = !loading ? false : true;
             HabilitarCampos = !loading ? true : false;
+            HabilitarSelectEdicao = !loading ? true : false;
         }
 
         public List<string> ValidarCampos()
         {
             List<string> erros = [];
 
-            if (_usuarioService.ListaCapitulosSelecionados.Count == 0) { erros.Add("Não foi selecionado nenhum capítulo."); }
-            if (ObraSelecionada == null) { erros.Add("O Tipo da Obra não foi selecionado."); }
+            if (ModoAtual == "Cadastrar" && _usuarioService.ListaCapitulosSelecionados.Count == 0) { erros.Add("Não foi selecionado nenhum capítulo."); }
+            if (ModoAtual == "Cadastrar" && ObraSelecionada == null) { erros.Add("A Obra não foi selecionada."); }
+            if (ModoAtual == "Editar" && ObraEdicaoSelecionada == null) { erros.Add("A Obra não foi selecionada."); }
 
             return erros;
         }
