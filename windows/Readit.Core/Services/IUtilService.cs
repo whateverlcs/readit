@@ -5,5 +5,7 @@
         string FormatarData(DateTime? data);
 
         void Shuffle<T>(List<T> list);
+
+        string RemoverAcentosEFormatar(string texto);
     }
 }

@@ -127,6 +127,8 @@ namespace Readit.WPF.ViewModels
                 await ExibirMensagemFlashAsync("Informação", [$"Bem vindo, {_usuarioService.UsuarioLogado.Nome}!"]);
                 await Task.Delay(2000);
 
+                _logger.LogUsersLogged();
+
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     var windowManager = DependencyResolver.GetService<IWindowManager>();
@@ -162,6 +164,8 @@ namespace Readit.WPF.ViewModels
 
                     await ExibirMensagemFlashAsync("Informação", [$"Bem vindo, {usuario.Nome}!"]);
                     await Task.Delay(2000);
+
+                    _logger.LogUsersLogged();
 
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {

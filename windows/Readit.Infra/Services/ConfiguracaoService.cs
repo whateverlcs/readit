@@ -22,6 +22,11 @@ namespace Readit.Infra.Services
             return _configuration["Configuration:loginAdm"];
         }
 
+        public string GetPathFilesUploaded()
+        {
+            return _configuration["Configuration:pathUploadedFiles"];
+        }
+
         public string GetTempPath()
         {
             return _configuration["Configuration:temp"];

@@ -322,6 +322,7 @@ namespace Readit.WPF.ViewModels
                 if (sucesso)
                 {
                     await ExibirMensagemFlashAsync("Sucesso", [$"Capítulo(s) {(ModoAtual == "Cadastrar" ? "cadastrado(s)" : "editado(s)")} com sucesso!"]);
+                    _logger.LogFilesChapterUploaded(_usuarioService.ListaCapitulosSelecionados);
                 }
                 else
                 {

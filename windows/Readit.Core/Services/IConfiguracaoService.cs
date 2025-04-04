@@ -7,5 +7,7 @@
         string GetLoginAdministrador();
 
         string GetTempPath();
+
+        string GetPathFilesUploaded();
     }
 }

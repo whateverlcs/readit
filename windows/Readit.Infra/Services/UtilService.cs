@@ -1,4 +1,6 @@
 ﻿using Readit.Core.Services;
+using System.Globalization;
+using System.Text;
 
 namespace Readit.Infra.Services
 {
@@ -17,6 +19,27 @@ namespace Readit.Infra.Services
                 return $"{(int)diferenca.TotalDays} dia(s) atrás";
 
             return data.Value.ToString("dd/MM/yyyy");
+        }
+
+        public string RemoverAcentosEFormatar(string texto)
+        {
+            if (string.IsNullOrWhiteSpace(texto))
+                return texto;
+
+            var textoNormalizado = texto.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+
+            foreach (var c in textoNormalizado)
+            {
+                var categoria = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (categoria != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            var semAcentos = sb.ToString().Normalize(NormalizationForm.FormC);
+            return semAcentos.Replace(' ', '-');
         }
 
         public void Shuffle<T>(List<T> list)
