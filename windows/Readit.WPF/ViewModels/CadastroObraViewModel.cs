@@ -52,6 +52,8 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        #region Tooltip Message
+
         private string _msgInfo;
 
         public string MsgInfo
@@ -87,6 +89,8 @@ namespace Readit.WPF.ViewModels
                 NotifyOfPropertyChange(() => ExibirMensagem);
             }
         }
+
+        #endregion Tooltip Message
 
         #region Cadastro Obra
 
@@ -141,6 +145,9 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// Irá ser exibido no combobox os generos selecionados, separados por virgula.
+        /// </summary>
         public string GenerosSelecionadosDisplay
         {
             get { return string.Join(", ", ListaGeneros.Where(i => i.IsSelected).Select(i => i.Nome)); }

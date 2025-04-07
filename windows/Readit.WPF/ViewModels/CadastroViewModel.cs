@@ -84,6 +84,8 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        #region Tooltip Message
+
         private string _msgInfo;
 
         public string MsgInfo
@@ -119,6 +121,8 @@ namespace Readit.WPF.ViewModels
                 NotifyOfPropertyChange(() => ExibirMensagem);
             }
         }
+
+        #endregion Tooltip Message
 
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly ILoggingService _logger;
@@ -221,6 +225,9 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// Volta para a página de Login
+        /// </summary>
         public void VoltarLogin()
         {
             _ = ActiveView.OpenItem<LoginViewModel>();

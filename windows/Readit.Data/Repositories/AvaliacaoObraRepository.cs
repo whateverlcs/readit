@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Infra.Logging;
-using System.Windows.Media;
 using ef = Readit.Data;
 
 namespace Readit.Data.Repositories

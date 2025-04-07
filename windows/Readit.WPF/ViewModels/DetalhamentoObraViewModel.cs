@@ -110,6 +110,9 @@ namespace Readit.WPF.ViewModels
 
         private string _searchQuery;
 
+        /// <summary>
+        /// Texto que foi digitado pelo usuário e irá ser usado para filtrar os capítulos
+        /// </summary>
         public string SearchQuery
         {
             get => _searchQuery;
@@ -139,6 +142,9 @@ namespace Readit.WPF.ViewModels
 
         private Visibility _exibirSecoes;
 
+        /// <summary>
+        /// Exibe ou deixa invisivel seções do front-end de acordo com a regra de negócio
+        /// </summary>
         public Visibility ExibirSecoes
         {
             get { return _exibirSecoes; }
@@ -149,13 +155,31 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// Lista de textos que irão aparecer no loading.
+        /// </summary>
         private List<string> _texts;
+
+        /// <summary>
+        /// Variáveis de apoio na lógica
+        /// </summary>
         private int _index, _textIndex;
+
+        /// <summary>
+        /// Variável de apoio na lógica
+        /// </summary>
         private bool _removing;
+
+        /// <summary>
+        /// Timer que irá adicionando ou removendo letra por letra.
+        /// </summary>
         private DispatcherTimer _timer;
 
         private string _animatedText;
 
+        /// <summary>
+        /// Texto atual que está sendo exibido.
+        /// </summary>
         public string AnimatedText
         {
             get => _animatedText;

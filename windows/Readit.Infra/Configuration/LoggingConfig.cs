@@ -4,6 +4,9 @@ namespace Readit.Infra.Configuration
 {
     public static class LoggingConfig
     {
+        /// <summary>
+        /// Realiza a configuração do Serilog e os arquivos de log que irão existir
+        /// </summary>
         public static void ConfigureLogging()
         {
             string logDirectory = Path.Combine(Directory.GetCurrentDirectory(), "logs");

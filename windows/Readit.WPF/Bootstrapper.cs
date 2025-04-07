@@ -45,23 +45,23 @@ namespace Readit.WPF
             // Obter a string de conexão do ConfiguracaoService
             var connectionString = configuracaoService.GetConnectionString();
 
-            // Configurar o IDbContextFactory com a string de conexão
+            // Configura o IDbContextFactory com a string de conexão
             var serviceProvider = new ServiceCollection()
                 .AddDbContextFactory<ReaditContext>(options =>
                     options.UseSqlServer(connectionString))
                 .BuildServiceProvider();
 
-            // Registrar o IDbContextFactory no SimpleContainer
+            // Registra o IDbContextFactory no SimpleContainer
             _container.Instance(serviceProvider.GetRequiredService<IDbContextFactory<ReaditContext>>());
 
-            // Registro os serviços principais do Caliburn.Micro
+            // Registra os serviços principais do Caliburn.Micro
             _container.Singleton<IWindowManager, WindowManager>();
             _container.Singleton<IEventAggregator, EventAggregator>();
 
-            // Registro Context
+            // Registra o Context
             _container.PerRequest<ReaditContext>();
 
-            // Registro Serviços
+            // Registro dos Serviços
             _container.Singleton<IUsuarioService, UsuarioService>();
             _container.Singleton<IDatabaseService, DatabaseService>();
             _container.Singleton<ILoggingService, SerilogLogger>();
@@ -73,7 +73,7 @@ namespace Readit.WPF
             _container.Singleton<IUtilService, UtilService>();
             _container.Singleton<IComentarioService, ComentarioService>();
 
-            // Registro Repositórios
+            // Registro dos Repositórios
             _container.Singleton<IAvaliacaoObraRepository, AvaliacaoObraRepository>();
             _container.Singleton<IBookmarkRepository, BookmarkRepository>();
             _container.Singleton<ICapituloRepository, CapituloRepository>();
@@ -86,7 +86,7 @@ namespace Readit.WPF
             _container.Singleton<IComentarioRepository, ComentarioRepository>();
             _container.Singleton<IPreferenciasRepository, PreferenciasRepository>();
 
-            // Registro ViewModels
+            // Registro dos ViewModels
             _container.PerRequest<BookmarksViewModel, BookmarksViewModel>();
             _container.PerRequest<CadastroCapituloViewModel, CadastroCapituloViewModel>();
             _container.PerRequest<CadastroGeneroViewModel, CadastroGeneroViewModel>();
@@ -103,7 +103,7 @@ namespace Readit.WPF
             _container.PerRequest<ShellMainViewModel, ShellMainViewModel>();
             _container.PerRequest<ShellViewModel, ShellViewModel>();
 
-            // Registrar o ServiceProvider
+            // Registro do ServiceProvider
             DependencyResolver.SetContainer(_container);
         }
 

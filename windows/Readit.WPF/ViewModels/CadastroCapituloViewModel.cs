@@ -50,6 +50,8 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        #region Tooltip Message
+
         private string _msgInfo;
 
         public string MsgInfo
@@ -85,6 +87,8 @@ namespace Readit.WPF.ViewModels
                 NotifyOfPropertyChange(() => ExibirMensagem);
             }
         }
+
+        #endregion Tooltip Message
 
         private ObservableCollection<Obras> _listaObras = new ObservableCollection<Obras>();
 
@@ -349,22 +353,22 @@ namespace Readit.WPF.ViewModels
             if (ModoAtual == "Cadastrar")
             {
                 ModoAtual = "Editar";
-                ToggleTitulo = "CADASTRAR OBRAS";
+                ToggleTitulo = "CADASTRAR CAPÍTULOS";
                 ExibirDadosEdicao = true;
                 ExibirDadosCadastro = false;
-                TituloBotao = "Editar Obra";
-                TituloPrincipal = "EDITAR OBRAS";
+                TituloBotao = "Editar Capítulo(s)";
+                TituloPrincipal = "EDITAR CAPÍTULOS";
                 HabilitarCampos = false;
                 HabilitarSelectEdicao = true;
             }
             else
             {
                 ModoAtual = "Cadastrar";
-                ToggleTitulo = "EDITAR OBRAS";
+                ToggleTitulo = "EDITAR CAPÍTULOS";
                 ExibirDadosEdicao = false;
                 ExibirDadosCadastro = true;
-                TituloBotao = "Cadastrar Obra";
-                TituloPrincipal = "CADASTRAR OBRAS";
+                TituloBotao = "Cadastrar Capítulo(s)";
+                TituloPrincipal = "CADASTRAR CAPÍTULOS";
                 HabilitarCampos = true;
                 HabilitarSelectEdicao = false;
             }

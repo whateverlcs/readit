@@ -14,7 +14,7 @@ namespace Readit.WPF.Views
         {
             InitializeComponent();
 
-            ImageBehavior.SetAnimatedSource(GifImage, GifImage.Source);
+            ImageBehavior.SetAnimatedSource(GifImage, GifImage.Source); // Necessário para ativar Gifs no WPF
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
@@ -38,6 +38,9 @@ namespace Readit.WPF.Views
             }
         }
 
+        /// <summary>
+        /// Realiza o scroll até o topo da tela.
+        /// </summary>
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             MainScrollViewer.ScrollToTop();

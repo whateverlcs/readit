@@ -14,6 +14,9 @@ namespace Readit.WPF.Views
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Realiza o scroll até o topo da tela
+        /// </summary>
         private void VoltarTopo_Click(object sender, RoutedEventArgs e)
         {
             MainScrollViewer.ScrollToTop();

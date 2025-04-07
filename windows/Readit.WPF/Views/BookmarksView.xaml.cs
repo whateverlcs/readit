@@ -38,6 +38,9 @@ namespace Readit.WPF.Views
             }
         }
 
+        /// <summary>
+        /// Realiza o scroll até o topo da tela.
+        /// </summary>
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             MainScrollViewer.ScrollToTop();

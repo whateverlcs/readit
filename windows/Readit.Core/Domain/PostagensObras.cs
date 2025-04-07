@@ -6,9 +6,9 @@ namespace Readit.Core.Domain
     {
         public int ObraId { get; set; }
         public ImageSource Image { get; set; }
-        public ImageSource ImageFlag { get; set; }
+        public ImageSource ImageFlag { get; set; } //Imagem das bandeiras dos paises de acordo com o tipo da obra
         public byte[] ImageByte { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } // Titulo que pode ou não ser abreviado de acordo com o seu tamanho
         public string TitleOriginal { get; set; }
         public string Status { get; set; }
         public string Tipo { get; set; }

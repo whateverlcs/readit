@@ -3,7 +3,6 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
-using Readit.Data.Repositories;
 using Readit.Infra.Logging;
 using Readit.WPF.Infrastructure;
 using System.Collections.ObjectModel;
@@ -52,6 +51,8 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        #region Tooltip Message
+
         private string _msgInfo;
 
         public string MsgInfo
@@ -87,6 +88,8 @@ namespace Readit.WPF.ViewModels
                 NotifyOfPropertyChange(() => ExibirMensagem);
             }
         }
+
+        #endregion Tooltip Message
 
         private string _nomeUsuario;
 
@@ -176,6 +179,9 @@ namespace Readit.WPF.ViewModels
 
         public List<PreferenciasUsuario> ListaPreferenciasUsuario;
 
+        /// <summary>
+        /// Exibe as preferencias selecionadas pelo usuário que irão aparecer no combobox separadas por virgula.
+        /// </summary>
         public string PreferenciasSelecionadasDisplay
         {
             get { return string.Join(", ", ListaPreferencias.Where(i => i.IsSelected).Select(i => i.Nome)); }

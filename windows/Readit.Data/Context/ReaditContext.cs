@@ -50,8 +50,6 @@ public partial class ReaditContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            // Aqui você pode definir uma string de conexão padrão ou lançar uma exceção
-            // para garantir que o contexto seja configurado corretamente.
             throw new InvalidOperationException("O DbContext não foi configurado. Certifique-se de usar IDbContextFactory ou injeção de dependência.");
         }
     }
@@ -418,5 +416,5 @@ public partial class ReaditContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    private partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

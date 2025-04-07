@@ -82,10 +82,6 @@
             <Button x:Name="ListagemObras" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Procurar Obras">
                 <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
             </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Detalhes da Obra">
-                <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
-            </Button>
-            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Resources/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
             <Button x:Name="BookmarksUsuario" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Bookmarks">
                 <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
             </Button>

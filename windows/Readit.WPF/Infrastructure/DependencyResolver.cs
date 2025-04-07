@@ -1,9 +1,4 @@
 ﻿using Caliburn.Micro;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Readit.WPF.Infrastructure
 {
@@ -11,13 +6,17 @@ namespace Readit.WPF.Infrastructure
     {
         private static SimpleContainer _container;
 
-        // Configurar o contêiner
+        /// <summary>
+        /// Configura o contêiner
+        /// </summary>
         public static void SetContainer(SimpleContainer container)
         {
             _container = container;
         }
 
-        // Resolver um serviço pelo tipo
+        /// <summary>
+        /// Resolve um serviço pelo tipo
+        /// </summary>
         public static T GetService<T>()
         {
             if (_container == null)
@@ -26,7 +25,9 @@ namespace Readit.WPF.Infrastructure
             return (T)_container.GetInstance(typeof(T), null);
         }
 
-        // Criar uma instância resolvendo dependências e permitindo parâmetros dinâmicos
+        /// <summary>
+        /// Criar uma instância resolvendo dependências e permitindo parâmetros dinâmicos
+        /// </summary>
         public static object CreateInstance(Type type, params object[] extraArgs)
         {
             if (_container == null)

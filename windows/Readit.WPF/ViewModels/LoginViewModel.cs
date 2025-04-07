@@ -57,6 +57,8 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        #region Tooltip Message
+
         private string _msgInfo;
 
         public string MsgInfo
@@ -93,6 +95,11 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        #endregion Tooltip Message
+
+        /// <summary>
+        /// Variável de controle para evitar que o email não seja limpo em certos erros.
+        /// </summary>
         public bool ManterEmail;
 
         private readonly IUsuarioService _usuarioService;

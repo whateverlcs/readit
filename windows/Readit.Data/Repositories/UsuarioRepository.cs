@@ -119,8 +119,8 @@ namespace Readit.Data.Repositories
                     if (listaPreferencias != null)
                     {
                         var preferenciasAtuaisUsuarioDB = await (from pf in _context.PreferenciasUsuarios
-                                                  where pf.UsuId == _usuarioService.UsuarioLogado.Id
-                                                  select pf).ToArrayAsync(_usuarioService.Token);
+                                                                 where pf.UsuId == _usuarioService.UsuarioLogado.Id
+                                                                 select pf).ToArrayAsync(_usuarioService.Token);
 
                         var novasPreferenciasDB = listaPreferencias.ToArray().ToEntityList();
 
@@ -142,7 +142,7 @@ namespace Readit.Data.Repositories
 
                         if (removerPreferencias.Count > 0)
                         {
-                            foreach(var pref in removerPreferencias)
+                            foreach (var pref in removerPreferencias)
                             {
                                 _context.Entry(pref).State = EntityState.Deleted;
                                 await _context.SaveChangesAsync(_usuarioService.Token);

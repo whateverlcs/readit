@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string NomeObra { get; set; }
-        public string NumeroCapituloDisplay { get; set; }
+        public string NumeroCapituloDisplay { get; set; } // É o que será exibido no front-end.
         public string CaminhoArquivo { get; set; }
         public int NumeroCapitulo { get; set; }
         public DateTime? DataPublicacao { get; set; }

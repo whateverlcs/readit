@@ -42,6 +42,9 @@ namespace Readit.WPF.ViewModels
 
         private Visibility _exibirSecoes;
 
+        /// <summary>
+        /// Exibe ou deixa invisivel seções do front-end de acordo com a regra de negócio
+        /// </summary>
         public Visibility ExibirSecoes
         {
             get { return _exibirSecoes; }
@@ -52,13 +55,31 @@ namespace Readit.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// Lista de textos que irão aparecer no loading.
+        /// </summary>
         private List<string> _texts;
+
+        /// <summary>
+        /// Variáveis de apoio na lógica
+        /// </summary>
         private int _index, _textIndex;
+
+        /// <summary>
+        /// Variável de apoio na lógica
+        /// </summary>
         private bool _removing;
+
+        /// <summary>
+        /// Timer que irá adicionando ou removendo letra por letra.
+        /// </summary>
         private DispatcherTimer _timer;
 
         private string _animatedText;
 
+        /// <summary>
+        /// Texto atual que está sendo exibido.
+        /// </summary>
         public string AnimatedText
         {
             get => _animatedText;
@@ -73,7 +94,10 @@ namespace Readit.WPF.ViewModels
 
         #region Listagem Obras
 
-        private const int ItemsPerPage = 14; // Defina quantos itens serão exibidos por página.
+        /// <summary>
+        /// Defina quantos itens serão exibidos por página.
+        /// </summary>
+        private const int ItemsPerPage = 14;
 
         private int _currentPage = 1;
 
@@ -144,6 +168,9 @@ namespace Readit.WPF.ViewModels
 
         private string _searchQuery;
 
+        /// <summary>
+        /// Variável que será utilizada para filtrar as obras de acordo com o que o usuário digitou
+        /// </summary>
         public string SearchQuery
         {
             get => _searchQuery;

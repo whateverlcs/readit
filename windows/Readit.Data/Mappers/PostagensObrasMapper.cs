@@ -1,5 +1,4 @@
 ﻿using Readit.Core.Domain;
-using Readit.Data.Models;
 
 namespace Readit.Data.Mappers
 {

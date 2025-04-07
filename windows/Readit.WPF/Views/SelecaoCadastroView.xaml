@@ -33,13 +33,10 @@
                 <Button x:Name="SelecionarCadastro" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="{Binding ExibirMenuAdministrador, Converter={StaticResource VisibilityConverter}}" ToolTip="Gerenciar Cadastros">
                     <materialDesign:PackIcon Kind="PlusCircleOutline" Width="27" Height="30" />
                 </Button>
-                <Button x:Name="ListagemObras" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Procurar Obras">
-                    <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
-                </Button>
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" Visibility="Collapsed" ToolTip="Detalhes da Obra">
-                    <materialDesign:PackIcon Kind="FormatListBulleted" Width="27" Height="30" />
-                </Button>
-                <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Resources/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
+            <Button x:Name="ListagemObras" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Procurar Obras">
+                <materialDesign:PackIcon Kind="Magnify" Width="27" Height="30" />
+            </Button>
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Content="1/18" Foreground="White" FontFamily="pack://application:,,,/Resources/Fonts/#Irish Grover" FontSize="20" Visibility="Collapsed" />
                 <Button x:Name="BookmarksUsuario" Style="{StaticResource MaterialDesignFlatButton}" Width="70" Height="70" Foreground="White" ToolTip="Bookmarks">
                     <materialDesign:PackIcon Kind="Bookmark" Width="27" Height="30" />
                 </Button>
@@ -64,7 +61,7 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="20" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="1" Grid.Row="1" Text="CADASTRAR GERAIS" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Grid.Row="1" Text="CADASTRO/EDIÇÃO GERAL" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center">
                         <Button x:Name="CadastrarObra" Style="{StaticResource MaterialDesignFlatDarkBgButton}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="448" Height="60" Background="#F0F0F5" Foreground="#14213D" BorderBrush="#14213D" materialDesign:ButtonAssist.CornerRadius="10" Margin="0 0 0 10" cal:Message.Attach="[Event Click] = [Action CadastrarObra()]">
                             <StackPanel Orientation="Horizontal">
