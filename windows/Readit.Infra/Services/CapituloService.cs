@@ -17,6 +17,8 @@ namespace Readit.Infra.Services
 
         public (List<CapitulosObra>, CapitulosObra) FormatarDadosPaginasCapitulo((List<CapitulosObra>, CapitulosObra) capitulos)
         {
+            capitulos.Item1 = [.. capitulos.Item1.OrderBy(x => x.NumeroCapitulo)];
+
             foreach (var pg in capitulos.Item2.ListaPaginas)
             {
                 pg.PaginaImage = _imagemService.ByteArrayToImage(pg.Pagina);

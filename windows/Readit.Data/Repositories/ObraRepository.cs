@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
@@ -27,96 +30,158 @@ namespace Readit.Data.Repositories
 
         public async Task<PostagensObras> BuscarDadosObraPorIdAsync(int idObra)
         {
-            using (var _context = _contextFactory.CreateDbContext())
+            try
             {
-                try
+                using (var connection = new SqlConnection(_contextFactory.CreateDbContext().Database.GetConnectionString()))
                 {
-                    var obrasDB = await (from o in _context.Obras
-                                         join i in _context.Imagens on o.ImgId equals i.ImgId
-                                         join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
-                                         join g in _context.Generos on og.GnsId equals g.GnsId
-                                         group new { o, i, g } by new { o.ObsId, o.ObsNomeObra, i.ImgImagem, o.ObsStatus, o.ObsTipo, o.ObsDescricao } into obraGroup
-                                         where obraGroup.Key.ObsId == idObra
-                                         select new
-                                         {
-                                             Id = obraGroup.Key.ObsId,
-                                             NomeObra = obraGroup.Key.ObsNomeObra,
-                                             Imagem = obraGroup.Key.ImgImagem,
-                                             Status = obraGroup.Key.ObsStatus,
-                                             Tipo = obraGroup.Key.ObsTipo,
-                                             Descricao = obraGroup.Key.ObsDescricao,
-                                             Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
-                                         }).FirstAsync(_usuarioService.Token);
+                    await connection.OpenAsync(_usuarioService.Token);
 
-                    return PostagensObrasMapper.MapCadastroEdicaoObras(obrasDB);
+                    var sql = @"
+                        SELECT
+                            o.obs_id AS Id,
+                            o.obs_nomeObra AS NomeObra,
+                            i.img_imagem AS Imagem,
+                            o.obs_status AS Status,
+                            o.obs_tipo AS Tipo,
+                            o.obs_descricao AS Descricao,
+                            (
+                                SELECT STRING_AGG(g.gns_nome, ',')
+                                FROM ObrasGeneros og
+                                JOIN Generos g ON og.gns_id = g.gns_id
+                                WHERE og.obs_id = @IdObra
+                            ) AS Genres
+                        FROM Obras o
+                        JOIN Imagens i ON o.img_id = i.img_id
+                        WHERE o.obs_id = @IdObra";
+
+                    var parameters = new { IdObra = idObra };
+
+                    var obraDB = await connection.QueryFirstOrDefaultAsync(sql, parameters);
+
+                    if (obraDB == null)
+                        return new PostagensObras();
+
+                    var resultado = new
+                    {
+                        obraDB.Id,
+                        obraDB.NomeObra,
+                        obraDB.Imagem,
+                        obraDB.Status,
+                        obraDB.Tipo,
+                        obraDB.Descricao,
+                        Genres = ((string)obraDB.Genres)?.Split(',')?.ToList() ?? new List<string>()
+                    };
+
+                    return PostagensObrasMapper.MapCadastroEdicaoObras(resultado);
                 }
-                catch (TaskCanceledException)
-                {
-                    return new PostagensObras();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "BuscarDadosObraPorIdAsync(int idObra)");
-                    return new PostagensObras();
-                }
+            }
+            catch (TaskCanceledException)
+            {
+                return new PostagensObras();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"BuscarDadosObraPorIdAsync({idObra})");
+                return new PostagensObras();
             }
         }
 
         public async Task<DetalhesObra> BuscarDetalhesObraAsync(string nomeObra)
         {
+            if (_usuarioService.UsuarioLogado == null)
+                return new DetalhesObra();
+
             using (var _context = _contextFactory.CreateDbContext())
             {
-                if (_usuarioService.UsuarioLogado == null)
-                    return new DetalhesObra();
-
                 try
                 {
-                    var obrasDB = await (from o in _context.Obras
-                                         join i in _context.Imagens on o.ImgId equals i.ImgId
-                                         join u in _context.Usuarios on o.UsuId equals u.UsuId
-                                         join ao in _context.AvaliacoesObras on o.ObsId equals ao.ObsId into avaliacoes
-                                         from avg in avaliacoes.DefaultIfEmpty()
-                                         join vo in _context.VisualizacoesObras on o.ObsId equals vo.ObsId into visualizacoes
-                                         from vs in visualizacoes.DefaultIfEmpty()
-                                         join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
-                                         join g in _context.Generos on og.GnsId equals g.GnsId
-                                         join cpo in _context.CapitulosObras on o.ObsId equals cpo.ObsId
-                                         join bku in _context.BookmarksUsuarios on new { o.ObsId, UsuId = _usuarioService.UsuarioLogado.Id } equals new { bku.ObsId, bku.UsuId } into bookmarks
-                                         from bkm in bookmarks.DefaultIfEmpty()
-                                         group new { o, i, u, avg, vs, g, bkm } by new { o.ObsId, o.ObsNomeObra, o.ObsDescricao, o.ObsStatus, o.ObsTipo, o.ObsDataPublicacao, o.ObsDataAtualizacao, u.UsuApelido, i.ImgImagem } into obraGroup
-                                         where obraGroup.Key.ObsNomeObra == nomeObra
-                                         select new
-                                         {
-                                             IdObra = obraGroup.Key.ObsId,
-                                             NomeObra = obraGroup.Key.ObsNomeObra,
-                                             Descricao = obraGroup.Key.ObsDescricao,
-                                             Status = obraGroup.Key.ObsStatus,
-                                             Tipo = obraGroup.Key.ObsTipo,
-                                             DataPublicacao = obraGroup.Key.ObsDataPublicacao.HasValue ? obraGroup.Key.ObsDataPublicacao.Value.ToString("MMMM d, yyyy") : null,
-                                             DataAtualizacao = obraGroup.Key.ObsDataAtualizacao.HasValue ? obraGroup.Key.ObsDataAtualizacao.Value.ToString("MMMM d, yyyy") : null,
-                                             NomeUsuario = obraGroup.Key.UsuApelido,
-                                             MediaNota = obraGroup.Average(x => x.avg != null ? x.avg.AvoNota : 0),
-                                             Views = obraGroup.Select(x => x.vs != null ? x.vs.VsoViews : 0).FirstOrDefault(),
-                                             Imagem = obraGroup.Key.ImgImagem,
-                                             Generos = obraGroup.Select(x => x.g.GnsNome).Distinct().ToArray(),
-                                             Bookmark = obraGroup.Any(x => x.bkm != null),
-                                             AvaliacaoUsuario = obraGroup.Where(x => x.avg != null && x.avg.UsuId == _usuarioService.UsuarioLogado.Id)
-                                            .Select(x => (double?)x.avg.AvoNota)
-                                            .FirstOrDefault() ?? 0,
-                                             Capitulos = (from cpo in _context.CapitulosObras
-                                                          where cpo.ObsId == obraGroup.Key.ObsId
-                                                          orderby cpo.CpoNumeroCapitulo descending
-                                                          select new
-                                                          {
-                                                              Id = cpo.CpoId,
-                                                              Numero = cpo.CpoNumeroCapitulo,
-                                                              DataPublicacao = cpo.CpoDataPublicacao.HasValue
-                                                                               ? cpo.CpoDataPublicacao.Value.ToString("MMMM d, yyyy")
-                                                                               : null
-                                                          }).ToArray()
-                                         }).FirstOrDefaultAsync(_usuarioService.Token);
+                    var obraDB = await _context.Obras
+                        .AsNoTracking()
+                        .Where(o => o.ObsNomeObra == nomeObra)
+                        .Select(o => new
+                        {
+                            o.ObsId,
+                            o.ObsNomeObra,
+                            o.ObsDescricao,
+                            o.ObsStatus,
+                            o.ObsTipo,
+                            o.ObsDataPublicacao,
+                            o.ObsDataAtualizacao,
 
-                    return DetalhesObraMapper.ToDomain(obrasDB);
+                            Usuario = _context.Usuarios
+                                .Where(u => u.UsuId == o.UsuId)
+                                .Select(u => u.UsuApelido)
+                                .FirstOrDefault(),
+
+                            Imagem = _context.Imagens
+                                .Where(i => i.ImgId == o.ImgId)
+                                .Select(i => i.ImgImagem)
+                                .FirstOrDefault(),
+
+                            MediaNota = _context.AvaliacoesObras
+                                .Where(a => a.ObsId == o.ObsId)
+                                .Average(a => (double?)a.AvoNota) ?? 0,
+
+                            Views = _context.VisualizacoesObras
+                                .Where(v => v.ObsId == o.ObsId)
+                                .Sum(v => (int?)v.VsoViews) ?? 0,
+
+                            Generos = _context.ObrasGeneros
+                                .Where(og => og.ObsId == o.ObsId)
+                                .Join(_context.Generos, og => og.GnsId, g => g.GnsId, (og, g) => g.GnsNome)
+                                .Distinct()
+                                .ToArray(),
+
+                            Bookmark = _context.BookmarksUsuarios
+                                .Any(b => b.ObsId == o.ObsId && b.UsuId == _usuarioService.UsuarioLogado.Id),
+
+                            AvaliacaoUsuario = _context.AvaliacoesObras
+                                .Where(a => a.ObsId == o.ObsId && a.UsuId == _usuarioService.UsuarioLogado.Id)
+                                .Select(a => (double?)a.AvoNota)
+                                .FirstOrDefault() ?? 0,
+
+                            Capitulos = _context.CapitulosObras
+                                .Where(c => c.ObsId == o.ObsId)
+                                .OrderByDescending(c => c.CpoNumeroCapitulo)
+                                .Select(c => new
+                                {
+                                    Id = c.CpoId,
+                                    Numero = c.CpoNumeroCapitulo,
+                                    DataPublicacao = c.CpoDataPublicacao.HasValue
+                                        ? c.CpoDataPublicacao.Value.ToString("MMMM d, yyyy")
+                                        : null
+                                })
+                                .ToArray()
+                        })
+                        .FirstOrDefaultAsync(_usuarioService.Token);
+
+                    if (obraDB == null)
+                        return new DetalhesObra();
+
+                    var obraFormatada = new
+                    {
+                        IdObra = obraDB.ObsId,
+                        NomeObra = obraDB.ObsNomeObra,
+                        Descricao = obraDB.ObsDescricao,
+                        Status = obraDB.ObsStatus,
+                        Tipo = obraDB.ObsTipo,
+                        DataPublicacao = obraDB.ObsDataPublicacao.HasValue
+                            ? obraDB.ObsDataPublicacao.Value.ToString("MMMM d, yyyy")
+                            : null,
+                        DataAtualizacao = obraDB.ObsDataAtualizacao.HasValue
+                            ? obraDB.ObsDataAtualizacao.Value.ToString("MMMM d, yyyy")
+                            : null,
+                        NomeUsuario = obraDB.Usuario,
+                        obraDB.MediaNota,
+                        obraDB.Views,
+                        obraDB.Imagem,
+                        obraDB.Generos,
+                        obraDB.Bookmark,
+                        obraDB.AvaliacaoUsuario,
+                        obraDB.Capitulos
+                    };
+
+                    return DetalhesObraMapper.ToDomain(obraFormatada);
                 }
                 catch (TaskCanceledException)
                 {
@@ -132,91 +197,111 @@ namespace Readit.Data.Repositories
 
         public async Task<List<PostagensObras>> BuscarListagemObrasAsync()
         {
-            using (var _context = _contextFactory.CreateDbContext())
+            try
             {
-                try
+                using (var connection = new SqlConnection(_contextFactory.CreateDbContext().Database.GetConnectionString()))
                 {
-                    var obrasDB = await (from o in _context.Obras
-                                         join i in _context.Imagens on o.ImgId equals i.ImgId
-                                         join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
-                                         join g in _context.Generos on og.GnsId equals g.GnsId
-                                         join a in _context.AvaliacoesObras on o.ObsId equals a.ObsId into avaliacoes
-                                         from avg in avaliacoes.DefaultIfEmpty()
-                                         group new { o, i, g, avg } by new { o.ObsId, o.ObsNomeObra, i.ImgImagem, o.ObsStatus, o.ObsTipo, o.ObsDataPublicacao, o.ObsDataAtualizacao } into obraGroup
-                                         select new
-                                         {
-                                             Id = obraGroup.Key.ObsId,
-                                             NomeObra = obraGroup.Key.ObsNomeObra,
-                                             Imagem = obraGroup.Key.ImgImagem,
-                                             Rating = obraGroup.Average(x => x.avg != null ? x.avg.AvoNota : 0),
-                                             Status = obraGroup.Key.ObsStatus,
-                                             Tipo = obraGroup.Key.ObsTipo,
-                                             Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
-                                             DataPublicacao = obraGroup.Key.ObsDataPublicacao,
-                                             DataAtualizacao = obraGroup.Key.ObsDataAtualizacao,
-                                         }).OrderByDescending(o => o.Rating).ToArrayAsync(_usuarioService.Token);
+                    await connection.OpenAsync(_usuarioService.Token);
 
-                    List<PostagensObras> listaObras = new List<PostagensObras>();
+                    var sql = @"
+                        SELECT
+                            o.obs_id AS Id,
+                            o.obs_nomeObra AS NomeObra,
+                            o.obs_status AS Status,
+                            o.obs_tipo AS Tipo,
+                            o.obs_dataPublicacao AS DataPublicacao,
+                            o.obs_dataAtualizacao AS DataAtualizacao,
+                            i.img_imagem AS Imagem,
+                            (
+                                SELECT AVG(CAST(a.avo_nota AS FLOAT))
+                                FROM AvaliacoesObra a
+                                WHERE a.obs_id = o.obs_id
+                            ) AS Rating,
+                            (
+                                SELECT STRING_AGG(g.gns_nome, ',')
+                                FROM ObrasGeneros og
+                                JOIN Generos g ON og.gns_id = g.gns_id
+                                WHERE og.obs_id = o.obs_id
+                            ) AS Genres
+                        FROM Obras o
+                        LEFT JOIN Imagens i ON o.img_id = i.img_id
+                        ORDER BY Rating DESC";
 
-                    foreach (var obra in PostagensObrasMapper.MapListagemObras(obrasDB))
+                    var obrasDB = await connection.QueryAsync(sql);
+
+                    var resultados = obrasDB.Select(obra => new
                     {
-                        listaObras.Add(obra);
-                    }
+                        obra.Id,
+                        obra.NomeObra,
+                        obra.Status,
+                        obra.Tipo,
+                        DataPublicacao = (DateTime?)obra.DataPublicacao,
+                        DataAtualizacao = (DateTime?)obra.DataAtualizacao,
+                        obra.Imagem,
+                        Rating = (double?)obra.Rating ?? 0,
+                        Genres = ((string)obra.Genres)?.Split(',')?.ToList() ?? new List<string>()
+                    }).ToArray();
 
-                    return listaObras;
+                    return PostagensObrasMapper.MapListagemObras(resultados);
                 }
-                catch (TaskCanceledException)
-                {
-                    return new List<PostagensObras>();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "BuscarListagemObrasAsync()");
-                    return new List<PostagensObras>();
-                }
+            }
+            catch (TaskCanceledException)
+            {
+                return new List<PostagensObras>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "BuscarListagemObrasAsync()");
+                return new List<PostagensObras>();
             }
         }
 
         public async Task<List<PostagensObras>> BuscarObrasBookmarksAsync()
         {
-            using (var _context = _contextFactory.CreateDbContext())
+            if (_usuarioService.UsuarioLogado == null)
+                return new List<PostagensObras>();
+
+            try
             {
-                if (_usuarioService.UsuarioLogado == null)
-                    return new List<PostagensObras>();
-
-                try
+                using (var connection = new SqlConnection(_contextFactory.CreateDbContext().Database.GetConnectionString()))
                 {
-                    var obrasDB = await (from o in _context.Obras
-                                         join i in _context.Imagens on o.ImgId equals i.ImgId
-                                         join bu in _context.BookmarksUsuarios on o.ObsId equals bu.ObsId
-                                         group new { o, i, bu } by new { o.ObsId, o.ObsNomeObra, o.ObsTipo, i.ImgImagem, bu.UsuId } into obraGroup
-                                         where obraGroup.Key.UsuId == _usuarioService.UsuarioLogado.Id
-                                         select new
-                                         {
-                                             Id = obraGroup.Key.ObsId,
-                                             NomeObra = obraGroup.Key.ObsNomeObra,
-                                             Imagem = obraGroup.Key.ImgImagem,
-                                             Tipo = obraGroup.Key.ObsTipo
-                                         }).ToArrayAsync(_usuarioService.Token);
+                    await connection.OpenAsync(_usuarioService.Token);
 
-                    List<PostagensObras> listaObras = new List<PostagensObras>();
+                    var sql = @"
+                        SELECT
+                            o.obs_id AS Id,
+                            o.obs_nomeObra AS NomeObra,
+                            i.img_imagem AS Imagem,
+                            o.obs_tipo AS Tipo
+                        FROM Obras o
+                        JOIN Imagens i ON o.img_id = i.img_id
+                        JOIN BookmarksUsuario bu ON o.obs_id = bu.obs_id
+                        WHERE bu.usu_id = @UsuarioId
+                        GROUP BY o.obs_id, o.obs_nomeObra, o.obs_tipo, i.img_imagem, bu.usu_id";
 
-                    foreach (var obra in PostagensObrasMapper.MapBookmarks(obrasDB))
+                    var parameters = new { UsuarioId = _usuarioService.UsuarioLogado.Id };
+
+                    var obrasDB = await connection.QueryAsync(sql, parameters);
+
+                    var resultados = obrasDB.Select(obra => new
                     {
-                        listaObras.Add(obra);
-                    }
+                        obra.Id,
+                        obra.NomeObra,
+                        obra.Imagem,
+                        obra.Tipo
+                    }).ToArray();
 
-                    return listaObras;
+                    return PostagensObrasMapper.MapBookmarks(resultados);
                 }
-                catch (TaskCanceledException)
-                {
-                    return new List<PostagensObras>();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "BuscarObrasBookmarksAsync()");
-                    return new List<PostagensObras>();
-                }
+            }
+            catch (TaskCanceledException)
+            {
+                return new List<PostagensObras>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "BuscarObrasBookmarksAsync()");
+                return new List<PostagensObras>();
             }
         }
 
@@ -235,80 +320,111 @@ namespace Readit.Data.Repositories
                         { "Todos", () => null }
                     };
 
-                    List<DestaquesItem> todasObras = new();
-                    int totalObrasComAvaliacao = await (from a in _context.AvaliacoesObras
-                                                        join og in _context.ObrasGeneros on a.ObsId equals og.ObsId
-                                                        join g in _context.Generos on og.GnsId equals g.GnsId
-                                                        group g by a.ObsId into obraGroup
-                                                        where !obraGroup.Any(genero => preferenciasUsuario.Contains(genero.GnsNome))
-                                                        select obraGroup.Key).Distinct().CountAsync(_usuarioService.Token);
-
-                    var obrasQuery = await (from o in _context.Obras
-                                            join i in _context.Imagens on o.ImgId equals i.ImgId
-                                            join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
-                                            join g in _context.Generos on og.GnsId equals g.GnsId
-                                            join a in _context.AvaliacoesObras on o.ObsId equals a.ObsId
-                                            group new { o, i, g, a } by new { o.ObsId, o.ObsNomeObra, o.ObsTipo, i.ImgImagem } into obraGroup
-                                            where !obraGroup.Select(x => x.g.GnsNome).Any(genero => preferenciasUsuario.Contains(genero))
-                                            select new
-                                            {
-                                                obraGroup.Key.ObsNomeObra,
-                                                obraGroup.Key.ImgImagem,
-                                                Rating = obraGroup.Average(x => x.a.AvoNota),
-                                                Genres = obraGroup.Select(x => x.g.GnsNome).Distinct().ToList(),
-                                                DataAvaliacao = obraGroup.Max(x => x.a.AvoDataAvaliacao),
-                                                Tipo = obraGroup.Key.ObsTipo,
-                                            }).ToListAsync(_usuarioService.Token);
-
-                    foreach (var filtro in filtros)
+                    using (var connection = new SqlConnection(_contextFactory.CreateDbContext().Database.GetConnectionString()))
                     {
-                        List<DestaquesItem> topObras = new();
-                        int rank = 1;
-                        DateTime? dataInicio = filtro.Value();
+                        await connection.OpenAsync(_usuarioService.Token);
 
-                        while (topObras.Count < 10 && (filtro.Key == "Todos" || dataInicio > DateTime.MinValue))
+                        var countSql = @"
+                            SELECT COUNT(DISTINCT a.obs_id)
+                            FROM AvaliacoesObra a
+                            WHERE NOT EXISTS (
+                                SELECT 1 FROM ObrasGeneros og
+                                JOIN Generos g ON og.gns_id = g.gns_id
+                                WHERE og.obs_id = a.obs_id
+                                AND g.gns_nome IN @preferenciasUsuario
+                            )";
+
+                        var totalObrasComAvaliacao = await connection.ExecuteScalarAsync<int>(countSql, new { preferenciasUsuario });
+
+                        var obrasSql = @"
+                            SELECT
+                                o.obs_nomeObra AS ObsNomeObra,
+                                i.img_imagem AS ImgImagem,
+                                AVG(a.avo_nota) AS Rating,
+                                MAX(a.avo_dataAvaliacao) AS DataAvaliacao,
+                                o.obs_tipo AS Tipo,
+                                (
+                                    SELECT STRING_AGG(g.gns_nome, ',')
+                                    FROM ObrasGeneros og
+                                    JOIN Generos g ON og.gns_id = g.gns_id
+                                    WHERE og.obs_id = o.obs_id
+                                ) AS Genres
+                            FROM Obras o
+                            JOIN Imagens i ON o.img_id = i.img_id
+                            JOIN ObrasGeneros og ON o.obs_id = og.obs_id
+                            JOIN Generos g ON og.gns_id = g.gns_id
+                            JOIN AvaliacoesObra a ON o.obs_id = a.obs_id
+                            WHERE NOT EXISTS (
+                                SELECT 1 FROM ObrasGeneros og2
+                                JOIN Generos g2 ON og2.gns_id = g2.gns_id
+                                WHERE og2.obs_id = o.obs_id
+                                AND g2.gns_nome IN @preferenciasUsuario
+                            )
+                            GROUP BY o.obs_id, o.obs_nomeObra, i.img_imagem, o.obs_tipo";
+
+                        var obrasQuery = (await connection.QueryAsync(obrasSql, new { preferenciasUsuario }))
+                            .Select(o => new
+                            {
+                                o.ObsNomeObra,
+                                ImgImagem = (byte[])o.ImgImagem,
+                                o.Rating,
+                                Genres = ((string)o.Genres)?.Split(',')?.ToList() ?? new List<string>(),
+                                o.DataAvaliacao,
+                                o.Tipo
+                            }).ToList();
+
+                        List<DestaquesItem> todasObras = new();
+
+                        foreach (var filtro in filtros)
                         {
-                            var query = obrasQuery
-                                .Where(o => filtro.Key == "Todos" || o.DataAvaliacao >= dataInicio)
-                                .OrderByDescending(o => o.Rating)
-                                .ToList();
+                            List<DestaquesItem> topObras = new();
+                            int rank = 1;
+                            DateTime? dataInicio = filtro.Value();
 
-                            topObras.AddRange(query.Select(o => new DestaquesItem
+                            while (topObras.Count < 10 && (filtro.Key == "Todos" || dataInicio > DateTime.MinValue))
                             {
-                                Title = o.ObsNomeObra,
-                                ImageByte = o.ImgImagem,
-                                Rating = o.Rating,
-                                Genres = o.Genres,
-                                TipoNumber = o.Tipo
-                            }));
+                                var query = obrasQuery
+                                    .Where(o => filtro.Key == "Todos" || o.DataAvaliacao >= dataInicio)
+                                    .OrderByDescending(o => o.Rating)
+                                    .ToList();
 
-                            topObras = topObras
-                                .GroupBy(x => x.Title)
-                                .Select(g => g.First())
-                                .ToList();
+                                topObras.AddRange(query.Select(o => new DestaquesItem
+                                {
+                                    Title = o.ObsNomeObra,
+                                    ImageByte = o.ImgImagem,
+                                    Rating = o.Rating,
+                                    Genres = o.Genres,
+                                    TipoNumber = o.Tipo
+                                }));
 
-                            if (topObras.Count >= totalObrasComAvaliacao)
-                                break;
+                                topObras = topObras
+                                    .GroupBy(x => x.Title)
+                                    .Select(g => g.First())
+                                    .ToList();
 
-                            if (topObras.Count < 10 && filtro.Key != "Todos")
-                            {
-                                dataInicio = filtro.Key == "Semanal" ? dataInicio.Value.AddDays(-7) : dataInicio.Value.AddMonths(-1);
+                                if (topObras.Count >= totalObrasComAvaliacao)
+                                    break;
+
+                                if (topObras.Count < 10 && filtro.Key != "Todos")
+                                {
+                                    dataInicio = filtro.Key == "Semanal" ? dataInicio.Value.AddDays(-7) : dataInicio.Value.AddMonths(-1);
+                                }
                             }
+
+                            todasObras.AddRange(topObras.Select(o => new DestaquesItem
+                            {
+                                Rank = rank++,
+                                Title = o.Title,
+                                ImageByte = o.ImageByte,
+                                Genres = o.Genres,
+                                Rating = o.Rating,
+                                Filter = filtro.Key,
+                                TipoNumber = o.TipoNumber
+                            }));
                         }
 
-                        todasObras.AddRange(topObras.Select(o => new DestaquesItem
-                        {
-                            Rank = rank++,
-                            Title = o.Title,
-                            ImageByte = o.ImageByte,
-                            Genres = o.Genres,
-                            Rating = o.Rating,
-                            Filter = filtro.Key,
-                            TipoNumber = o.TipoNumber
-                        }));
+                        return todasObras;
                     }
-
-                    return todasObras;
                 }
                 catch (TaskCanceledException)
                 {
@@ -400,107 +516,164 @@ namespace Readit.Data.Repositories
 
         public async Task<List<SlideshowItem>> BuscarObrasSlideShowAsync()
         {
-            using (var _context = _contextFactory.CreateDbContext())
+            try
             {
-                try
+                var preferenciasUsuario = (await _preferenciaRepository.BuscarPreferenciasUsuarioAsync())
+                                       .ConvertAll(p => p.Preferencia);
+
+                using (var connection = new SqlConnection(_contextFactory.CreateDbContext().Database.GetConnectionString()))
                 {
-                    var preferenciasUsuario = (await _preferenciaRepository.BuscarPreferenciasUsuarioAsync()).ConvertAll(p => p.Preferencia);
+                    await connection.OpenAsync(_usuarioService.Token);
 
-                    var obrasDB = await (from o in _context.Obras
-                                         join i in _context.Imagens on o.ImgId equals i.ImgId
-                                         join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
-                                         join g in _context.Generos on og.GnsId equals g.GnsId
-                                         join cpo in _context.CapitulosObras on o.ObsId equals cpo.ObsId
-                                         join a in _context.AvaliacoesObras on o.ObsId equals a.ObsId
-                                         group new { o, i, cpo, g, a } by new { o.ObsId, o.ObsNomeObra, o.ObsDescricao, i.ImgImagem } into obraGroup
-                                         where !obraGroup.Select(x => x.g.GnsNome).Any(genero => preferenciasUsuario.Contains(genero))
-                                         orderby obraGroup.Average(x => x.a.AvoNota) descending
-                                         select new
-                                         {
-                                             NomeObra = obraGroup.Key.ObsNomeObra,
-                                             UltimoCapitulo = obraGroup.Max(x => x.cpo.CpoNumeroCapitulo),
-                                             Descricao = obraGroup.Key.ObsDescricao,
-                                             Generos = obraGroup.Select(x => x.g.GnsNome).Distinct().ToArray(),
-                                             Imagem = obraGroup.Key.ImgImagem
-                                         }).Take(5).ToArrayAsync(_usuarioService.Token);
+                    var sql = @"
+                        WITH ObrasFiltradas AS (
+                            SELECT o.obs_id, o.obs_nomeObra, o.obs_descricao, o.img_id
+                            FROM Obras o
+                            WHERE NOT EXISTS (
+                                SELECT 1
+                                FROM ObrasGeneros og
+                                JOIN Generos g ON og.gns_id = g.gns_id
+                                WHERE og.obs_id = o.obs_id
+                                AND g.gns_nome IN @preferenciasUsuario
+                            )
+                            AND EXISTS (
+                                SELECT 1
+                                FROM CapitulosObra c
+                                WHERE c.obs_id = o.obs_id
+                            )
+                        )
+                        SELECT TOP 5
+                            o.obs_nomeObra AS NomeObra,
+                            o.obs_descricao AS Descricao,
+                            i.img_imagem AS Imagem,
+                            (
+                                SELECT STRING_AGG(g.gns_nome, ', ')
+                                FROM ObrasGeneros og
+                                JOIN Generos g ON og.gns_id = g.gns_id
+                                WHERE og.obs_id = o.obs_id
+                            ) AS Generos,
+                            (
+                                SELECT MAX(c.cpo_numeroCapitulo)
+                                FROM CapitulosObra c
+                                WHERE c.obs_id = o.obs_id
+                            ) AS UltimoCapitulo,
+                            (
+                                SELECT AVG(a.avo_nota)
+                                FROM AvaliacoesObra a
+                                WHERE a.obs_id = o.obs_id
+                            ) AS MediaAvaliacoes
+                        FROM ObrasFiltradas o
+                        LEFT JOIN Imagens i ON o.img_id = i.img_id
+                        ORDER BY MediaAvaliacoes DESC";
 
-                    List<SlideshowItem> listaObras = new List<SlideshowItem>();
+                    var obrasDB = await connection.QueryAsync(sql, new { preferenciasUsuario });
 
-                    foreach (var obra in obrasDB.ToDomainList())
+                    var resultados = obrasDB.Select(obra => new
                     {
-                        listaObras.Add(obra);
-                    }
+                        obra.NomeObra,
+                        obra.Descricao,
+                        obra.Imagem,
+                        Generos = ((string)obra.Generos)?.Split(", ") ?? Array.Empty<string>(),
+                        obra.UltimoCapitulo
+                    }).ToList();
 
-                    return listaObras;
+                    return resultados.ToDomainList();
                 }
-                catch (TaskCanceledException)
-                {
-                    return new List<SlideshowItem>();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "BuscarObrasSlideShow()");
-                    return new List<SlideshowItem>();
-                }
+            }
+            catch (TaskCanceledException)
+            {
+                return new List<SlideshowItem>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "BuscarObrasSlideShow()");
+                return new List<SlideshowItem>();
             }
         }
 
         public async Task<List<PostagensObras>> BuscarObrasUltimasAtualizacoesAsync()
         {
-            using (var _context = _contextFactory.CreateDbContext())
+            try
             {
-                try
+                var preferenciasUsuario = (await _preferenciaRepository.BuscarPreferenciasUsuarioAsync())
+                                       .ConvertAll(p => p.Preferencia);
+
+                using (var connection = new SqlConnection(_contextFactory.CreateDbContext().Database.GetConnectionString()))
                 {
-                    var preferenciasUsuario = (await _preferenciaRepository.BuscarPreferenciasUsuarioAsync()).ConvertAll(p => p.Preferencia);
+                    await connection.OpenAsync(_usuarioService.Token);
 
-                    var obrasDB = await (from o in _context.Obras
-                                         join og in _context.ObrasGeneros on o.ObsId equals og.ObsId
-                                         join g in _context.Generos on og.GnsId equals g.GnsId
-                                         join i in _context.Imagens on o.ImgId equals i.ImgId
-                                         join cpo in _context.CapitulosObras on o.ObsId equals cpo.ObsId
-                                         where !(_context.ObrasGeneros
-                                                  .Where(og => og.ObsId == o.ObsId)
-                                                  .Select(og => og.Gns.GnsNome)
-                                                  .Any(genero => preferenciasUsuario.Contains(genero)))
-                                         group new { o, i, cpo } by new { o.ObsId, o.ObsNomeObra, o.ObsStatus, o.ObsTipo, i.ImgImagem } into obraGroup
-                                         orderby obraGroup.Max(x => x.cpo.CpoDataPublicacao) descending
-                                         select new
-                                         {
-                                             Id = obraGroup.Key.ObsId,
-                                             NomeObra = obraGroup.Key.ObsNomeObra,
-                                             Status = obraGroup.Key.ObsStatus,
-                                             Imagem = obraGroup.Key.ImgImagem,
-                                             Tipo = obraGroup.Key.ObsTipo,
-                                             Capitulos = _context.CapitulosObras
-                                                                 .Where(c => c.ObsId == obraGroup.Key.ObsId)
-                                                                 .OrderByDescending(c => c.CpoNumeroCapitulo)
-                                                                 .Take(3)
-                                                                 .Select(c => new
-                                                                 {
-                                                                     Id = c.CpoId,
-                                                                     Numero = c.CpoNumeroCapitulo,
-                                                                     Data = c.CpoDataPublicacao
-                                                                 }).ToArray()
-                                         }).ToArrayAsync(_usuarioService.Token);
+                    var sql = @"
+                        WITH ObrasFiltradas AS (
+                            SELECT o.obs_id, o.obs_nomeObra, o.obs_status, o.obs_tipo, o.img_id
+                            FROM Obras o
+                            WHERE NOT EXISTS (
+                                SELECT 1
+                                FROM ObrasGeneros og
+                                JOIN Generos g ON og.gns_id = g.gns_id
+                                WHERE og.obs_id = o.obs_id
+                                AND g.gns_nome IN @preferenciasUsuario
+                            )
+                        ),
+                        UltimasAtualizacoes AS (
+                            SELECT
+                                o.obs_id,
+                                MAX(c.cpo_dataPublicacao) AS UltimaAtualizacao
+                            FROM ObrasFiltradas o
+                            LEFT JOIN CapitulosObra c ON o.obs_id = c.obs_id
+                            GROUP BY o.obs_id
+                        )
+                        SELECT
+                            o.obs_id AS Id,
+                            o.obs_nomeObra AS NomeObra,
+                            o.obs_status AS Status,
+                            o.obs_tipo AS Tipo,
+                            i.img_imagem AS Imagem,
+                            u.UltimaAtualizacao,
+                            (
+                                SELECT TOP 3
+                                    c.cpo_id AS [Id],
+                                    c.cpo_numeroCapitulo AS [Numero],
+                                    c.cpo_dataPublicacao AS [Data]
+                                FROM CapitulosObra c
+                                WHERE c.obs_id = o.obs_id
+                                ORDER BY c.cpo_numeroCapitulo DESC
+                                FOR JSON PATH
+                            ) AS CapitulosJson
+                        FROM ObrasFiltradas o
+                        JOIN UltimasAtualizacoes u ON o.obs_id = u.obs_id
+                        LEFT JOIN Imagens i ON o.img_id = i.img_id
+                        ORDER BY u.UltimaAtualizacao DESC";
 
-                    List<PostagensObras> listaObras = new List<PostagensObras>();
+                    var obrasDB = await connection.QueryAsync<dynamic>(sql, new { preferenciasUsuario });
 
-                    foreach (var obra in PostagensObrasMapper.MapUltimasAtualizacoes(obrasDB))
+                    var resultados = obrasDB.Select(obra => new
                     {
-                        listaObras.Add(obra);
-                    }
+                        obra.Id,
+                        obra.NomeObra,
+                        obra.Status,
+                        obra.Tipo,
+                        obra.Imagem,
+                        obra.UltimaAtualizacao,
+                        Capitulos = ((IEnumerable<dynamic>)JsonConvert.DeserializeObject(obra.CapitulosJson ?? "[]"))
+                        .Select(c => new
+                        {
+                            c.Id,
+                            c.Numero,
+                            c.Data
+                        })
+                    }).ToArray();
 
-                    return listaObras;
+                    return PostagensObrasMapper.MapUltimasAtualizacoes(resultados);
                 }
-                catch (TaskCanceledException)
-                {
-                    return new List<PostagensObras>();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "BuscarObrasUltimasAtualizacoes()");
-                    return new List<PostagensObras>();
-                }
+            }
+            catch (TaskCanceledException)
+            {
+                return new List<PostagensObras>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "BuscarObrasUltimasAtualizacoes()");
+                return new List<PostagensObras>();
             }
         }
 

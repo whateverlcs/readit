@@ -340,7 +340,7 @@ namespace Readit.WPF.ViewModels
             }
             finally
             {
-                await Application.Current.Dispatcher.InvokeAsync(LimparDados);
+                await Application.Current.Dispatcher.InvokeAsync(() => LimparDados(true));
             }
         }
 
@@ -348,9 +348,14 @@ namespace Readit.WPF.ViewModels
 
         public void AlterarModo()
         {
-            LimparDados();
+            LimparDados(false);
 
-            if (ModoAtual == "Cadastrar")
+            AjustarVariaveisModo(ModoAtual);
+        }
+
+        public void AjustarVariaveisModo(string modoAtual)
+        {
+            if (modoAtual == "Cadastrar")
             {
                 ModoAtual = "Editar";
                 ToggleTitulo = "CADASTRAR CAPÍTULOS";
@@ -443,7 +448,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public void LimparDados()
+        public void LimparDados(bool ajustarVariaveis)
         {
             AplicarLoading(false);
             ObraSelecionada = null;
@@ -452,6 +457,9 @@ namespace Readit.WPF.ViewModels
             TxtDropCapitulos = "Nenhum capítulo inserido";
             _usuarioService.ListaCapitulosSelecionados.Clear();
             ListaRemoverCapitulos.Clear();
+
+            if (ajustarVariaveis)
+                AjustarVariaveisModo(ModoAtual == "Editar" ? "Cadastrar" : "Editar");
         }
 
         public void AplicarLoading(bool loading)

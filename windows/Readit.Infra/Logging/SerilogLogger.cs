@@ -47,7 +47,11 @@ namespace Readit.Infra.Logging
 
         public void LogUsersLogged()
         {
-            Log.Information($"Usuário: {_usuarioService.UsuarioLogado.Nome}\n");
+            var log = Log.ForContext("LogType", "UserLogged")
+                        .ForContext("Usuario", _usuarioService.UsuarioLogado.Nome)
+                        .ForContext("Data", DateTime.Now);
+
+            log.Information("Usuário logado: {Usuario} em {Data:yyyy-MM-dd HH:mm:ss}");
         }
     }
 }

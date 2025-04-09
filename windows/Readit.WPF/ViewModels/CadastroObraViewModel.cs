@@ -360,9 +360,14 @@ namespace Readit.WPF.ViewModels
 
         public void AlterarModo()
         {
-            LimparDados();
+            LimparDados(false);
 
-            if (ModoAtual == "Cadastrar")
+            AjustarVariaveisModo(ModoAtual);
+        }
+
+        public void AjustarVariaveisModo(string modoAtual)
+        {
+            if (modoAtual == "Cadastrar")
             {
                 ModoAtual = "Editar";
                 ToggleTitulo = "CADASTRAR OBRAS";
@@ -559,7 +564,7 @@ namespace Readit.WPF.ViewModels
             }
             finally
             {
-                await Application.Current.Dispatcher.InvokeAsync(LimparDados);
+                await Application.Current.Dispatcher.InvokeAsync(() => LimparDados(true));
             }
         }
 
@@ -605,7 +610,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public void LimparDados()
+        public void LimparDados(bool ajustarVariaveis)
         {
             CaminhoImagem = "../Resources/Images/upload-image.png";
             ImagemSelecionada = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
@@ -622,6 +627,8 @@ namespace Readit.WPF.ViewModels
             ObraSelecionada = null;
             AplicarLoading(false);
 
+            if (ajustarVariaveis)
+                AjustarVariaveisModo(ModoAtual == "Editar" ? "Cadastrar" : "Editar");
             Task.Run(() => PopularObrasAsync()).ConfigureAwait(false);
         }
 

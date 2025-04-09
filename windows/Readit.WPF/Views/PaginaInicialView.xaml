@@ -197,7 +197,7 @@
                             <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding CurrentItem.Title}"
                                FontSize="24" Foreground="White" />
                             <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding CurrentItem.Description}"
-                               FontSize="14" Foreground="White" TextWrapping="Wrap" />
+                               FontSize="14" Foreground="White" TextWrapping="Wrap" TextTrimming="WordEllipsis" />
                             <!-- Exibe as tags na horizontal -->
                             <ItemsControl Grid.Column="1" Grid.Row="5" ItemsSource="{Binding CurrentItem.Tags}">
                                 <ItemsControl.ItemsPanel>
