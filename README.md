@@ -81,6 +81,8 @@ cd windows
 # executar o projeto Readit.WPF
 ```
 
+## 🎨 Figma - [Clique aqui para acessar o figma do projeto](https://www.figma.com/design/ROf6QzhoroF6YcBcFOG8EE/read-it?node-id=0-1&t=TU079DhcU6dpTWfp-1)
+
 ## 🤝 Como contribuir para o projeto
 
 1. Faça um **fork** do projeto.
