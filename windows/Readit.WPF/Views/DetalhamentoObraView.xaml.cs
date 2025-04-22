@@ -1,4 +1,4 @@
-﻿using Readit.Core.Domain;
+﻿using Readit.Core.Desktop.Domain;
 using Readit.WPF.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,7 +22,7 @@ namespace Readit.WPF.Views
 
         private void Star_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (sender is TextBlock star && star.DataContext is StarRating starRating)
+            if (sender is TextBlock star && star.DataContext is StarRatingDesktop starRating)
             {
                 if (DataContext is DetalhamentoObraViewModel viewModel)
                 {

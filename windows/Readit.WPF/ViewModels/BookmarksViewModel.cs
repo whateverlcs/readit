@@ -1,8 +1,9 @@
 ﻿using Caliburn.Micro;
-using Readit.Core.Domain;
+using Readit.Core.Desktop.Domain;
+using Readit.Core.Desktop.Services;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
-using Readit.Infra.Helpers;
+using Readit.Infra.Desktop.Helpers;
 using Readit.WPF.Infrastructure;
 using System.Windows;
 using System.Windows.Input;
@@ -111,9 +112,9 @@ namespace Readit.WPF.ViewModels
 
         public ICommand PreviousPageCommand { get; set; }
 
-        public BindableCollection<PostagensObras> ListaBookmarks { get; set; }
+        public BindableCollection<PostagensObrasDesktop> ListaBookmarks { get; set; }
 
-        public BindableCollection<PostagensObras> PaginatedList { get; private set; } = new BindableCollection<PostagensObras>();
+        public BindableCollection<PostagensObrasDesktop> PaginatedList { get; private set; } = new BindableCollection<PostagensObrasDesktop>();
 
         public int CurrentPage
         {
@@ -167,10 +168,10 @@ namespace Readit.WPF.ViewModels
 
         private readonly IUsuarioService _usuarioService;
         private readonly IObraRepository _obraRepository;
-        private readonly IObraService _obraService;
+        private readonly IObraDesktopService _obraService;
         private readonly IArquivoService _arquivoService;
 
-        public BookmarksViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IObraService obraService, IArquivoService arquivoService)
+        public BookmarksViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IObraDesktopService obraService, IArquivoService arquivoService)
         {
             _usuarioService = usuarioService;
             _obraRepository = obraRepository;
@@ -183,7 +184,7 @@ namespace Readit.WPF.ViewModels
 
             Task.Run(() => CarregarDadosBookmarksAsync()).ConfigureAwait(false);
 
-            NavigateToDetailsCommand = new RelayCommandHelper<PostagensObras>(NavigateToDetails);
+            NavigateToDetailsCommand = new RelayCommandHelper<PostagensObrasDesktop>(NavigateToDetails);
             NextPageCommand = new RelayCommandHelper<object>(_ => NextPage());
             PreviousPageCommand = new RelayCommandHelper<object>(_ => PreviousPage());
         }
@@ -203,10 +204,10 @@ namespace Readit.WPF.ViewModels
         public async Task PopularBookmarksUsuario()
         {
             var postagens = _obraService.FormatarDadosBookmarks(await _obraRepository.BuscarObrasBookmarksAsync().ConfigureAwait(false));
-            ListaBookmarks = new BindableCollection<PostagensObras>(postagens);
+            ListaBookmarks = new BindableCollection<PostagensObrasDesktop>(postagens);
         }
 
-        private void NavigateToDetails(PostagensObras item)
+        private void NavigateToDetails(PostagensObrasDesktop item)
         {
             _ = ActiveView.OpenItemMain<DetalhamentoObraViewModel>(item.TitleOriginal);
         }

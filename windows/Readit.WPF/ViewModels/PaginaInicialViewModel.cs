@@ -1,8 +1,10 @@
 ﻿using Caliburn.Micro;
+using Readit.Core.Desktop.Domain;
+using Readit.Core.Desktop.Services;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
-using Readit.Infra.Helpers;
+using Readit.Infra.Desktop.Helpers;
 using Readit.WPF.Infrastructure;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -95,11 +97,11 @@ namespace Readit.WPF.ViewModels
 
         private DispatcherTimer _slideshowTimer;
 
-        public BindableCollection<SlideshowItem> Items { get; set; }
+        public BindableCollection<SlideshowItemDesktop> Items { get; set; }
 
-        private SlideshowItem _currentItem;
+        private SlideshowItemDesktop _currentItem;
 
-        public SlideshowItem CurrentItem
+        public SlideshowItemDesktop CurrentItem
         {
             get => _currentItem;
             set
@@ -164,9 +166,9 @@ namespace Readit.WPF.ViewModels
 
         public ICommand PreviousPageCommand { get; set; }
 
-        public BindableCollection<PostagensObras> ListaPostagens { get; set; }
+        public BindableCollection<PostagensObrasDesktop> ListaPostagens { get; set; }
 
-        public BindableCollection<PostagensObras> PaginatedList { get; private set; } = new BindableCollection<PostagensObras>();
+        public BindableCollection<PostagensObrasDesktop> PaginatedList { get; private set; } = new BindableCollection<PostagensObrasDesktop>();
 
         public int CurrentPage
         {
@@ -222,9 +224,9 @@ namespace Readit.WPF.ViewModels
 
         private string _selectedFilter;
 
-        public ObservableCollection<DestaquesItem> RankingItems { get; set; }
+        public ObservableCollection<DestaquesItemDesktop> RankingItems { get; set; }
 
-        public ObservableCollection<DestaquesItem> RankingItemsFiltered { get; set; } = new ObservableCollection<DestaquesItem>();
+        public ObservableCollection<DestaquesItemDesktop> RankingItemsFiltered { get; set; } = new ObservableCollection<DestaquesItemDesktop>();
 
         public string SelectedFilter
         {
@@ -251,9 +253,9 @@ namespace Readit.WPF.ViewModels
         private readonly IObraRepository _obraRepository;
         private readonly IArquivoService _arquivoService;
         private readonly IImagemService _imagemService;
-        private readonly IObraService _obraService;
+        private readonly IObraDesktopService _obraService;
 
-        public PaginaInicialViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IArquivoService arquivoService, IImagemService imagemService, IObraService obraService)
+        public PaginaInicialViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IArquivoService arquivoService, IImagemService imagemService, IObraDesktopService obraService)
         {
             _usuarioService = usuarioService;
             _obraRepository = obraRepository;
@@ -269,14 +271,14 @@ namespace Readit.WPF.ViewModels
 
             #region Slideshow
 
-            NavigateToCommand = new RelayCommandHelper<SlideshowItem>(NavigateTo);
+            NavigateToCommand = new RelayCommandHelper<SlideshowItemDesktop>(NavigateTo);
             GenreClickSlideShowCommand = new RelayCommandHelper<string>(OnGenreClick);
 
             #endregion Slideshow
 
             #region Ultimas Atualizações
 
-            NavigateToDetailsCommand = new RelayCommandHelper<PostagensObras>(NavigateToDetails);
+            NavigateToDetailsCommand = new RelayCommandHelper<PostagensObrasDesktop>(NavigateToDetails);
             NavigateToChapterCommand = new RelayCommandHelper<ChapterInfo>(NavigateToChapter);
             NextPageCommand = new RelayCommandHelper<object>(_ => NextPage());
             PreviousPageCommand = new RelayCommandHelper<object>(_ => PreviousPage());
@@ -287,7 +289,7 @@ namespace Readit.WPF.ViewModels
 
             FilterCommand = new AsyncRelayCommand<string>(ApplyFilter);
             GenreClickCommand = new RelayCommandHelper<string>(OnGenreClick);
-            NavigateToDetailsHighlightCommand = new RelayCommandHelper<DestaquesItem>(NavigateToDetailsHighlight);
+            NavigateToDetailsHighlightCommand = new RelayCommandHelper<DestaquesItemDesktop>(NavigateToDetailsHighlight);
 
             #endregion Destaques
         }
@@ -303,7 +305,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public void NavigateTo(SlideshowItem item)
+        public void NavigateTo(SlideshowItemDesktop item)
         {
             _slideshowTimer.Stop(); // Para o timer temporariamente
             int index = Items.IndexOf(item);
@@ -327,16 +329,9 @@ namespace Readit.WPF.ViewModels
 
         public async Task PopularSlideShow()
         {
-            var slideshowItems = await _obraRepository.BuscarObrasSlideShowAsync().ConfigureAwait(false);
+            var slideshowItems = _obraService.FormatarDadosSlideshow(await _obraRepository.BuscarObrasSlideShowAsync().ConfigureAwait(false));
 
-            foreach (var item in slideshowItems)
-            {
-                item.BackgroundImage = _imagemService.ByteArrayToImage(item.BackgroundImageByte);
-                item.FocusedImage = _imagemService.ByteArrayToImage(item.FocusedImageByte);
-                item.Description = item.Description.Length > 211 ? item.Description.Substring(0, 211).Trim() + "..." : item.Description.Trim();
-            }
-
-            Items = new BindableCollection<SlideshowItem>(slideshowItems);
+            Items = new BindableCollection<SlideshowItemDesktop>(slideshowItems);
             NotifyOfPropertyChange(() => Items);
             NotifyOfPropertyChange(() => CurrentItem);
         }
@@ -348,10 +343,10 @@ namespace Readit.WPF.ViewModels
         public async Task PopularUltimasAtualizacoes()
         {
             var postagens = _obraService.FormatarDadosUltimasAtualizacoes(await _obraRepository.BuscarObrasUltimasAtualizacoesAsync().ConfigureAwait(false));
-            ListaPostagens = new BindableCollection<PostagensObras>(postagens);
+            ListaPostagens = new BindableCollection<PostagensObrasDesktop>(postagens);
         }
 
-        private void NavigateToDetails(PostagensObras item)
+        private void NavigateToDetails(PostagensObrasDesktop item)
         {
             _ = ActiveView.OpenItemMain<DetalhamentoObraViewModel>(item.Title);
         }
@@ -402,10 +397,10 @@ namespace Readit.WPF.ViewModels
 
             if (RankingItemsFiltered.Count == 0)
             {
-                RankingItemsFiltered = new ObservableCollection<DestaquesItem>(await _obraService.FormatarDadosObrasEmDestaques().ConfigureAwait(false));
+                RankingItemsFiltered = new ObservableCollection<DestaquesItemDesktop>(await _obraService.FormatarDadosObrasEmDestaques().ConfigureAwait(false));
             }
 
-            RankingItems = new ObservableCollection<DestaquesItem>(RankingItemsFiltered.Where(x => x.Filter == filter));
+            RankingItems = new ObservableCollection<DestaquesItemDesktop>(RankingItemsFiltered.Where(x => x.Filter == filter).Take(10));
             NotifyOfPropertyChange(() => RankingItems);
         }
 
@@ -414,7 +409,7 @@ namespace Readit.WPF.ViewModels
             _ = ActiveView.OpenItemMain<ListagemObrasViewModel>(genre);
         }
 
-        private void NavigateToDetailsHighlight(DestaquesItem item)
+        private void NavigateToDetailsHighlight(DestaquesItemDesktop item)
         {
             _ = ActiveView.OpenItemMain<DetalhamentoObraViewModel>(item.Title);
         }

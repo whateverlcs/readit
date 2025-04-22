@@ -2,7 +2,7 @@
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
-using Readit.Infra.Helpers;
+using Readit.Infra.Desktop.Helpers;
 using Readit.Infra.Logging;
 using Readit.WPF.Infrastructure;
 using System.Collections.ObjectModel;

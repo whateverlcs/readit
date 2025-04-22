@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Readit.Core.Desktop.Services;
 using Readit.Core.Domain;
 using Readit.Core.Enums;
 using Readit.Core.Repositories;
@@ -345,14 +346,16 @@ namespace Readit.WPF.ViewModels
         private readonly IGeneroRepository _generoRepository;
         private readonly ILoggingService _logger;
         private readonly IImagemService _imagemService;
+        private readonly IImagemDesktopService _imagemDesktopService;
 
-        public CadastroObraViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IGeneroRepository generoRepository, ILoggingService logger, IImagemService imagemService)
+        public CadastroObraViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IGeneroRepository generoRepository, ILoggingService logger, IImagemService imagemService, IImagemDesktopService imagemDesktopService)
         {
             _usuarioService = usuarioService;
             _obraRepository = obraRepository;
             _generoRepository = generoRepository;
             _logger = logger;
             _imagemService = imagemService;
+            _imagemDesktopService = imagemDesktopService;
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
 
             Task.Run(() => PopularCamposAsync()).ConfigureAwait(false);
@@ -406,7 +409,7 @@ namespace Readit.WPF.ViewModels
                     StatusSelecionado = ListaStatus.Where(x => x.Id == dados.StatusNumber).First();
                     TipoSelecionado = ListaTipos.Where(x => x.Id == dados.TipoNumber).First();
                     DescricaoObra = dados.Descricao;
-                    ImagemSelecionada = _imagemService.ByteArrayToImage(dados.ImageByte);
+                    ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(dados.ImageByte);
                     CaminhoImagem = "Imagem Obra";
                     TxtUploadFotoObra = "Capa da obra";
                 }
@@ -441,7 +444,7 @@ namespace Readit.WPF.ViewModels
 
             PopularTipos();
             PopularStatus();
-            ImagemSelecionada = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
+            ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
             CaminhoImagem = "../Resources/Images/upload-image.png";
         }
 
@@ -542,7 +545,7 @@ namespace Readit.WPF.ViewModels
                 },
                 new Imagens
                 {
-                    Imagem = _imagemService.ConvertBitmapImageToByteArray(ImagemSelecionada),
+                    Imagem = _imagemDesktopService.ConvertBitmapImageToByteArray(ImagemSelecionada),
                     Formato = Path.GetExtension(CaminhoImagem),
                     Tipo = (byte)EnumObra.TipoImagem.Obra
                 },
@@ -597,7 +600,7 @@ namespace Readit.WPF.ViewModels
 
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    ImagemSelecionada = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(dialog.FileName));
+                    ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(dialog.FileName));
                     CaminhoImagem = dialog.FileName;
 
                     string nomeImagem = Path.GetFileName(dialog.FileName);
@@ -613,7 +616,7 @@ namespace Readit.WPF.ViewModels
         public void LimparDados(bool ajustarVariaveis)
         {
             CaminhoImagem = "../Resources/Images/upload-image.png";
-            ImagemSelecionada = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
+            ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
             TxtUploadFotoObra = "Realizar Upload da Foto da Obra";
             var listaAuxGeneros = ListaGeneros;
             listaAuxGeneros.ToList().ForEach(x => x.IsSelected = false);

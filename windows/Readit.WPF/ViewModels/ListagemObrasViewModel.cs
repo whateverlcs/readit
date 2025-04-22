@@ -1,9 +1,11 @@
 ﻿using Caliburn.Micro;
+using Readit.Core.Desktop.Domain;
+using Readit.Core.Desktop.Services;
 using Readit.Core.Domain;
 using Readit.Core.Enums;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
-using Readit.Infra.Helpers;
+using Readit.Infra.Desktop.Helpers;
 using Readit.WPF.Infrastructure;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -110,9 +112,9 @@ namespace Readit.WPF.ViewModels
 
         public ICommand PreviousPageCommand { get; set; }
 
-        public List<PostagensObras> ListaObras { get; set; }
+        public List<PostagensObrasDesktop> ListaObras { get; set; }
 
-        public BindableCollection<PostagensObras> PaginatedList { get; private set; } = new BindableCollection<PostagensObras>();
+        public BindableCollection<PostagensObrasDesktop> PaginatedList { get; private set; } = new BindableCollection<PostagensObrasDesktop>();
 
         public int CurrentPage
         {
@@ -182,9 +184,9 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        private List<PostagensObras> _listaObrasFiltrada;
+        private List<PostagensObrasDesktop> _listaObrasFiltrada;
 
-        public List<PostagensObras> ListaObrasFiltrada
+        public List<PostagensObrasDesktop> ListaObrasFiltrada
         {
             get => _listaObrasFiltrada;
             set
@@ -300,10 +302,10 @@ namespace Readit.WPF.ViewModels
         private readonly IObraRepository _obraRepository;
         private readonly IGeneroRepository _generoRepository;
         private readonly IArquivoService _arquivoService;
-        private readonly IObraService _obraService;
+        private readonly IObraDesktopService _obraService;
         private readonly string _nomeGenero;
 
-        public ListagemObrasViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IGeneroRepository generoRepository, IArquivoService arquivoService, IObraService obraService, string nomeGenero)
+        public ListagemObrasViewModel(IUsuarioService usuarioService, IObraRepository obraRepository, IGeneroRepository generoRepository, IArquivoService arquivoService, IObraDesktopService obraService, string nomeGenero)
         {
             _usuarioService = usuarioService;
             _obraRepository = obraRepository;
@@ -318,7 +320,7 @@ namespace Readit.WPF.ViewModels
 
             Task.Run(() => CarregarDadosListagemAsync());
 
-            NavigateToDetailsCommand = new RelayCommandHelper<PostagensObras>(NavigateToDetails);
+            NavigateToDetailsCommand = new RelayCommandHelper<PostagensObrasDesktop>(NavigateToDetails);
             NextPageCommand = new RelayCommandHelper<object>(_ => NextPage());
             PreviousPageCommand = new RelayCommandHelper<object>(_ => PreviousPage());
         }
@@ -346,7 +348,7 @@ namespace Readit.WPF.ViewModels
 
             var postagens = _obraService.FormatarDadosListagemObras(dadosObras);
 
-            ListaObras = ListaObrasFiltrada = new List<PostagensObras>(postagens);
+            ListaObras = ListaObrasFiltrada = new List<PostagensObrasDesktop>(postagens);
         }
 
         private void FiltrarCapitulos(string searchQuery, Generos generoSelecionado, Status statusSelecionado, Tipos tipoSelecionado, Ordenacao ordenacaoSelecionada)
@@ -386,7 +388,7 @@ namespace Readit.WPF.ViewModels
             UpdatePaginatedList();
         }
 
-        private void NavigateToDetails(PostagensObras item)
+        private void NavigateToDetails(PostagensObrasDesktop item)
         {
             _ = ActiveView.OpenItemMain<DetalhamentoObraViewModel>(item.TitleOriginal);
         }

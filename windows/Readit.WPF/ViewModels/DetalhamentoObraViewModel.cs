@@ -1,8 +1,11 @@
 ﻿using Caliburn.Micro;
+using Readit.Core.Desktop.Domain;
+using Readit.Core.Desktop.Services;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
-using Readit.Infra.Helpers;
+using Readit.Data.Desktop.Mappers;
+using Readit.Infra.Desktop.Helpers;
 using Readit.WPF.Infrastructure;
 using SharpCompress;
 using System.Collections.ObjectModel;
@@ -43,9 +46,9 @@ namespace Readit.WPF.ViewModels
 
         #region Detalhes da Obra
 
-        private DetalhesObra _dadosDetalhesObra;
+        private DetalhesObraDesktop _dadosDetalhesObra;
 
-        public DetalhesObra DadosDetalhesObra
+        public DetalhesObraDesktop DadosDetalhesObra
         {
             get { return _dadosDetalhesObra; }
             set
@@ -62,7 +65,7 @@ namespace Readit.WPF.ViewModels
 
         public ICommand ChapterClickedCommand { get; set; }
 
-        public ObservableCollection<StarRating> StarRatings { get; set; }
+        public ObservableCollection<StarRatingDesktop> StarRatings { get; set; }
 
         #endregion Detalhes da Obra
 
@@ -242,9 +245,9 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        private ObservableCollection<Comentarios> _comentarios;
+        private ObservableCollection<ComentariosDesktop> _comentarios;
 
-        public ObservableCollection<Comentarios> Comentarios
+        public ObservableCollection<ComentariosDesktop> Comentarios
         {
             get { return _comentarios; }
             set
@@ -353,12 +356,13 @@ namespace Readit.WPF.ViewModels
         private readonly IBookmarkRepository _bookmarkRepository;
         private readonly IComentarioRepository _comentarioRepository;
         private readonly IArquivoService _arquivoService;
-        private readonly IObraService _obraService;
-        private readonly IComentarioService _comentarioService;
+        private readonly IObraDesktopService _obraService;
+        private readonly IComentarioDesktopService _comentarioService;
         private readonly IImagemService _imagemService;
+        private readonly IImagemDesktopService _imagemDesktopService;
         private readonly IUtilService _utilService;
 
-        public DetalhamentoObraViewModel(IUsuarioService usuarioService, IAvaliacaoObraRepository avaliacaoObraRepository, IVisualizacaoObraRepository visualizacaoObraRepository, IBookmarkRepository bookmarkRepository, IComentarioRepository comentarioRepository, IArquivoService arquivoService, IObraService obraService, IComentarioService comentarioService, IImagemService imagemService, IUtilService utilService, string nomeObra)
+        public DetalhamentoObraViewModel(IUsuarioService usuarioService, IAvaliacaoObraRepository avaliacaoObraRepository, IVisualizacaoObraRepository visualizacaoObraRepository, IBookmarkRepository bookmarkRepository, IComentarioRepository comentarioRepository, IArquivoService arquivoService, IObraDesktopService obraService, IComentarioDesktopService comentarioService, IImagemService imagemService, IImagemDesktopService imagemDesktopService, IUtilService utilService, string nomeObra)
         {
             _usuarioService = usuarioService;
             _avaliacaoObraRepository = avaliacaoObraRepository;
@@ -369,6 +373,7 @@ namespace Readit.WPF.ViewModels
             _obraService = obraService;
             _comentarioService = comentarioService;
             _imagemService = imagemService;
+            _imagemDesktopService = imagemDesktopService;
             _utilService = utilService;
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
             _nomeObra = nomeObra;
@@ -394,21 +399,21 @@ namespace Readit.WPF.ViewModels
             FiltroRecentesCommand = new RelayCommandHelper<object>(FiltroRecentes);
             FiltroAntigosCommand = new RelayCommandHelper<object>(FiltroAntigos);
 
-            LikeCommand = new AsyncRelayCommand<Comentarios>(CurtirComentario);
-            DislikeCommand = new AsyncRelayCommand<Comentarios>(DislikarComentario);
+            LikeCommand = new AsyncRelayCommand<ComentariosDesktop>(CurtirComentario);
+            DislikeCommand = new AsyncRelayCommand<ComentariosDesktop>(DislikarComentario);
 
-            ExibirResponderComentarioCommand = new RelayCommandHelper<Comentarios>(ExibirCampoResponder);
-            ResponderComentarioCommand = new AsyncRelayCommand<Comentarios>(ResponderComentario);
+            ExibirResponderComentarioCommand = new RelayCommandHelper<ComentariosDesktop>(ExibirCampoResponder);
+            ResponderComentarioCommand = new AsyncRelayCommand<ComentariosDesktop>(ResponderComentario);
 
-            CancelarComentarioCommand = new RelayCommandHelper<Comentarios>(CancelarComentario);
+            CancelarComentarioCommand = new RelayCommandHelper<ComentariosDesktop>(CancelarComentario);
 
-            ExibirEditarComentarioCommand = new RelayCommandHelper<Comentarios>(ExibirCampoEditarComentario);
-            ExcluirComentarioCommand = new AsyncRelayCommand<Comentarios>(ExcluirComentario);
-            CancelarEdicaoCommand = new RelayCommandHelper<Comentarios>(CancelarEdicaoComentarioCommand);
-            EditarComentarioCommand = new AsyncRelayCommand<Comentarios>(EditarComentario);
+            ExibirEditarComentarioCommand = new RelayCommandHelper<ComentariosDesktop>(ExibirCampoEditarComentario);
+            ExcluirComentarioCommand = new AsyncRelayCommand<ComentariosDesktop>(ExcluirComentario);
+            CancelarEdicaoCommand = new RelayCommandHelper<ComentariosDesktop>(CancelarEdicaoComentarioCommand);
+            EditarComentarioCommand = new AsyncRelayCommand<ComentariosDesktop>(EditarComentario);
 
-            ExibirEditarRespostaCommand = new RelayCommandHelper<Comentarios>(ExibirCampoEditarResposta);
-            CancelarEdicaoRespostaCommand = new RelayCommandHelper<Comentarios>(CancelarEdicaoRespostaComentarioCommand);
+            ExibirEditarRespostaCommand = new RelayCommandHelper<ComentariosDesktop>(ExibirCampoEditarResposta);
+            CancelarEdicaoRespostaCommand = new RelayCommandHelper<ComentariosDesktop>(CancelarEdicaoRespostaComentarioCommand);
 
             #endregion Comentários
         }
@@ -440,10 +445,10 @@ namespace Readit.WPF.ViewModels
 
         public void InicializarEstrelas()
         {
-            StarRatings = new ObservableCollection<StarRating>();
+            StarRatings = new ObservableCollection<StarRatingDesktop>();
             for (int i = 0; i < 5; i++)
             {
-                StarRatings.Add(new StarRating { StarIndex = i, IsFilled = false });
+                StarRatings.Add(new StarRatingDesktop { StarIndex = i, IsFilled = false });
             }
         }
 
@@ -539,8 +544,8 @@ namespace Readit.WPF.ViewModels
 
         public async Task CarregarDadosComentariosObra()
         {
-            UsuarioImagem = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte);
-            Comentarios = new ObservableCollection<Comentarios>(await _comentarioService.FormatarDadosComentarios(DadosDetalhesObra.ObraId, null).ConfigureAwait(false));
+            UsuarioImagem = _imagemDesktopService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte);
+            Comentarios = new ObservableCollection<ComentariosDesktop>(await _comentarioService.FormatarDadosComentarios(DadosDetalhesObra.ObraId, null).ConfigureAwait(false));
             NotifyOfPropertyChange(() => Comentarios);
 
             ComentariosCount = Comentarios.Count + Comentarios.Sum(c => c.Respostas.Count);
@@ -554,7 +559,7 @@ namespace Readit.WPF.ViewModels
         {
             if (!string.IsNullOrEmpty(NovoComentario))
             {
-                var novoComentario = new Comentarios
+                var novoComentario = new ComentariosDesktop
                 {
                     UsuarioApelido = _usuarioService.UsuarioLogado.Apelido,
                     TempoDecorridoFormatado = "1 min(s) atrás",
@@ -565,11 +570,11 @@ namespace Readit.WPF.ViewModels
                     IdObra = DadosDetalhesObra.ObraId,
                     IdCapitulo = null,
                     IdUsuario = _usuarioService.UsuarioLogado.Id,
-                    ImagemPerfil = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
+                    ImagemPerfil = _imagemDesktopService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
                     IsUsuarioOuAdministrador = true
                 };
 
-                var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novoComentario).ConfigureAwait(false);
+                var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novoComentario.DesktopToDomain()).ConfigureAwait(false);
 
                 if (sucesso.Item1)
                 {
@@ -591,11 +596,11 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public async Task ResponderComentario(Comentarios comentario)
+        public async Task ResponderComentario(ComentariosDesktop comentario)
         {
             if (!string.IsNullOrEmpty(NovaResposta))
             {
-                var novaResposta = new Comentarios
+                var novaResposta = new ComentariosDesktop
                 {
                     UsuarioApelido = _usuarioService.UsuarioLogado.Apelido,
                     TempoDecorridoFormatado = "1 min(s) atrás",
@@ -607,11 +612,11 @@ namespace Readit.WPF.ViewModels
                     IdObra = DadosDetalhesObra.ObraId,
                     IdCapitulo = null,
                     IdUsuario = _usuarioService.UsuarioLogado.Id,
-                    ImagemPerfil = _imagemService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
+                    ImagemPerfil = _imagemDesktopService.ByteArrayToImage(_usuarioService.UsuarioLogado.ImageByte),
                     IsUsuarioOuAdministrador = true
                 };
 
-                var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novaResposta).ConfigureAwait(false);
+                var sucesso = await _comentarioRepository.CadastrarComentarioAsync(novaResposta.DesktopToDomain()).ConfigureAwait(false);
 
                 if (sucesso.Item1)
                 {
@@ -634,7 +639,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public async Task EditarComentario(Comentarios comentario)
+        public async Task EditarComentario(ComentariosDesktop comentario)
         {
             if (!string.IsNullOrEmpty(NovaEdicaoComentario) || !string.IsNullOrEmpty(NovaEdicaoResposta))
             {
@@ -642,7 +647,7 @@ namespace Readit.WPF.ViewModels
                 comentario.TempoUltimaAtualizacaoDecorrido = DateTime.Now;
                 comentario.TempoDecorridoFormatado = _utilService.FormatarData(comentario.TempoUltimaAtualizacaoDecorrido);
 
-                var sucesso = await _comentarioRepository.EditarComentarioAsync(comentario).ConfigureAwait(false);
+                var sucesso = await _comentarioRepository.EditarComentarioAsync(comentario.DesktopToDomain()).ConfigureAwait(false);
 
                 if (sucesso)
                 {
@@ -662,7 +667,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public async Task ExcluirComentario(Comentarios comentario)
+        public async Task ExcluirComentario(ComentariosDesktop comentario)
         {
             var sucesso = await _comentarioRepository.ExcluirComentarioAsync(comentario.Id).ConfigureAwait(false);
 
@@ -676,7 +681,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        public async Task RealizarExclusaoComentario(Comentarios comentario)
+        public async Task RealizarExclusaoComentario(ComentariosDesktop comentario)
         {
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
@@ -694,71 +699,71 @@ namespace Readit.WPF.ViewModels
             });
         }
 
-        public void CancelarComentario(Comentarios comentario)
+        public void CancelarComentario(ComentariosDesktop comentario)
         {
             comentario.IsRespostaVisivel = false;
             NovaResposta = string.Empty;
         }
 
-        public void CancelarEdicaoComentarioCommand(Comentarios comentario)
+        public void CancelarEdicaoComentarioCommand(ComentariosDesktop comentario)
         {
             comentario.IsEdicaoComentarioVisivel = false;
             NovaEdicaoComentario = string.Empty;
         }
 
-        public void CancelarEdicaoRespostaComentarioCommand(Comentarios comentario)
+        public void CancelarEdicaoRespostaComentarioCommand(ComentariosDesktop comentario)
         {
             comentario.IsEdicaoRespostaVisivel = false;
             NovaEdicaoResposta = string.Empty;
         }
 
-        public async Task CurtirComentario(Comentarios comentario)
+        public async Task CurtirComentario(ComentariosDesktop comentario)
         {
-            var podeRealizarLike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Like").ConfigureAwait(false);
-            var podeRealizarDislike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Dislike").ConfigureAwait(false);
+            var podeRealizarLike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario.DesktopToDomain(), "Like").ConfigureAwait(false);
+            var podeRealizarDislike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario.DesktopToDomain(), "Dislike").ConfigureAwait(false);
 
             if (podeRealizarLike)
             {
                 if (!podeRealizarDislike)
                 {
-                    await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Dislike", "Remover").ConfigureAwait(false);
+                    await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario.DesktopToDomain(), "Dislike", "Remover").ConfigureAwait(false);
                     comentario.ContadorDislikes--;
                 }
 
-                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Like", "Adicionar").ConfigureAwait(false);
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario.DesktopToDomain(), "Like", "Adicionar").ConfigureAwait(false);
                 comentario.ContadorLikes++;
             }
             else
             {
-                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Like", "Remover").ConfigureAwait(false);
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario.DesktopToDomain(), "Like", "Remover").ConfigureAwait(false);
                 comentario.ContadorLikes--;
             }
         }
 
-        public async Task DislikarComentario(Comentarios comentario)
+        public async Task DislikarComentario(ComentariosDesktop comentario)
         {
-            var podeRealizarDislike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Dislike").ConfigureAwait(false);
-            var podeRealizarLike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario, "Like").ConfigureAwait(false);
+            var podeRealizarDislike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario.DesktopToDomain(), "Dislike").ConfigureAwait(false);
+            var podeRealizarLike = await _comentarioRepository.ConsultarLikesDeslikesUsuarioAsync(comentario.DesktopToDomain(), "Like").ConfigureAwait(false);
 
             if (podeRealizarDislike)
             {
                 if (!podeRealizarLike)
                 {
-                    await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Like", "Remover").ConfigureAwait(false);
+                    await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario.DesktopToDomain(), "Like", "Remover").ConfigureAwait(false);
                     comentario.ContadorLikes--;
                 }
 
-                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Dislike", "Adicionar").ConfigureAwait(false);
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario.DesktopToDomain(), "Dislike", "Adicionar").ConfigureAwait(false);
                 comentario.ContadorDislikes++;
             }
             else
             {
-                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario, "Dislike", "Remover").ConfigureAwait(false);
+                await _comentarioRepository.CadastrarRemoverAvaliacaoComentarioAsync(comentario.DesktopToDomain(), "Dislike", "Remover").ConfigureAwait(false);
                 comentario.ContadorDislikes--;
             }
         }
 
-        public void ExibirCampoResponder(Comentarios comentario)
+        public void ExibirCampoResponder(ComentariosDesktop comentario)
         {
             comentario.MostrarResposta();
             Comentarios.ForEach(x =>
@@ -784,7 +789,7 @@ namespace Readit.WPF.ViewModels
             });
         }
 
-        public void ExibirCampoEditarComentario(Comentarios comentario)
+        public void ExibirCampoEditarComentario(ComentariosDesktop comentario)
         {
             NovaEdicaoComentario = comentario.ComentarioTexto;
             comentario.MostrarEdicao();
@@ -811,7 +816,7 @@ namespace Readit.WPF.ViewModels
             });
         }
 
-        public void ExibirCampoEditarResposta(Comentarios comentario)
+        public void ExibirCampoEditarResposta(ComentariosDesktop comentario)
         {
             NovaEdicaoResposta = comentario.ComentarioTexto;
             comentario.MostrarEdicaoResposta();

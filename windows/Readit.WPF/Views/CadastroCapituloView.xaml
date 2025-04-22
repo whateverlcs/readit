@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Readit.WPF.Views"
              xmlns:cal="http://www.caliburnproject.org"
-             xmlns:l="clr-namespace:Readit.Infra.Helpers;assembly=Readit.Infra"
+             xmlns:l="clr-namespace:Readit.Infra.Desktop.Helpers;assembly=Readit.Infra.Desktop"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              Background="#14171C"
              FontFamily="pack://application:,,,/Resources/Fonts/#Roboto"

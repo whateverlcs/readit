@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Readit.Core.Desktop.Services;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
 using Readit.Data.Context;
 using Readit.Data.Repositories;
 using Readit.Data.Services;
 using Readit.Infra.Configuration;
+using Readit.Infra.Desktop.Services;
 using Readit.Infra.Logging;
 using Readit.Infra.Services;
 using Readit.WPF.Infrastructure;
@@ -69,9 +71,11 @@ namespace Readit.WPF
             _container.Singleton<ICapituloService, CapituloService>();
             _container.Singleton<IEnumService, EnumService>();
             _container.Singleton<IImagemService, ImagemService>();
-            _container.Singleton<IObraService, ObraService>();
+            _container.Singleton<ICapituloDesktopService, CapituloDesktopService>();
             _container.Singleton<IUtilService, UtilService>();
-            _container.Singleton<IComentarioService, ComentarioService>();
+            _container.Singleton<IComentarioDesktopService, ComentarioDesktopService>();
+            _container.Singleton<IImagemDesktopService, ImagemDesktopService>();
+            _container.Singleton<IObraDesktopService, ObraDesktopService>();
 
             // Registro dos Repositórios
             _container.Singleton<IAvaliacaoObraRepository, AvaliacaoObraRepository>();

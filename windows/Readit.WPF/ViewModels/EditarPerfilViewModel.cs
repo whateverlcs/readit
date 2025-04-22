@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Readit.Core.Desktop.Services;
 using Readit.Core.Domain;
 using Readit.Core.Repositories;
 using Readit.Core.Services;
@@ -197,8 +198,9 @@ namespace Readit.WPF.ViewModels
         private readonly IPreferenciasRepository _preferenciasRepository;
         private readonly ILoggingService _logger;
         private readonly IImagemService _imagemService;
+        private readonly IImagemDesktopService _imagemDesktopService;
 
-        public EditarPerfilViewModel(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, IImagemRepository imagemRepository, IPreferenciasRepository preferenciasRepository, ILoggingService logger, IImagemService imagemService)
+        public EditarPerfilViewModel(IUsuarioService usuarioService, IUsuarioRepository usuarioRepository, IImagemRepository imagemRepository, IPreferenciasRepository preferenciasRepository, ILoggingService logger, IImagemService imagemService, IImagemDesktopService imagemDesktopService)
         {
             _usuarioService = usuarioService;
             _usuarioRepository = usuarioRepository;
@@ -206,6 +208,7 @@ namespace Readit.WPF.ViewModels
             _preferenciasRepository = preferenciasRepository;
             _logger = logger;
             _imagemService = imagemService;
+            _imagemDesktopService = imagemDesktopService;
             _exibirMenuAdministrador = _usuarioService.UsuarioLogado.Administrador;
 
             Task.Run(() => CarregarInformacoesPerfilAsync()).ConfigureAwait(false);
@@ -220,7 +223,7 @@ namespace Readit.WPF.ViewModels
             NomeUsuario = usuarioLogado.Nome;
             Apelido = usuarioLogado.Apelido;
             Email = usuarioLogado.Email;
-            ImagemPerfil = _imagemService.ByteArrayToImage(imagemUsuario.Imagem);
+            ImagemPerfil = _imagemDesktopService.ByteArrayToImage(imagemUsuario.Imagem);
 
             _usuarioService.UsuarioLogado = usuarioLogado;
             await PopularPreferenciasAsync().ConfigureAwait(false);
@@ -283,7 +286,7 @@ namespace Readit.WPF.ViewModels
                 !string.IsNullOrEmpty(CaminhoNovaImagem) ? new Imagens
                 {
                     Id = (int)_usuarioService.UsuarioLogado.IdImagem,
-                    Imagem = _imagemService.ConvertBitmapImageToByteArray(ImagemPerfil),
+                    Imagem = _imagemDesktopService.ConvertBitmapImageToByteArray(ImagemPerfil),
                     Formato = Path.GetExtension(CaminhoNovaImagem)
                 } : null,
                 ListaPreferencias.Where(x => x.IsSelected).ToList()).ConfigureAwait(false);
@@ -336,7 +339,7 @@ namespace Readit.WPF.ViewModels
 
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    ImagemPerfil = _imagemService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(dialog.FileName));
+                    ImagemPerfil = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(dialog.FileName));
                     CaminhoNovaImagem = dialog.FileName;
                 }
             }

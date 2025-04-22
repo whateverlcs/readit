@@ -62,9 +62,12 @@
     <Resource Include="Resources\Images\japan-flag.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <ProjectReference Include="..\Readit.Core\Readit.Core.csproj" />
-    <ProjectReference Include="..\Readit.Data\Readit.Data.csproj" />
-    <ProjectReference Include="..\Readit.Infra\Readit.Infra.csproj" />
+    <ProjectReference Include="..\Readit.Core.Desktop\Readit.Core.Desktop.csproj" />
+    <ProjectReference Include="..\..\core\Readit.Core\Readit.Core.csproj" />
+    <ProjectReference Include="..\Readit.Data.Desktop\Readit.Data.Desktop.csproj" />
+    <ProjectReference Include="..\..\core\Readit.Data\Readit.Data.csproj" />
+    <ProjectReference Include="..\Readit.Infra.Desktop\Readit.Infra.Desktop.csproj" />
+    <ProjectReference Include="..\..\core\Readit.Infra\Readit.Infra.csproj" />
     <Resource Include="Resources\Fonts\IrishGrover.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
