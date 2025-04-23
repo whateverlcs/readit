@@ -9,5 +9,7 @@
         string GetTempPath();
 
         string GetPathFilesUploaded();
+
+        string GetAPIKey();
     }
 }

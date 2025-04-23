@@ -13,6 +13,8 @@
 		<PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
 		<PackageReference Include="SharpCompress" Version="0.38.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.5.0" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 	</ItemGroup>
 
   <ItemGroup>

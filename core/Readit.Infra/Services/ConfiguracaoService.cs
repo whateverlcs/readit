@@ -31,5 +31,10 @@ namespace Readit.Infra.Services
         {
             return _configuration["Configuration:temp"];
         }
+
+        public string GetAPIKey()
+        {
+            return _configuration["Jwt:Key"];
+        }
     }
 }
