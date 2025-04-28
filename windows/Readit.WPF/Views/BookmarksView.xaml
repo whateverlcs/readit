@@ -85,7 +85,7 @@
                     </Grid.RowDefinitions>
                     <Grid Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="0" Grid.RowSpan="3" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}" Background="#14213D" Loaded="Grid_Loaded">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Image x:Name="GifImage" Source="..\Resources\Images\loading-gif.gif" Width="35" Height="35" Margin="0 0 10 5" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <Image x:Name="GifImage" Source="pack://siteoforigin:,,,/Images/loading-gif.gif" Width="35" Height="35" Margin="0 0 10 5" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             <TextBlock Text="{Binding AnimatedText}"
                                 FontSize="24"
                                 FontWeight="Bold"
@@ -140,7 +140,7 @@
                         <!-- Mensagem quando não houver itens -->
                         <StackPanel x:Name="EmptyStatePanel" Grid.Row="3" Grid.Column="1" Visibility="{Binding PaginatedList.Count, Converter={StaticResource IsEmptyVisibilityConverter}}"
                             HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Image Source="../Resources/Images/not-found-bookmark.png" Width="600" Height="500"/>
+                            <Image Source="pack://siteoforigin:,,,/Images/not-found-bookmark.png" Width="600" Height="500"/>
                             <TextBlock Text="Ainda não foi adicionado nenhum bookmark!"
                                Foreground="White" FontSize="30"
                                HorizontalAlignment="Center" Margin="10"/>

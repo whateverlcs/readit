@@ -120,7 +120,7 @@
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0" Grid.RowSpan="5" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}" Background="#14213D" Loaded="Grid_Loaded">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Image x:Name="GifImage" Source="..\Resources\Images\loading-gif.gif" Width="35" Height="35" Margin="0 0 10 5" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <Image x:Name="GifImage" Source="pack://siteoforigin:,,,/Images/loading-gif.gif" Width="35" Height="35" Margin="0 0 10 5" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             <TextBlock Text="{Binding AnimatedText}"
                             FontSize="24"
                             FontWeight="Bold"

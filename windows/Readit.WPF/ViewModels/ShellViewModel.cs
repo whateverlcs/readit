@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Readit.Core.Services;
+using System.IO;
 
 namespace Readit.WPF.ViewModels
 {
@@ -23,7 +24,7 @@ namespace Readit.WPF.ViewModels
 
             if (!await _databaseService.TestarConexaoDBAsync())
             {
-                await ActiveView.OpenItem<ErroViewModel>("../Resources/Images/alert.png", "Não foi possível realizar a conexão com o banco de dados.");
+                await ActiveView.OpenItem<ErroViewModel>(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "alert.png"), "Não foi possível realizar a conexão com o banco de dados.");
                 return;
             }
 

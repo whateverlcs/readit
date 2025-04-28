@@ -102,7 +102,7 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{Binding Loading, Converter={StaticResource VisibilityConverter}}" Background="#14213D" Loaded="Grid_Loaded">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Image x:Name="GifImage" Source="..\Resources\Images\loading-gif.gif" Width="35" Height="35" Margin="0 0 10 5" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Image x:Name="GifImage" Source="pack://siteoforigin:,,,/Images/loading-gif.gif" Width="35" Height="35" Margin="0 0 10 5" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <TextBlock Text="{Binding AnimatedText}"
                    FontSize="24"
                    FontWeight="Bold"
@@ -376,7 +376,7 @@
                     <!-- Mensagem quando não houver itens -->
                     <StackPanel x:Name="EmptyStatePanel" Grid.Row="4" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Comentarios.Count, Converter={StaticResource IsEmptyVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 100">
-                        <Image Source="../Resources/Images/not-found-comments.png" Width="600" Height="500"/>
+                        <Image Source="pack://siteoforigin:,,,/Images/not-found-comments.png" Width="600" Height="500"/>
                         <TextBlock Text="Ainda não foi adicionado nenhum comentário na obra!"
                         Foreground="White" FontSize="30"
                         HorizontalAlignment="Center" Margin="10"/>

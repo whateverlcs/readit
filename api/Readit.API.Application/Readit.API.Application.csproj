@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\Readit.Core\Readit.Core.csproj" />
+    <ProjectReference Include="..\..\core\Readit.Data\Readit.Data.csproj" />
+    <ProjectReference Include="..\..\core\Readit.Resources\Readit.Resources.csproj" />
+    <ProjectReference Include="..\Readit.API.Communication\Readit.API.Communication.csproj" />
+    <ProjectReference Include="..\Readit.API.Exception\Readit.API.Exception.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -16,13 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\core\Readit.Core\Readit.Core.csproj" />
     <ProjectReference Include="..\..\core\Readit.Data\Readit.Data.csproj" />
     <ProjectReference Include="..\..\core\Readit.Infra\Readit.Infra.csproj" />
+    <ProjectReference Include="..\Readit.API.Application\Readit.API.Application.csproj" />
+    <ProjectReference Include="..\Readit.API.Communication\Readit.API.Communication.csproj" />
   </ItemGroup>
 
 </Project>

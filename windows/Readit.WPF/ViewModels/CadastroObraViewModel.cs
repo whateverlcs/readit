@@ -218,7 +218,7 @@ namespace Readit.WPF.ViewModels
             }
         }
 
-        private string CaminhoImagem = "../Resources/Images/upload-image.png";
+        private string CaminhoImagem = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "upload-image.png");
 
         private ImageSource _imagemSelecionada;
 
@@ -444,8 +444,8 @@ namespace Readit.WPF.ViewModels
 
             PopularTipos();
             PopularStatus();
-            ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
-            CaminhoImagem = "../Resources/Images/upload-image.png";
+            ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "upload-image.png")));
+            CaminhoImagem = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "upload-image.png");
         }
 
         public async Task PopularObrasAsync()
@@ -575,7 +575,7 @@ namespace Readit.WPF.ViewModels
         {
             List<string> erros = [];
 
-            if (string.IsNullOrEmpty(CaminhoImagem) || CaminhoImagem.Equals("../Resources/Images/upload-image.png")) { erros.Add("A Imagem da capa da obra não foi selecionada."); }
+            if (string.IsNullOrEmpty(CaminhoImagem) || CaminhoImagem.Equals(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "upload-image.png"))) { erros.Add("A Imagem da capa da obra não foi selecionada."); }
             if (!string.IsNullOrEmpty(ObraDigitada) && ObraDigitada.Length > 255) { erros.Add("O Nome da Obra não pode ser maior do que 255 caracteres."); }
             if (string.IsNullOrEmpty(ObraDigitada)) { erros.Add("O Nome da Obra não foi digitado."); }
             if (ListaGeneros.All(x => !x.IsSelected)) { erros.Add("Os Gêneros da Obra não foram selecionados."); }
@@ -615,8 +615,8 @@ namespace Readit.WPF.ViewModels
 
         public void LimparDados(bool ajustarVariaveis)
         {
-            CaminhoImagem = "../Resources/Images/upload-image.png";
-            ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Resources/Images", "upload-image.png")));
+            CaminhoImagem = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "upload-image.png");
+            ImagemSelecionada = _imagemDesktopService.ByteArrayToImage(_imagemService.ConvertImageToByteArray(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "upload-image.png")));
             TxtUploadFotoObra = "Realizar Upload da Foto da Obra";
             var listaAuxGeneros = ListaGeneros;
             listaAuxGeneros.ToList().ForEach(x => x.IsSelected = false);

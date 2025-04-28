@@ -17,7 +17,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.Infra.Desktop", "win
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.Data.Desktop", "windows\Readit.Data.Desktop\Readit.Data.Desktop.csproj", "{358BF109-644A-49C3-9D80-579E34E9AE36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Readit.API", "api\Readit.API\Readit.API.csproj", "{FCCAFCA0-4ED2-4E3F-A71E-3413F1EE4563}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.API", "api\Readit.API\Readit.API.csproj", "{FCCAFCA0-4ED2-4E3F-A71E-3413F1EE4563}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.API.Communication", "api\Readit.API.Communication\Readit.API.Communication.csproj", "{BBC881CD-F3C1-42CD-B166-EB4DC04F9829}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.API.Application", "api\Readit.API.Application\Readit.API.Application.csproj", "{932345FD-3C6A-4B38-A78B-29ADAC852189}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Readit.Resources", "core\Readit.Resources\Readit.Resources.csproj", "{EBFE737B-E629-4FAB-804D-E843F0712698}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Readit.API.Exception", "api\Readit.API.Exception\Readit.API.Exception.csproj", "{DEDFA89B-27A8-4470-9ACF-3CCAD84B11BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +65,22 @@ Global
 		{FCCAFCA0-4ED2-4E3F-A71E-3413F1EE4563}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCCAFCA0-4ED2-4E3F-A71E-3413F1EE4563}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCCAFCA0-4ED2-4E3F-A71E-3413F1EE4563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBC881CD-F3C1-42CD-B166-EB4DC04F9829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBC881CD-F3C1-42CD-B166-EB4DC04F9829}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBC881CD-F3C1-42CD-B166-EB4DC04F9829}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBC881CD-F3C1-42CD-B166-EB4DC04F9829}.Release|Any CPU.Build.0 = Release|Any CPU
+		{932345FD-3C6A-4B38-A78B-29ADAC852189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{932345FD-3C6A-4B38-A78B-29ADAC852189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{932345FD-3C6A-4B38-A78B-29ADAC852189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{932345FD-3C6A-4B38-A78B-29ADAC852189}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBFE737B-E629-4FAB-804D-E843F0712698}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBFE737B-E629-4FAB-804D-E843F0712698}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBFE737B-E629-4FAB-804D-E843F0712698}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBFE737B-E629-4FAB-804D-E843F0712698}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEDFA89B-27A8-4470-9ACF-3CCAD84B11BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEDFA89B-27A8-4470-9ACF-3CCAD84B11BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEDFA89B-27A8-4470-9ACF-3CCAD84B11BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEDFA89B-27A8-4470-9ACF-3CCAD84B11BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

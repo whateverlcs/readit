@@ -31,14 +31,12 @@ namespace Readit.Infra.Services
 
         public string ObterFlagPorTipo(int tipo)
         {
-            string pathFullName = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-
             return tipo switch
             {
-                (int)EnumObra.TipoObra.Manhwa => Path.Combine(pathFullName, "Resources/Images", "korea-flag.png"),
-                (int)EnumObra.TipoObra.Donghua => Path.Combine(pathFullName, "Resources/Images", "china-flag.png"),
-                (int)EnumObra.TipoObra.Manga => Path.Combine(pathFullName, "Resources/Images", "japan-flag.png"),
-                _ => Path.Combine(pathFullName, "Resources/Images", "unknown-flag.png")
+                (int)EnumObra.TipoObra.Manhwa => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "korea-flag.png"),
+                (int)EnumObra.TipoObra.Donghua => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "china-flag.png"),
+                (int)EnumObra.TipoObra.Manga => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "japan-flag.png"),
+                _ => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "unknown-flag.png")
             };
         }
     }

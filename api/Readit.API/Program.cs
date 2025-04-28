@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Readit.API.Application.UseCases.AvaliacaoObra.Consultar;
+using Readit.API.Application.UseCases.AvaliacaoObra.Editar;
+using Readit.API.Application.UseCases.Login.FazerLogin;
+using Readit.API.Application.UseCases.Registro;
+using Readit.API.Filters;
 using Readit.Core.Repositories;
 using Readit.Core.Security.Cryptography;
 using Readit.Core.Security.Tokens.Access;
@@ -57,6 +61,12 @@ builder.Services.AddScoped<IPreferenciasRepository, PreferenciasRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IVisualizacaoObraRepository, VisualizacaoObraRepository>();
 
+//useCases
+builder.Services.AddScoped<RegistroUsuarioUseCase>();
+builder.Services.AddScoped<RealizarLoginUseCase>();
+builder.Services.AddScoped<ConsultarRatingUseCase>();
+builder.Services.AddScoped<EditarRatingUseCase>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -93,7 +103,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-//builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
+builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

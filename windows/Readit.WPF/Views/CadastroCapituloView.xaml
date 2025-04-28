@@ -97,7 +97,7 @@
                 <Grid Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2" Visibility="{Binding ExibirCapitulosEdicao, Converter={StaticResource VisibilityConverter}}" IsEnabled="{Binding HabilitarCampos, Mode=TwoWay}" AllowDrop="True" Drop="ItemsControl_Drop" PreviewDragOver="ItemsControl_PreviewDragOver" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent">
                     <StackPanel x:Name="EmptyStatePanel" Visibility="{Binding CapitulosObra.Count, Converter={StaticResource IsEmptyVisibilityConverter}}"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Image Source="../Resources/Images/not-found-chapter.png" Width="200" Height="200"/>
+                        <Image Source="pack://siteoforigin:,,,/Images/not-found-chapter.png" Width="200" Height="200"/>
                         <TextBlock Text="Ainda não foi adicionado nenhum capítulo na obra!"
                             Foreground="White" FontSize="20"
                             HorizontalAlignment="Center" Margin="10"/>
