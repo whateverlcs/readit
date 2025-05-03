@@ -11,13 +11,13 @@ namespace Readit.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class AvaliacaoObraController : ControllerBase
+    public class AvaliacaoController : ControllerBase
     {
         private readonly ConsultarRatingUseCase _consultaRatingUseCase;
         private readonly EditarRatingUseCase _editarRatingUseCase;
         private readonly IUsuarioService _usuarioService;
 
-        public AvaliacaoObraController(ConsultarRatingUseCase consultaRatingUseCase, EditarRatingUseCase editarRatingUseCase, IUsuarioService usuarioService)
+        public AvaliacaoController(ConsultarRatingUseCase consultaRatingUseCase, EditarRatingUseCase editarRatingUseCase, IUsuarioService usuarioService)
         {
             _consultaRatingUseCase = consultaRatingUseCase;
             _editarRatingUseCase = editarRatingUseCase;

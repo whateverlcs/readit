@@ -7,5 +7,7 @@ namespace Readit.Core.Repositories
         public Task<bool> CadastrarUsuarioAsync(Usuario usuario, Imagens imagem, List<Preferencias> listaPreferencias);
 
         public Task<List<Usuario>> BuscarUsuarioPorEmailAsync(string email);
+
+        public Task<List<Usuario>> BuscarUsuarioPorIdAsync(int idUsuario);
     }
 }

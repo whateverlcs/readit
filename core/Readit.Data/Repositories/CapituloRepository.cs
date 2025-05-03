@@ -128,6 +128,47 @@ namespace Readit.Data.Repositories
             }
         }
 
+        public async Task<List<CapitulosObra>> BuscarCapituloObraPorIdAsync(int idCapitulo)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                try
+                {
+                    ef.Models.CapitulosObra[] capitulosObrasDB;
+
+                    if (idCapitulo != 0)
+                    {
+                        capitulosObrasDB = await (from c in _context.CapitulosObras
+                                                  where c.CpoId == idCapitulo
+                                                  select c).ToArrayAsync(_usuarioService.Token);
+                    }
+                    else
+                    {
+                        capitulosObrasDB = await (from c in _context.CapitulosObras
+                                                  select c).ToArrayAsync(_usuarioService.Token);
+                    }
+
+                    List<CapitulosObra> listaCapitulosObras = new List<CapitulosObra>();
+
+                    foreach (var capObra in capitulosObrasDB.ToDomainList())
+                    {
+                        listaCapitulosObras.Add(capObra);
+                    }
+
+                    return listaCapitulosObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<CapitulosObra>();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "BuscarCapituloObraPorIdAsync(int idCapitulo)");
+                    return new List<CapitulosObra>();
+                }
+            }
+        }
+
         public async Task<bool> CadastrarRemoverCapitulosAsync(List<CapitulosObra> listaCapitulosObra, List<CapitulosObra> listaCapitulosObraRemover)
         {
             using (var _context = _contextFactory.CreateDbContext())

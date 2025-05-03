@@ -19,6 +19,22 @@ namespace Readit.Data.Mappers
             };
         }
 
+        public static List<Comentarios> ToDomainList(this ef.Comentario[] comentarios)
+        {
+            return comentarios
+                .Select(comentarioDB => new Comentarios
+                {
+                    Id = comentarioDB.CtsId,
+                    ComentarioTexto = comentarioDB.CtsComentario,
+                    TempoDecorrido = comentarioDB.CtsData,
+                    TempoUltimaAtualizacaoDecorrido = comentarioDB.CtsDataAtualizacao,
+                    IdObra = comentarioDB.ObsId,
+                    IdUsuario = comentarioDB.UsuId,
+                    IdCapitulo = comentarioDB.CpoId
+                })
+                .ToList();
+        }
+
         public static List<Comentarios> ToDomainListDynamic(this IEnumerable<dynamic> comentario)
         {
             return comentario

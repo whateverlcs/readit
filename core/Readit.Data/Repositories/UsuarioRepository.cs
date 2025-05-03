@@ -64,6 +64,48 @@ namespace Readit.Data.Repositories
             }
         }
 
+        public async Task<List<Usuario>> BuscarUsuarioPorIdAsync(int idUsuario)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                try
+                {
+                    var usuDB = await (from u in _context.Usuarios
+                                       join i in _context.Imagens on u.ImgId equals i.ImgId
+                                       where u.UsuId == idUsuario
+                                       select new
+                                       {
+                                           Id = u.UsuId,
+                                           Nome = u.UsuNome,
+                                           Apelido = u.UsuApelido,
+                                           Email = u.UsuEmail,
+                                           Senha = u.UsuSenha,
+                                           Administrador = u.UsuAdministrador,
+                                           IdImagem = u.ImgId,
+                                           Imagem = i.ImgImagem
+                                       }).ToArrayAsync(_usuarioService.Token);
+
+                    List<Usuario> listaUsuarios = new List<Usuario>();
+
+                    foreach (var usu in UsuarioMapper.ToDomainListDynamic(usuDB))
+                    {
+                        listaUsuarios.Add(usu);
+                    }
+
+                    return listaUsuarios;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Usuario>();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "BuscarUsuarioPorIdAsync(int idUsuario)");
+                    return new List<Usuario>();
+                }
+            }
+        }
+
         public async Task<bool> CadastrarUsuarioAsync(Usuario usuario, Imagens imagem, List<Preferencias> listaPreferencias)
         {
             using (var _context = _contextFactory.CreateDbContext())

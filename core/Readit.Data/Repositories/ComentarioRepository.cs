@@ -310,5 +310,46 @@ namespace Readit.Data.Repositories
                 }
             }
         }
+
+        public async Task<List<Comentarios>> BuscarComentariosPorIdAsync(int idComentario)
+        {
+            using (var _context = _contextFactory.CreateDbContext())
+            {
+                try
+                {
+                    ef.Models.Comentario[] comentarioDB;
+
+                    if (idComentario != 0)
+                    {
+                        comentarioDB = await (from c in _context.Comentarios
+                                                  where c.CtsId == idComentario
+                                                  select c).ToArrayAsync(_usuarioService.Token);
+                    }
+                    else
+                    {
+                        comentarioDB = await (from c in _context.Comentarios
+                                              select c).ToArrayAsync(_usuarioService.Token);
+                    }
+
+                    List<Comentarios> listaCapitulosObras = new List<Comentarios>();
+
+                    foreach (var capObra in comentarioDB.ToDomainList())
+                    {
+                        listaCapitulosObras.Add(capObra);
+                    }
+
+                    return listaCapitulosObras;
+                }
+                catch (TaskCanceledException)
+                {
+                    return new List<Comentarios>();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "BuscarComentariosPorIdAsync(int idComentario)");
+                    return new List<Comentarios>();
+                }
+            }
+        }
     }
 }

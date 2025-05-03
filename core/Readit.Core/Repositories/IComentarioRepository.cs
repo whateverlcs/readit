@@ -6,6 +6,8 @@ namespace Readit.Core.Repositories
     {
         public Task<List<Comentarios>> BuscarComentariosObraAsync(int idObra, int? capituloId);
 
+        public Task<List<Comentarios>> BuscarComentariosPorIdAsync(int idComentario);
+
         public Task<(bool, int)> CadastrarComentarioAsync(Comentarios comentario);
 
         public Task<bool> EditarComentarioAsync(Comentarios comentario);
