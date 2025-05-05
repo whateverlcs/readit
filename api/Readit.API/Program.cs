@@ -14,8 +14,13 @@ using Readit.API.Application.UseCases.Comentarios.Cadastrar;
 using Readit.API.Application.UseCases.Comentarios.Consultar;
 using Readit.API.Application.UseCases.Comentarios.Editar;
 using Readit.API.Application.UseCases.Comentarios.Excluir;
+using Readit.API.Application.UseCases.Genero.Consultar.PorNome;
+using Readit.API.Application.UseCases.Genero.Consultar.PorObra;
+using Readit.API.Application.UseCases.Genero.Gerenciar;
+using Readit.API.Application.UseCases.Imagem;
 using Readit.API.Application.UseCases.Login.FazerLogin;
 using Readit.API.Application.UseCases.Registro;
+using Readit.API.Application.UseCases.Visualizacao;
 using Readit.API.Filters;
 using Readit.Core.Repositories;
 using Readit.Core.Security.Cryptography;
@@ -86,6 +91,11 @@ builder.Services.AddScoped<CadastrarComentarioUseCase>();
 builder.Services.AddScoped<EditarComentarioUseCase>();
 builder.Services.AddScoped<ExcluirComentarioUseCase>();
 builder.Services.AddScoped<GerenciarAvaliacoesUseCase>();
+builder.Services.AddScoped<ConsultarGenerosPorNomeUseCase>();
+builder.Services.AddScoped<ConsultarGenerosPorObraUseCase>();
+builder.Services.AddScoped<GerenciarGenerosUseCase>();
+builder.Services.AddScoped<ConsultarImagensUseCase>();
+builder.Services.AddScoped<GerenciarVisualizacaoUseCase>();
 
 builder.Services.AddControllers();
 

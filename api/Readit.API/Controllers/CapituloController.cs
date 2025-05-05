@@ -1,9 +1,5 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Readit.API.Application.UseCases.AvaliacaoObra.Consultar;
-using Readit.API.Application.UseCases.Bookmark;
 using Readit.API.Application.UseCases.Capitulo.ConsultaCompleta;
 using Readit.API.Application.UseCases.Capitulo.ConsultaSimples;
 using Readit.API.Application.UseCases.Capitulo.Gerenciar;
@@ -31,7 +27,7 @@ namespace Readit.API.Controllers
             _gerenciarCapituloUseCase = gerenciarCapituloUseCase;
         }
 
-        [HttpPost("{obraId}/capitulos-completo")]
+        [HttpPost("{obraId}/completo")]
         [Authorize]
         [ProducesResponseType(typeof(ResponseConsultarCapitulosCompletosJson), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorMessagesJson), StatusCodes.Status400BadRequest)]
@@ -44,7 +40,7 @@ namespace Readit.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("{obraId}/capitulos-simples")]
+        [HttpPost("{obraId}/simples")]
         [Authorize]
         [ProducesResponseType(typeof(ResponseConsultarCapitulosSimplesJson), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorMessagesJson), StatusCodes.Status400BadRequest)]
@@ -57,7 +53,7 @@ namespace Readit.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("gerenciar-capitulos")]
+        [HttpPost("capitulos")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseErrorMessagesJson), StatusCodes.Status400BadRequest)]
