@@ -19,6 +19,9 @@ using Readit.API.Application.UseCases.Genero.Consultar.PorObra;
 using Readit.API.Application.UseCases.Genero.Gerenciar;
 using Readit.API.Application.UseCases.Imagem;
 using Readit.API.Application.UseCases.Login.FazerLogin;
+using Readit.API.Application.UseCases.PaginasCapitulo.Consultar;
+using Readit.API.Application.UseCases.Preferencia.Consultar.Todos;
+using Readit.API.Application.UseCases.Preferencia.Consultar.Usuario;
 using Readit.API.Application.UseCases.Registro;
 using Readit.API.Application.UseCases.Visualizacao;
 using Readit.API.Filters;
@@ -96,6 +99,9 @@ builder.Services.AddScoped<ConsultarGenerosPorObraUseCase>();
 builder.Services.AddScoped<GerenciarGenerosUseCase>();
 builder.Services.AddScoped<ConsultarImagensUseCase>();
 builder.Services.AddScoped<GerenciarVisualizacaoUseCase>();
+builder.Services.AddScoped<ConsultarPreferenciasUseCase>();
+builder.Services.AddScoped<ConsultarPreferenciasUsuarioUseCase>();
+builder.Services.AddScoped<ConsultarPaginasCapituloPorCapituloUseCase>();
 
 builder.Services.AddControllers();
 
