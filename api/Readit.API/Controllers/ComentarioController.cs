@@ -57,7 +57,7 @@ namespace Readit.API.Controllers
         [ProducesResponseType(typeof(ResponseErrorMessagesJson), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseErrorMessagesJson), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseErrorMessagesJson), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAvaliacoes(RequestConsultarAvaliacoesJson request)
+        public async Task<IActionResult> PostAvaliacoes(RequestConsultarAvaliacoesJson request)
         {
             _usuarioService.UsuarioLogado = new Core.Domain.Usuario { Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value) };
 
