@@ -16,9 +16,9 @@
   <img alt="GitHub Stars Repository" src="https://img.shields.io/github/stars/whateverlcs/readit?style=social">
 </p>
 
-🦸‍♂️ READIT é uma aplicação WPF com SQLServer construída para aprimorar e para demonstrar as habilidades existentes na linguagem.
+🦸‍♂️ READIT é uma projeto contando com WPF e uma Web API, ambos com SQLServer construídos para aprimorar e para demonstrar as habilidades existentes na linguagem.
 
-A aplicação permite a realização da leitura de Mangás/Manhwas/Donghuas, além do seu gerenciamento das obras de forma geral ou localizada no próprio usuário, além de o sistema possuir um sistema de autenticação no sistema.
+O projeto permite a realização da leitura de Mangás/Manhwas/Donghuas, além do seu gerenciamento das obras de forma geral ou localizada no próprio usuário, além de o sistema possuir um sistema de autenticação no sistema.
 
 ## 🗺 Banco de Dados - [Clique aqui para baixar o script de criação do banco](https://github.com/whateverlcs/readit/raw/master/assets/criacao_banco.sql)
 ![Banco de Dados](https://github.com/whateverlcs/readit/blob/master/assets/Banco%20de%20Dados.jpg)
@@ -58,6 +58,9 @@ A aplicação permite a realização da leitura de Mangás/Manhwas/Donghuas, al�
 - SQL Server
 - Entity Framework
 - Dapper
+- Jwt
+- Bcrypt
+- Fluent Validation
 ## 🎨 Front-end
 - WPF
 - Caliburn.Micro
@@ -75,10 +78,10 @@ git clone https://github.com/whateverlcs/readit
 
 # executar o script do banco de dados para realizar a criação do mesmo
 
-# entrar na pasta do projeto windows
-cd windows
+# entrar na pasta do projeto windows para executar a aplicação desktop ou entre na pasta do projeto api para executar a web api
+cd windows / cd api
 
-# executar o projeto Readit.WPF
+# executar o projeto Readit.WPF / Readit.API
 ```
 
 ## 🎨 Figma - [Clique aqui para acessar o figma do projeto](https://www.figma.com/design/ROf6QzhoroF6YcBcFOG8EE/read-it?node-id=0-1&t=TU079DhcU6dpTWfp-1)
